@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { Search, CheckCircle2, Phone, ArrowRight } from 'lucide-react'
+import { Search, CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles } from 'lucide-react'
 import Navbar    from '@/components/layout/Navbar'
 import Footer    from '@/components/layout/Footer'
 import ChatBot   from '@/components/layout/ChatBot'
@@ -38,11 +38,11 @@ const TESTIMONIALS = [
 ]
 
 const SERVICES = [
-  { label:'Navette',       desc:'Transfert 24h/24',   color:'#E07A2F', bg:'rgba(224,122,47,.12)', icon:'🚗' },
-  { label:'Conciergerie',  desc:'Assistance perso.',  color:'#22C55E', bg:'rgba(34,197,94,.12)',  icon:'🎯' },
-  { label:'Chef cuisinier',desc:'Cuisine domicile',   color:'#0EA5E9', bg:'rgba(14,165,233,.12)', icon:'🍽' },
-  { label:'Sécurité 24h',  desc:'Gardiennage',        color:'#E07A2F', bg:'rgba(224,122,47,.12)', icon:'🛡' },
-  { label:'Ménage',        desc:'Linge inclus',       color:'#22C55E', bg:'rgba(34,197,94,.12)',  icon:'✨' },
+  { label:'Navette aéroport', desc:'Transfert privé 24h/24', color:'#E07A2F', bg:'#FEF0E6', Icon: Car         },
+  { label:'Conciergerie',     desc:'Assistance personnalisée',color:'#16A34A', bg:'#DCFCE7', Icon: ConciergeBell},
+  { label:'Chef cuisinier',   desc:'Cuisine à domicile',     color:'#0369A1', bg:'#DBEAFE', Icon: ChefHat      },
+  { label:'Sécurité 24h',     desc:'Gardiennage & surveillance',color:'#7C3AED',bg:'#F3E8FF', Icon: ShieldCheck  },
+  { label:'Ménage & linge',   desc:'Nettoyage quotidien',    color:'#0EA5E9', bg:'#E0F2FE', Icon: Sparkles     },
 ]
 
 export default function HomePage() {
@@ -183,6 +183,7 @@ export default function HomePage() {
 
       {/* ── HUMAN SECTION ─────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2" style={{ minHeight: '480px' }}>
+        {/* Image côté gauche */}
         <div className="relative overflow-hidden" style={{ minHeight: '380px' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -190,16 +191,20 @@ export default function HomePage() {
             alt="Personne cherchant un appartement"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-y-0 right-0 w-20" style={{ background: '#1A0E06' }} />
+          {/* Fondu droit vers la section crème */}
+          <div className="absolute inset-y-0 right-0 w-24"
+            style={{ background: 'linear-gradient(to right, transparent, #FBF8F4)' }} />
         </div>
-        <div className="flex flex-col justify-center px-14 py-16" style={{ background: '#1A0E06' }}>
-          <div className="text-[11px] font-bold tracking-[2px] uppercase mb-3" style={{ color: '#F09A55' }}>
+
+        {/* Contenu — fond crème clair, texte dark */}
+        <div className="flex flex-col justify-center px-14 py-16" style={{ background: '#FBF8F4' }}>
+          <div className="text-[11px] font-bold tracking-[2px] uppercase mb-3 text-[#7A6550]">
             Recherche simplifiée
           </div>
-          <h2 className="font-black text-white mb-4" style={{ fontSize: 'clamp(26px,3vw,36px)', fontFamily: 'var(--font-heading)' }}>
+          <h2 className="font-black text-[#1A0E06] mb-4" style={{ fontSize: 'clamp(26px,3vw,36px)', fontFamily: 'var(--font-heading)' }}>
             Trouvez votre résidence idéale
           </h2>
-          <p className="mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,.6)', fontSize: '15px' }}>
+          <p className="mb-8 leading-relaxed text-[#7A6550]" style={{ fontSize: '15px' }}>
             Notre équipe vous accompagne à chaque étape — sélection, réservation, check-in et services.
           </p>
           <ul className="space-y-3 mb-9">
@@ -209,7 +214,7 @@ export default function HomePage() {
               'Confirmation WhatsApp sous 30 minutes',
               'Services premium sur mesure disponibles',
             ].map(item => (
-              <li key={item} className="flex items-center gap-3 text-[14px]" style={{ color: 'rgba(255,255,255,.85)' }}>
+              <li key={item} className="flex items-center gap-3 text-[14px] text-[#1C110A]">
                 <CheckCircle2 size={18} style={{ color: '#16A34A', flexShrink: 0 }} />
                 {item}
               </li>
@@ -267,36 +272,59 @@ export default function HomePage() {
       </section>
 
       {/* ── SERVICES ──────────────────────────────────── */}
-      <section className="py-16" id="services" style={{ background: '#1A0E06' }}>
+      <section className="py-20" id="services" style={{ background: '#F3EFE9' }}>
         <div className="max-w-[1240px] mx-auto px-10">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2" style={{ color: '#F09A55' }}>Services premium</div>
-              <h2 className="font-black text-white" style={{ fontSize: '30px', fontFamily: 'var(--font-heading)' }}>Une expérience complète</h2>
+              <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">
+                Services premium
+              </div>
+              <h2 className="font-black text-[#1A0E06]" style={{ fontSize: '30px', fontFamily: 'var(--font-heading)' }}>
+                Une expérience complète
+              </h2>
+              <div className="w-10 h-[3px] rounded-full mt-2" style={{ background: '#E07A2F' }} />
             </div>
-            <a href="#" className="text-[14px] font-bold transition-colors hover:text-[#E07A2F]"
-              style={{ color: 'rgba(255,255,255,.5)', fontFamily: 'var(--font-heading)', border: '1px solid rgba(255,255,255,.15)', padding: '8px 16px', borderRadius: '8px' }}>
-              Voir tout
+            <a
+              href="#"
+              className="text-[14px] font-bold transition-colors"
+              style={{ color: '#7A6550', fontFamily: 'var(--font-heading)', border: '1.5px solid #E5DDD4', padding: '8px 16px', borderRadius: '8px', background: '#fff' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#E07A2F'; e.currentTarget.style.color = '#E07A2F' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5DDD4'; e.currentTarget.style.color = '#7A6550' }}
+            >
+              Voir tous les services
             </a>
           </div>
+
+          {/* Cards services */}
           <div
             className="grid rounded-2xl overflow-hidden"
-            style={{ gridTemplateColumns: 'repeat(5,1fr)', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.06)' }}
+            style={{ gridTemplateColumns: 'repeat(5,1fr)', background: '#FFFFFF', border: '1px solid #E5DDD4', boxShadow: '0 2px 8px rgba(26,14,6,.06)' }}
           >
-            {SERVICES.map(s => (
+            {SERVICES.map((s, i) => (
               <div
                 key={s.label}
-                className="px-5 py-7 text-center transition-colors"
-                style={{ borderRight: '1px solid rgba(255,255,255,.06)' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#2C1A08')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                className="px-5 py-8 text-center transition-all cursor-default"
+                style={{
+                  borderRight: i < SERVICES.length - 1 ? '1px solid #E5DDD4' : 'none',
+                  background: '#fff',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#FBF8F4')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
               >
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mx-auto mb-3 text-xl"
-                  style={{ background: s.bg }}>
-                  {s.icon}
+                {/* Icône métier — SVG Lucide */}
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4"
+                  style={{ background: s.bg }}
+                >
+                  <s.Icon size={22} color={s.color} strokeWidth={1.75} />
                 </div>
-                <div className="font-bold text-[13px] text-white mb-1" style={{ fontFamily: 'var(--font-heading)' }}>{s.label}</div>
-                <div className="text-[12px]" style={{ color: 'rgba(255,255,255,.4)' }}>{s.desc}</div>
+                <div
+                  className="font-bold text-[13px] text-[#1A0E06] mb-1"
+                  style={{ fontFamily: 'var(--font-heading)' }}
+                >
+                  {s.label}
+                </div>
+                <div className="text-[12px] text-[#7A6550] leading-snug">{s.desc}</div>
               </div>
             ))}
           </div>
