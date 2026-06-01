@@ -100,7 +100,7 @@ export default function ApartmentCard({ apt, onReserve }: Props) {
         </h3>
 
         <div className="flex items-center gap-1.5 text-[13px] text-[#7A6550] mb-3">
-          <MapPin size={12} className="flex-shrink-0 text-[#E07A2F]" />
+          <MapPin size={12} className="flex-shrink-0 text-[#7A6550]" />
           <span className="truncate">{apt.quartier}, {apt.ville}</span>
         </div>
 

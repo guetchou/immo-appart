@@ -125,7 +125,7 @@ export default function HomePage() {
               <strong style={{ fontFamily: 'var(--font-heading)' }}>48</strong>&nbsp;résidences disponibles
             </div>
             <div className="w-px h-5 bg-[#E5DDD4]" />
-            <span className="text-[13px] text-[#7A6550]">Dès <strong style={{ color: '#E07A2F' }}>45 000 XAF</strong>/nuit</span>
+            <span className="text-[13px] text-[#7A6550]">Dès <strong style={{ color: '#1A0E06' }}>45 000 XAF</strong>/nuit</span>
             <div className="w-px h-5 bg-[#E5DDD4]" />
             <span className="text-[13px] text-[#7A6550]"><strong>★ 4.9</strong> / 5</span>
             <div className="w-px h-5 bg-[#E5DDD4]" />
@@ -254,7 +254,7 @@ export default function HomePage() {
                 <p className="text-[14px] leading-[1.75] italic mb-5" style={{ color: '#7A6550' }}>&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid #E5DDD4' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.img} alt={t.name} className="w-11 h-11 rounded-full object-cover" style={{ border: '2px solid #E07A2F' }} />
+                  <img src={t.img} alt={t.name} className="w-11 h-11 rounded-full object-cover" style={{ border: '2px solid #E5DDD4' }} />
                   <div>
                     <div className="font-bold text-[14px]">{t.name}</div>
                     <div className="text-[12px]" style={{ color: '#7A6550' }}>{t.meta}</div>

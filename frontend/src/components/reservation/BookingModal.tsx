@@ -148,7 +148,7 @@ export default function BookingModal({ apt, onClose }: Props) {
                   <div className="text-[12px] text-[#7A6550]">{apt.loc}</div>
                 </div>
                 <div className="ml-auto text-right flex-shrink-0">
-                  <div className="font-black text-[18px]" style={{ color: '#E07A2F', fontFamily: 'var(--font-heading)' }}>
+                  <div className="font-black text-[18px]" style={{ color: '#1A0E06', fontFamily: 'var(--font-heading)' }}>
                     {apt.price.toLocaleString('fr-FR')}
                   </div>
                   <div className="text-[11px] text-[#7A6550]">XAF / nuit</div>
@@ -329,7 +329,7 @@ export default function BookingModal({ apt, onClose }: Props) {
               <div className="rounded-xl overflow-hidden" style={{ background: '#FBF8F4', border: '1px solid #E5DDD4' }}>
                 <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#1A0E06' }}>
                   <span className="text-white font-bold text-[14px]">Récapitulatif</span>
-                  <span className="ml-auto font-mono text-[13px] font-bold" style={{ color: '#E07A2F' }}>
+                  <span className="ml-auto font-mono text-[13px] font-bold" style={{ color: '#F09A55' }}>
                     RES-{new Date().getFullYear()}-{String(Math.floor(Math.random() * 9000) + 1000)}
                   </span>
                 </div>
@@ -379,7 +379,7 @@ export default function BookingModal({ apt, onClose }: Props) {
                 Réservation envoyée !
               </h3>
               <p className="text-[#7A6550] mb-1">
-                Référence : <strong style={{ color: '#E07A2F', fontFamily: 'var(--font-heading)' }}>{ref}</strong>
+                Référence : <strong style={{ color: '#1A0E06', fontFamily: 'var(--font-heading)' }}>{ref}</strong>
               </p>
               <p className="text-[#7A6550] mb-6">Notre équipe vous contacte sous <strong>30 minutes</strong>.</p>
               <div className="flex justify-center gap-3 flex-wrap">
