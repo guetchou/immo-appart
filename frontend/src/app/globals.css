@@ -1,0 +1,142 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Google Fonts ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+@theme inline {
+  /* Fonts */
+  --font-sans:    "Plus Jakarta Sans", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    ui-monospace, "JetBrains Mono", monospace;
+
+  /* Brand colors */
+  --color-orange:     #E07A2F;
+  --color-orange-dk:  #B85E18;
+  --color-orange-lt:  #F09A55;
+  --color-green:      #16A34A;
+  --color-green-lt:   #22C55E;
+  --color-green-bg:   #F0FDF4;
+  --color-blue:       #0369A1;
+  --color-blue-lt:    #0EA5E9;
+  --color-blue-bg:    #EFF6FF;
+  --color-brand-dark: #1A0E06;
+  --color-brand-dark2:#2C1A08;
+  --color-cream:      #FBF8F4;
+
+  /* Shadcn token mapping */
+  --color-background:        var(--background);
+  --color-foreground:        var(--foreground);
+  --color-primary:           var(--primary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-secondary:         var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:             var(--muted);
+  --color-muted-foreground:  var(--muted-foreground);
+  --color-accent:            var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive:       var(--destructive);
+  --color-border:            var(--border);
+  --color-input:             var(--input);
+  --color-ring:              var(--ring);
+  --color-card:              var(--card);
+  --color-card-foreground:   var(--card-foreground);
+  --color-popover:           var(--popover);
+  --color-popover-foreground:var(--popover-foreground);
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* ── Design tokens ──────────────────────────────────── */
+:root {
+  /* Shadcn base — fond blanc pur */
+  --background:           #FFFFFF;
+  --foreground:           #1C110A;
+  --card:                 #FFFFFF;
+  --card-foreground:      #1C110A;
+  --popover:              #FFFFFF;
+  --popover-foreground:   #1C110A;
+  --primary:              #E07A2F;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #FBF8F4;
+  --secondary-foreground: #1C110A;
+  --muted:                #F3EFE9;
+  --muted-foreground:     #7A6550;
+  --accent:               #FEF0E6;
+  --accent-foreground:    #E07A2F;
+  --destructive:          #DC2626;
+  --border:               #E5DDD4;
+  --input:                #E5DDD4;
+  --ring:                 #E07A2F;
+  --radius:               0.75rem;
+}
+
+/* ── Base styles ────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--color-brand-dark);
+  }
+}
+
+/* ── Utility classes ─────────────────────────────────── */
+@layer utilities {
+  .font-heading { font-family: var(--font-heading); }
+
+  .text-orange    { color: var(--color-orange); }
+  .text-orange-dk { color: var(--color-orange-dk); }
+  .text-green     { color: var(--color-green); }
+  .text-blue      { color: var(--color-blue); }
+  .text-brand     { color: var(--color-brand-dark); }
+  .text-muted-brand { color: #7A6550; }
+
+  .bg-orange    { background-color: var(--color-orange); }
+  .bg-green-soft{ background-color: var(--color-green-bg); }
+  .bg-blue-soft { background-color: var(--color-blue-bg); }
+  .bg-orange-soft { background-color: #FEF0E6; }
+  .bg-cream     { background-color: var(--color-cream); }
+  .bg-brand-dark{ background-color: var(--color-brand-dark); }
+
+  /* Card hover lift */
+  .card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgba(26, 14, 6, 0.16);
+  }
+
+  /* Pulse animation for live indicator */
+  .animate-pulse-green {
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(1.3); }
+  }
+}

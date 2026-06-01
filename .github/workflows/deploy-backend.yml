@@ -1,0 +1,84 @@
+name: Deploy Backend (Strapi)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build & Deploy Strapi 5
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js ───────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # ── 3. Install ───────────────────────────────────────
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      # ── 4. Build TypeScript ──────────────────────────────
+      - name: Build Strapi
+        working-directory: backend
+        env:
+          NODE_ENV: production
+          DATABASE_CLIENT: postgres
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_NAME: test_db
+          DATABASE_USERNAME: postgres
+          DATABASE_PASSWORD: postgres
+          APP_KEYS: key1,key2,key3,key4
+          API_TOKEN_SALT: ${{ secrets.STRAPI_API_TOKEN_SALT }}
+          ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET }}
+          JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET }}
+          TRANSFER_TOKEN_SALT: ${{ secrets.STRAPI_TRANSFER_TOKEN_SALT }}
+        run: npm run build
+
+      # ── 5. Deploy via SSH ────────────────────────────────
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          port:     22
+          script: |
+            set -e
+            echo "→ Pull latest code"
+            cd /opt/immo-appart
+            git pull origin main
+
+            echo "→ Install production dependencies"
+            cd /opt/immo-appart/backend
+            npm ci --omit=dev
+
+            echo "→ Copy JSON schemas to dist/"
+            node scripts/copy-schemas.js
+
+            echo "→ Build Strapi"
+            NODE_ENV=production npx strapi build --no-watch-admin
+
+            echo "→ Restart PM2"
+            pm2 restart ndombi-backend || pm2 start ecosystem.config.js --env production
+            pm2 save
+
+            echo "✅ Backend déployé"

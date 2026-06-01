@@ -1,0 +1,35 @@
+{
+  "name": "ndombi-backend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Résidence NDOMBI — Backend Strapi 5",
+  "scripts": {
+    "copy-schemas": "node scripts/copy-schemas.js",
+    "prebuild": "node scripts/copy-schemas.js",
+    "prestart": "node scripts/copy-schemas.js",
+    "develop": "node scripts/develop.js",
+    "start": "strapi start",
+    "build": "strapi build",
+    "deploy": "strapi deploy"
+  },
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.47.0",
+    "@strapi/plugin-users-permissions": "5.47.0",
+    "@strapi/strapi": "5.47.0",
+    "pg": "^8.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.4",
+    "styled-components": "^6.1.13"
+  },
+  "devDependencies": {
+    "@strapi/typescript-utils": "5.47.0",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.28.0",
+    "typescript": "5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "services_premium",
+  "info": {
+    "singularName": "service-premium",
+    "pluralName": "services-premium",
+    "displayName": "Service Premium",
+    "description": "Services haut de gamme proposés en option (navette, conciergerie, chef...)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+
+    "nom": {
+      "type": "string",
+      "required": true
+    },
+
+    "slug": {
+      "type": "uid",
+      "targetField": "nom"
+    },
+
+    "description": {
+      "type": "text",
+      "required": true
+    },
+
+    "icone": {
+      "type": "string",
+      "description": "Nom icône Lucide React"
+    },
+
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+
+    "prix": {
+      "type": "decimal",
+      "min": 0,
+      "description": "Prix du service (0 = inclus)"
+    },
+
+    "categorie": {
+      "type": "enumeration",
+      "enum": [
+        "transport",
+        "concierge",
+        "restauration",
+        "bien_etre",
+        "securite",
+        "menage",
+        "autre"
+      ],
+      "required": true
+    },
+
+    "disponible": {
+      "type": "boolean",
+      "default": true
+    },
+
+    "appartements": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::appartement.appartement",
+      "inversedBy": "services_premium"
+    }
+
+  }
+}

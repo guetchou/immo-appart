@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Résidence NDOMBI — Appartements de Luxe</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --orange:#E07A2F; --orange-dk:#B85E18; --orange-lt:#F09A55;
+      --green:#16A34A;  --green-lt:#22C55E;  --green-bg:#F0FDF4;
+      --blue:#0369A1;   --blue-lt:#0EA5E9;   --blue-bg:#EFF6FF;
+      --dark:#1A0E06;   --dark2:#2C1A08;
+      --cream:#FBF8F4;  --grey:#F3EFE9;      --border:#E5DDD4;
+      --text:#1C110A;   --muted:#7A6550;
+      --white:#FFFFFF;
+      --r:12px; --r-lg:20px;
+      --sh-sm:0 2px 8px rgba(26,14,6,.07);
+      --sh-md:0 8px 32px rgba(26,14,6,.11);
+      --sh-lg:0 24px 60px rgba(26,14,6,.16);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Plus Jakarta Sans','Avenir Next',sans-serif;background:var(--white);color:var(--text);font-size:15px;line-height:1.65}
+    h1,h2,h3,h4,h5{font-family:'Montserrat',sans-serif;font-weight:700;line-height:1.15;color:var(--dark)}
+    img{display:block;max-width:100%}
+    a{text-decoration:none;color:inherit}
+    button{cursor:pointer;font-family:inherit}
+
+    /* ── TOKENS ── */
+    .btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;transition:all .2s;padding:12px 22px}
+    .btn-primary{background:var(--orange);color:#fff}
+    .btn-primary:hover{background:var(--orange-dk);box-shadow:0 6px 20px rgba(224,122,47,.28);transform:translateY(-1px)}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:#15803D;box-shadow:0 6px 18px rgba(22,163,74,.25);transform:translateY(-1px)}
+    .btn-blue{background:var(--blue);color:#fff}
+    .btn-blue:hover{background:#025585;transform:translateY(-1px)}
+    .btn-ghost{background:transparent;color:var(--dark);border:1.5px solid var(--border)}
+    .btn-ghost:hover{border-color:var(--orange);color:var(--orange)}
+    .btn-sm{padding:8px 16px;font-size:13px}
+    .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px}
+    .tag-orange{background:#FEF0E6;color:var(--orange)}
+    .tag-green{background:#DCFCE7;color:var(--green)}
+    .tag-blue{background:#DBEAFE;color:var(--blue)}
+    .tag-dark{background:var(--dark);color:#fff}
+    .divider{width:40px;height:3px;background:var(--orange);border-radius:2px;margin:12px 0 0}
+
+    /* ── MODAL RÉSERVATION ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(26,14,6,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex;animation:fadeIn .2s ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal{background:var(--white);border-radius:var(--r-lg);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(26,14,6,.25);animation:slideUp .25s ease}
+    @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+    /* modal header */
+    .modal-header{padding:22px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:10}
+    .modal-title{font-size:17px;font-weight:800}
+    .modal-close{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s}
+    .modal-close:hover{border-color:var(--dark);color:var(--dark)}
+
+    /* steps indicator */
+    .steps-bar{padding:20px 28px;display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border)}
+    .step-item{display:flex;align-items:center;gap:0;flex:1}
+    .step-item:last-child{flex:0}
+    .step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--muted);background:var(--white);flex-shrink:0;transition:all .3s}
+    .step-circle.active{border-color:var(--orange);color:var(--orange)}
+    .step-circle.done{border-color:var(--green);background:var(--green);color:#fff}
+    .step-label{font-size:11px;font-weight:600;color:var(--muted);margin-top:4px;white-space:nowrap}
+    .step-label.active{color:var(--orange)}
+    .step-label.done{color:var(--green)}
+    .step-info{display:flex;flex-direction:column;align-items:center;gap:2px}
+    .step-line{flex:1;height:2px;background:var(--border);margin:0 8px;margin-bottom:14px;transition:background .3s}
+    .step-line.done{background:var(--green)}
+
+    /* modal body */
+    .modal-body{padding:24px 28px}
+    .modal-step{display:none}
+    .modal-step.active{display:block}
+
+    /* apt summary pill */
+    .apt-summary{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:24px}
+    .apt-summary-img{width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0}
+    .apt-summary-name{font-weight:700;font-size:15px;margin-bottom:2px}
+    .apt-summary-loc{font-size:12px;color:var(--muted)}
+    .apt-summary-price{margin-left:auto;font-family:'Montserrat',sans-serif;font-size:17px;font-weight:900;color:var(--orange);white-space:nowrap}
+
+    /* form fields */
+    .field-group{margin-bottom:18px}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .field-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+    .field-label .req{color:#DC2626;margin-left:2px}
+    .field-input{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:11px 14px;font-size:14px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:border-color .2s}
+    .field-input:focus{border-color:var(--orange)}
+    .field-input.green:focus{border-color:var(--green)}
+    .field-hint{font-size:12px;color:var(--muted);margin-top:4px}
+
+    /* nights badge */
+    .nights-badge{display:inline-flex;align-items:center;gap:6px;background:#FEF0E6;color:var(--orange);border:1px solid #FDDCBC;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;margin-top:10px}
+
+    /* radio type client */
+    .radio-group{display:flex;gap:10px}
+    .radio-card{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative}
+    .radio-card:hover{border-color:var(--orange)}
+    .radio-card input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+    .radio-card.selected{border-color:var(--orange);background:#FEF0E6}
+    .radio-card-label{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+    .radio-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center}
+    .radio-card.selected .radio-dot{border-color:var(--orange)}
+    .radio-card.selected .radio-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--orange)}
+
+    /* payment radio cards */
+    .pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+    .pay-card{border:1.5px solid var(--border);border-radius:10px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .2s;position:relative}
+    .pay-card:hover{border-color:var(--blue)}
+    .pay-card input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+    .pay-card.selected{border-color:var(--blue);background:#DBEAFE}
+    .pay-icon{width:36px;height:36px;border-radius:10px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .pay-name{font-size:12px;font-weight:700;color:var(--text)}
+
+    /* recap */
+    .recap-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+    .recap-header{background:var(--dark);padding:12px 18px;display:flex;align-items:center;gap:10px}
+    .recap-title{color:#fff;font-weight:700;font-size:14px}
+    .recap-ref{color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700}
+    .recap-rows{padding:4px 0}
+    .recap-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:14px;border-bottom:1px solid var(--border)}
+    .recap-row:last-child{border:none}
+    .recap-row .lbl{color:var(--muted)}
+    .recap-row .val{font-weight:700}
+    .recap-total{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#FEF0E6;border-top:2px solid var(--orange)}
+    .recap-total .lbl{font-weight:700;font-size:15px;color:var(--dark)}
+    .recap-total .val{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:900;color:var(--orange)}
+
+    /* success */
+    .success-screen{text-align:center;padding:20px 0}
+    .success-icon{width:72px;height:72px;border-radius:50%;background:#DCFCE7;border:3px solid var(--green);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;animation:popIn .4s ease}
+    @keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+    .success-title{font-size:22px;font-weight:900;margin-bottom:8px;color:var(--dark)}
+    .success-sub{color:var(--muted);font-size:15px;line-height:1.7;margin-bottom:28px}
+    .notif-pills{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+    .notif-pill{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid}
+    .notif-pill.wa{background:#DCFCE7;border-color:#86EFAC;color:#15803D}
+    .notif-pill.email{background:#DBEAFE;border-color:#93C5FD;color:var(--blue)}
+    .notif-pill.sms{background:#FEF0E6;border-color:#FDDCBC;color:var(--orange)}
+
+    /* modal footer */
+    .modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;bottom:0;background:var(--white)}
+    .modal-progress{font-size:12px;color:var(--muted)}
+
+    /* ── NAVBAR ── */
+    .nav{position:fixed;inset:0 0 auto 0;z-index:100;height:68px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;gap:24px;transition:box-shadow .3s}
+    .nav.scrolled{box-shadow:var(--sh-md)}
+    .nav-brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+    .nav-mono{width:42px;height:42px;border-radius:50%;background:var(--dark);border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:15px;font-weight:bold;color:#fff;flex-shrink:0}
+    .nav-brand-text .name{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--dark)}
+    .nav-brand-text .sub{font-size:10px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange)}
+    .nav-links{display:flex;gap:24px;list-style:none;margin-left:auto}
+    .nav-links a{font-size:14px;font-weight:500;color:var(--muted);transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--orange)}
+
+    /* agent pill */
+    .nav-agent{display:flex;align-items:center;gap:10px;background:var(--cream);border:1px solid var(--border);border-radius:40px;padding:5px 14px 5px 5px;transition:border-color .2s,box-shadow .2s}
+    .nav-agent:hover{border-color:var(--orange);box-shadow:0 4px 14px rgba(224,122,47,.18)}
+    .nav-agent img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--orange)}
+    .nav-agent-info .lbl{font-size:10px;color:var(--muted);font-weight:500}
+    .nav-agent-info .phone{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--dark)}
+
+    /* auth */
+    .nav-auth{display:flex;align-items:center;gap:10px;position:relative}
+    #btn-login{display:flex}
+    #user-menu{display:none;align-items:center;gap:0;position:relative}
+    #user-menu.visible{display:flex}
+    .user-pill{display:flex;align-items:center;gap:9px;background:var(--cream);border:1.5px solid var(--orange);border-radius:40px;padding:5px 14px 5px 5px;cursor:pointer}
+    .user-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:#fff;overflow:hidden}
+    .user-avatar img{width:100%;height:100%;object-fit:cover}
+    .user-name{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--dark)}
+    .user-chevron{color:var(--muted);font-size:12px;transition:transform .2s}
+    .user-dropdown{position:absolute;top:calc(100% + 10px);right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-lg);min-width:200px;overflow:hidden;display:none;z-index:200}
+    .user-dropdown.open{display:block}
+    .dropdown-header{padding:14px 16px;border-bottom:1px solid var(--border)}
+    .dropdown-header .dh-name{font-weight:700;font-size:14px}
+    .dropdown-header .dh-email{font-size:12px;color:var(--muted)}
+    .dropdown-item{display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:14px;color:var(--text);transition:background .15s}
+    .dropdown-item:hover{background:var(--cream)}
+    .dropdown-item svg{color:var(--muted);flex-shrink:0}
+    .dropdown-item.danger{color:#DC2626}
+    .dropdown-item.danger svg{color:#DC2626}
+    .dropdown-divider{height:1px;background:var(--border)}
+
+    /* ── HERO IMMERSIF ── */
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+    .hero{position:relative;margin-top:68px;height:88vh;min-height:580px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .hero-bg{position:absolute;inset:0;z-index:0}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 40%}
+    .hero-overlay{position:absolute;inset:0;background:rgba(15,8,2,.52);z-index:1}
+    .hero-content{position:relative;z-index:2;text-align:center;padding:0 24px;width:100%;max-width:860px}
+    .hero-title{font-size:clamp(36px,5.5vw,68px);font-weight:900;letter-spacing:-2px;color:#fff;line-height:1.05;margin-bottom:14px}
+    .hero-title span{color:var(--orange-lt)}
+    .hero-sub{font-size:16px;color:rgba(255,255,255,.72);margin-bottom:32px;font-weight:400}
+
+    /* chips — filtre type appartement */
+    .chip{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Montserrat',sans-serif}
+    .chip:hover{border-color:var(--orange);color:var(--orange)}
+    .chip.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+    /* hero search */
+    .hero-search{background:var(--white);border-radius:14px;padding:6px 6px 6px 0;display:flex;align-items:center;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:760px;margin:0 auto;border:1px solid var(--border)}
+    .hs-field{flex:1;padding:11px 16px;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:var(--text);min-width:0}
+    .hs-field::placeholder{color:var(--muted)}
+    .hs-sep{width:1px;height:32px;background:var(--border);flex-shrink:0}
+    .hs-btn{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;transition:background .2s;flex-shrink:0;margin-left:6px}
+    .hs-btn:hover{background:var(--orange-dk)}
+
+    /* ── SECTION WRAPPER ── */
+    .section{max-width:1240px;margin:0 auto;padding:80px 40px}
+    .sec-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+    .sec-title{font-size:clamp(26px,3vw,36px);font-weight:900;margin-bottom:6px}
+    .sec-sub{color:var(--muted);font-size:15px;margin-bottom:0}
+
+    /* ── MAP ── */
+    .map-section{background:var(--grey);padding:80px 0}
+    #map{height:460px;border-radius:var(--r-lg);border:1px solid var(--border);overflow:hidden;box-shadow:var(--sh-md)}
+    .map-controls{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+    .map-dist-badge{display:inline-flex;align-items:center;gap:5px;background:#DBEAFE;color:var(--blue);border:1px solid #93C5FD;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+
+    /* ── CAROUSEL ── */
+    .carousel-section{padding:80px 0 80px}
+    .carousel-head{max-width:1240px;margin:0 auto;padding:0 40px;display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px}
+    .carousel-nav{display:flex;gap:10px}
+    .c-btn{width:44px;height:44px;border-radius:50%;background:var(--white);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .2s}
+    .c-btn:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+    .c-btn:disabled{opacity:.35;cursor:not-allowed}
+    .carousel-track-wrap{overflow:hidden;position:relative}
+    .carousel-track{display:flex;gap:24px;padding:8px 40px 20px;scroll-snap-type:x mandatory;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+    .carousel-track::-webkit-scrollbar{display:none}
+    .carousel-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
+    .c-dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:none;transition:all .25s;flex-shrink:0}
+    .c-dot.active{background:var(--orange);width:24px;border-radius:4px}
+
+    /* apt card */
+    .apt-card{flex:0 0 300px;scroll-snap-align:start;border-radius:var(--r-lg);overflow:hidden;background:var(--white);border:1px solid var(--border);box-shadow:var(--sh-sm);transition:transform .3s,box-shadow .3s;cursor:pointer}
+    .apt-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+    .apt-img{position:relative;height:210px;overflow:hidden}
+    .apt-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+    .apt-card:hover .apt-img img{transform:scale(1.07)}
+    .apt-badge{position:absolute;top:12px;left:12px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px}
+    .apt-fav{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);border:none;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .apt-fav:hover{background:#fff}
+    .apt-fav svg{transition:color .2s}
+    .apt-fav.active svg{color:#E07A2F;fill:#E07A2F}
+    .apt-body{padding:18px}
+    .apt-rating{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+    .apt-rating .stars{color:var(--orange);font-size:12px}
+    .apt-rating .cnt{font-size:12px;color:var(--muted)}
+    .apt-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px}
+    .apt-loc{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-bottom:12px}
+    .apt-feats{display:flex;gap:12px;margin-bottom:14px}
+    .apt-feat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+
+    .apt-feat svg{color:var(--blue);flex-shrink:0}
+    .apt-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:14px}
+    .apt-price{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:var(--dark)}
+    .apt-price-unit{font-size:12px;font-weight:400;color:var(--muted)}
+
+    /* ── HUMAN SECTION ── */
+    .human-grid{display:grid;grid-template-columns:1fr 1fr;min-height:520px}
+    .human-img{position:relative;overflow:hidden}
+    .human-img img{width:100%;height:100%;object-fit:cover}
+    .human-img-overlay{position:absolute;inset:0 0 0 auto;width:80px;background:var(--dark)}
+    .human-content{background:var(--dark);padding:72px 56px;display:flex;flex-direction:column;justify-content:center}
+    .human-content .sec-label{color:var(--orange-lt)}
+    .human-content h2{color:#fff;font-size:clamp(26px,3vw,38px);margin-bottom:16px}
+    .human-content p{color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:32px;font-size:15px}
+    .feat-list{list-style:none;margin-bottom:36px;display:flex;flex-direction:column;gap:12px}
+    .feat-list li{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.85);font-size:14px}
+    .feat-check{width:22px;height:22px;border-radius:50%;background:var(--green);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .feat-check svg{color:#fff}
+
+    /* ── TESTIMONIALS ── */
+    .testi-bg{background:var(--cream);padding:80px 0}
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+    .testi-card{background:var(--white);border-radius:var(--r-lg);padding:28px;border:1px solid var(--border);box-shadow:var(--sh-sm);transition:transform .25s,box-shadow .25s}
+    .testi-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md)}
+    .testi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .testi-stars{color:var(--orange);font-size:14px;letter-spacing:1px}
+    .testi-verified{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--green);font-weight:600}
+    .testi-text{font-size:14px;line-height:1.75;color:var(--muted);margin-bottom:20px;font-style:italic}
+    .testi-author{display:flex;align-items:center;gap:12px;border-top:1px solid var(--border);padding-top:16px}
+    .testi-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--orange)}
+    .testi-name{font-weight:700;font-size:14px}
+    .testi-meta{font-size:12px;color:var(--muted)}
+
+    /* ── SERVICES STRIP ── */
+    .services-strip{background:var(--dark);padding:56px 40px}
+    .services-inner{max-width:1240px;margin:0 auto}
+    .services-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-lg);overflow:hidden;margin-top:40px}
+    .svc-item{background:var(--dark2);padding:28px 20px;text-align:center;transition:background .2s}
+    .svc-item:hover{background:#3D2310}
+    .svc-icon{width:44px;height:44px;border-radius:12px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+    .svc-name{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
+    .svc-desc{font-size:12px;color:rgba(255,255,255,.45);line-height:1.5}
+
+    /* ── ARCHITECTURE ── */
+    .arch-bg{background:var(--grey);padding:80px 0}
+    .arch-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:40px;gap:0}
+    .arch-tab{padding:12px 24px;background:none;border:none;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+    .arch-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+    .arch-tab:hover:not(.active){color:var(--dark)}
+    .arch-panel{display:none}
+    .arch-panel.active{display:block}
+    .tree-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .tree-card{background:var(--white);border-radius:var(--r);padding:28px;border:1px solid var(--border);box-shadow:var(--sh-sm)}
+    .tree-card h3{font-size:15px;color:var(--orange);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+    .tree{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;color:var(--text)}
+    .tree .d{color:var(--orange);font-weight:700}
+    .tree .f{color:var(--muted)}
+    .tree .c{color:#A0927E;font-style:italic}
+    .i1{padding-left:16px}.i2{padding-left:32px}.i3{padding-left:48px}.i4{padding-left:64px}
+    .erd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+    .erd-table{background:var(--white);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);box-shadow:var(--sh-sm)}
+    .erd-head{background:var(--dark);padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+    .erd-head h4{color:#fff;font-size:14px}
+    .erd-body{padding:6px 0}
+    .erd-row{display:grid;grid-template-columns:140px 1fr auto;gap:8px;padding:6px 18px;font-size:12px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04)}
+    .erd-row:last-child{border:none}
+    .fn{font-family:'JetBrains Mono',monospace;color:var(--text)}
+    .fn.pk{color:var(--orange);font-weight:700}
+    .fn.fk{color:var(--blue)}
+    .ft{color:var(--muted)}
+    .fb{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+    .fb-r{background:rgba(220,38,38,.08);color:#DC2626}
+    .fb-o{background:rgba(22,163,74,.08);color:var(--green)}
+    .fb-rel{background:rgba(3,105,161,.08);color:var(--blue)}
+    .stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+    .stack-card{background:var(--white);border-radius:var(--r);padding:20px 16px;text-align:center;border:1px solid var(--border);box-shadow:var(--sh-sm);transition:border-color .2s,transform .2s,box-shadow .2s}
+    .stack-card:hover{border-color:var(--orange);transform:translateY(-3px);box-shadow:var(--sh-md)}
+    .stack-icon{width:48px;height:48px;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+    .stack-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px}
+    .stack-desc{font-size:12px;color:var(--muted)}
+    .flow-steps{display:flex;gap:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--white);box-shadow:var(--sh-sm)}
+    .flow-step{flex:1;padding:24px 16px;text-align:center;border-right:1px solid var(--border);position:relative}
+    .flow-step:last-child{border:none}
+    .flow-num{width:36px;height:36px;border-radius:50%;background:var(--orange);color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+    .flow-title{font-weight:700;font-size:13px;margin-bottom:6px}
+    .flow-desc{font-size:12px;color:var(--muted);line-height:1.5}
+    .info-box{background:rgba(224,122,47,.06);border-left:3px solid var(--orange);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin-top:24px;font-size:14px}
+
+    /* ── FOOTER ── */
+    footer{background:var(--dark);padding:64px 40px 32px}
+    .footer-inner{max-width:1240px;margin:0 auto}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+    .footer-mono{width:46px;height:46px;border-radius:50%;border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:16px;font-weight:bold;color:#fff}
+    .footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .footer-brand .fn{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:#fff}
+    .footer-brand .fs{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange)}
+    .footer-desc{color:rgba(255,255,255,.45);font-size:14px;line-height:1.8;margin-bottom:20px}
+    .footer-contact{display:flex;flex-direction:column;gap:10px}
+    .fc-item{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.65);font-size:13px}
+    .fc-item svg{color:var(--orange);flex-shrink:0}
+    .footer-col h5{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
+    .footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+    .footer-links a{font-size:14px;color:rgba(255,255,255,.5);transition:color .2s}
+    .footer-links a:hover{color:var(--orange)}
+    .footer-bottom{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.08);padding-top:28px}
+    .footer-copy{font-size:13px;color:rgba(255,255,255,.3)}
+    .socials{display:flex;gap:10px}
+    .social-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);transition:all .2s}
+    .social-btn:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+
+    /* ── CHATBOT ── */
+    .chatbot{position:fixed;bottom:28px;right:28px;z-index:1000}
+    .chatbot-win{display:none;position:absolute;bottom:72px;right:0;width:336px;background:var(--white);border-radius:20px;box-shadow:var(--sh-lg);overflow:hidden;border:1px solid var(--border)}
+    .chatbot-win.open{display:block;animation:slideUp .22s ease}
+    @keyframes slideUp{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+    .cw-head{background:var(--dark);padding:14px 18px;display:flex;align-items:center;gap:12px}
+    .cw-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--orange)}
+    .cw-name{color:#fff;font-weight:700;font-size:14px}
+    .cw-status{font-size:11px;color:var(--green-lt);display:flex;align-items:center;gap:4px}
+    .cw-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;line-height:1;transition:color .2s}
+    .cw-close:hover{color:#fff}
+    .cw-messages{padding:18px;min-height:160px;display:flex;flex-direction:column;gap:10px}
+    .cw-bubble{background:var(--cream);border-radius:14px 14px 14px 4px;padding:11px 14px;font-size:13px;line-height:1.55;max-width:90%;color:var(--text)}
+    .cw-time{font-size:10px;color:var(--muted);margin-top:4px}
+    .cw-bubble.user{background:var(--orange);color:#fff;border-radius:14px 14px 4px 14px;align-self:flex-end}
+    .cw-bubble.user .cw-time{color:rgba(255,255,255,.65)}
+    .cw-quick{display:flex;flex-wrap:wrap;gap:7px;padding:0 18px 14px}
+    .cw-qr{background:transparent;border:1px solid var(--orange);color:var(--orange);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;transition:all .2s;white-space:nowrap}
+    .cw-qr:hover{background:var(--orange);color:#fff}
+    .cw-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
+    .cw-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--text)}
+    .cw-input:focus{border-color:var(--orange)}
+    .cw-send{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:9px 13px;transition:background .2s}
+    .cw-send:hover{background:var(--orange-dk)}
+    .chatbot-trigger{width:58px;height:58px;border-radius:50%;background:var(--orange);box-shadow:0 8px 28px rgba(224,122,47,.45);border:none;color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;position:relative}
+    .chatbot-trigger:hover{transform:scale(1.08);box-shadow:0 12px 36px rgba(224,122,47,.55)}
+    .notif-dot{position:absolute;top:3px;right:3px;width:13px;height:13px;background:var(--green);border-radius:50%;border:2px solid var(--white)}
+
+    /* responsiveness */
+    @media(max-width:900px){
+      .nav-links{display:none}
+      .hero{grid-template-columns:1fr}
+      .hero-right{display:none}
+      .search-bar{flex-direction:column;border-radius:var(--r)}
+      .sb-divider{width:100%;height:1px}
+      .testi-grid{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr 1fr}
+      .services-grid{grid-template-columns:repeat(2,1fr)}
+      .tree-grid{grid-template-columns:1fr}
+      .human-grid{grid-template-columns:1fr}
+      .human-img{display:none}
+      .section{padding:60px 20px}
+      .nav{padding:0 20px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ╔══ NAVBAR ══════════════════════════════════════════╗ -->
+<nav class="nav" id="navbar">
+  <!-- Brand -->
+  <a href="#" class="nav-brand">
+    <div class="nav-mono">RN</div>
+    <div class="nav-brand-text">
+      <div class="name">Résidence NDOMBI</div>
+      <div class="sub">Confort · Luxe · Élégance</div>
+    </div>
+  </a>
+
+  <!-- Links -->
+  <ul class="nav-links">
+    <li><a href="#" class="active">Accueil</a></li>
+    <li><a href="#appartements">Appartements</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#temoignages">Avis</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+
+  <!-- Agent CTA -->
+  <a href="tel:+242064359090" class="nav-agent">
+    <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face" alt="Agent"/>
+    <div class="nav-agent-info">
+      <div class="lbl">Appelez notre agent</div>
+      <div class="phone">+242 06 435 90 90</div>
+    </div>
+  </a>
+
+  <!-- Auth -->
+  <div class="nav-auth">
+    <!-- État non connecté -->
+    <div id="btn-login" style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="showLogin()">Se connecter</button>
+    </div>
+
+    <!-- État connecté (masqué par défaut, toggle démo) -->
+    <div id="user-menu">
+      <div class="user-pill" onclick="toggleDropdown()" id="user-pill">
+        <div class="user-avatar">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" alt="Avatar"/>
+        </div>
+        <span class="user-name">Marc A.</span>
+        <svg class="user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="user-dropdown" id="dropdown">
+        <div class="dropdown-header">
+          <div class="dh-name">Marc Ardoin</div>
+          <div class="dh-email">marc.ardoin@email.com</div>
+        </div>
+        <a href="#" class="dropdown-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Mon profil
+        </a>
+        <a href="#" class="dropdown-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Mes réservations
+          <span class="tag tag-orange" style="margin-left:auto;font-size:10px">2</span>
+        </a>
+        <a href="#" class="dropdown-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Mes favoris
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item danger" onclick="logout(event)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Se déconnecter
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ╔══ HERO IMMERSIF ═══════════════════════════════════╗ -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=1000&fit=crop&crop=center" alt="Résidence de luxe à Pointe-Noire"/>
+  </div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <h1 class="hero-title">Réservez votre<br>résidence à <span>Pointe-Noire</span></h1>
+    <p class="hero-sub">Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min</p>
+
+    <div class="hero-search">
+      <svg style="margin-left:14px;color:var(--muted);flex-shrink:0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <input class="hs-field" type="text" placeholder="Où êtes-vous situé ?" id="hero-loc"/>
+      <div class="hs-sep"></div>
+      <input class="hs-field" type="date" id="hero-arr" style="max-width:130px" title="Arrivée"/>
+      <div class="hs-sep"></div>
+      <input class="hs-field" type="date" id="hero-dep" style="max-width:130px" title="Départ"/>
+      <div class="hs-sep"></div>
+      <select class="hs-field" id="hero-pers" style="max-width:120px">
+        <option>1 voyageur</option>
+        <option>2 voyageurs</option>
+        <option>3 voyageurs</option>
+        <option>4+ voyageurs</option>
+      </select>
+      <button class="hs-btn" onclick="document.getElementById('appartements').scrollIntoView({behavior:'smooth'})">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Rechercher
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── BARRE STATS + FILTRES (entre hero et catalogue) ── -->
+<div style="background:var(--white);border-bottom:1px solid var(--border);padding:14px 40px">
+  <div style="max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:13px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--green-lt);animation:pulse 2s infinite"></div>
+        <strong style="font-family:'Montserrat',sans-serif">48</strong>&nbsp;résidences disponibles
+      </div>
+      <div style="width:1px;height:18px;background:var(--border)"></div>
+      <span style="font-size:13px;color:var(--muted)">Dès <strong style="color:var(--orange)">45 000 XAF</strong>/nuit</span>
+      <div style="width:1px;height:18px;background:var(--border)"></div>
+      <span style="font-size:13px;color:var(--muted)"><strong style="color:var(--dark)">★ 4.9</strong> / 5</span>
+      <div style="width:1px;height:18px;background:var(--border)"></div>
+      <span style="font-size:13px;color:var(--muted)">Confirmation <strong style="color:var(--green)">WhatsApp &lt; 30 min</strong></span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="chip active" onclick="filterChip(this)">Tous</button>
+      <button class="chip" onclick="filterChip(this)">Studios</button>
+      <button class="chip" onclick="filterChip(this)">T2 / T3</button>
+      <button class="chip" onclick="filterChip(this)">Penthouse</button>
+      <button class="chip" onclick="filterChip(this)">Villas</button>
+      <button class="chip" onclick="filterChip(this)">Services</button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══ CAROUSEL ════════════════════════════════════════╗ -->
+<div class="carousel-section" id="appartements">
+  <div class="carousel-head">
+    <div>
+      <div class="sec-label">Notre sélection</div>
+      <h2 class="sec-title">Appartements disponibles</h2>
+      <div class="divider"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <a href="#" class="btn btn-ghost btn-sm">Voir tout
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <div class="carousel-nav">
+        <button class="c-btn" id="prev-btn" aria-label="Précédent">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="c-btn" id="next-btn" aria-label="Suivant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel-track-wrap">
+    <div class="carousel-track" id="carousel">
+
+      <!-- Card 1 -->
+      <div class="apt-card">
+        <div class="apt-img">
+          <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=300&fit=crop" alt="Studio Prestige"/>
+          <span class="apt-badge tag-orange">En vedette</span>
+          <button class="apt-fav" aria-label="Favori"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="apt-body">
+          <div class="apt-rating"><span class="stars">★★★★★</span><span class="cnt">(32 avis)</span></div>
+          <div class="apt-name">Studio Prestige</div>
+          <div class="apt-loc">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Foucks, Pointe-Noire
+          </div>
+          <div class="apt-feats">
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Studio</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>45 m²</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Min 2 nuits</div>
+          </div>
+          <div class="apt-footer">
+            <div><span class="apt-price">75 000</span><span class="apt-price-unit"> XAF/nuit</span></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('Studio Prestige','Foucks, Pointe-Noire',75000,'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=120&h=120&fit=crop')">Réserver</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="apt-card">
+        <div class="apt-img">
+          <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&h=300&fit=crop" alt="T2 Lingwala"/>
+          <span class="apt-badge tag-green" style="background:var(--green-bg);color:var(--green)">Nouveau</span>
+          <button class="apt-fav" aria-label="Favori"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="apt-body">
+          <div class="apt-rating"><span class="stars">★★★★★</span><span class="cnt">(18 avis)</span></div>
+          <div class="apt-name">T2 Élégance</div>
+          <div class="apt-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Loandjili, Pointe-Noire</div>
+          <div class="apt-feats">
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>2 chambres</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>80 m²</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Min 3 nuits</div>
+          </div>
+          <div class="apt-footer">
+            <div><span class="apt-price">120 000</span><span class="apt-price-unit"> XAF/nuit</span></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('T2 Élégance','Loandjili, Pointe-Noire',120000,'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=120&h=120&fit=crop')">Réserver</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="apt-card">
+        <div class="apt-img">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&h=300&fit=crop" alt="Penthouse"/>
+          <span class="apt-badge tag-dark">Premium</span>
+          <button class="apt-fav" aria-label="Favori"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="apt-body">
+          <div class="apt-rating"><span class="stars">★★★★★</span><span class="cnt">(51 avis)</span></div>
+          <div class="apt-name">Penthouse Vue Fleuve</div>
+          <div class="apt-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Centre-ville, Pointe-Noire</div>
+          <div class="apt-feats">
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>3 chambres</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>150 m²</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Min 5 nuits</div>
+          </div>
+          <div class="apt-footer">
+            <div><span class="apt-price">200 000</span><span class="apt-price-unit"> XAF/nuit</span></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('Penthouse Vue Fleuve','Centre-ville, Pointe-Noire',200000,'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=120&h=120&fit=crop')">Réserver</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="apt-card">
+        <div class="apt-img">
+          <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop" alt="T3 Barumbu"/>
+          <span class="apt-badge tag-blue" style="background:var(--blue-bg);color:var(--blue)">Disponible</span>
+          <button class="apt-fav" aria-label="Favori"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="apt-body">
+          <div class="apt-rating"><span class="stars">★★★★☆</span><span class="cnt">(27 avis)</span></div>
+          <div class="apt-name">Loft Moderne Tie-Tie</div>
+          <div class="apt-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Tie-Tie, Pointe-Noire</div>
+          <div class="apt-feats">
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Loft</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>65 m²</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Min 1 nuit</div>
+          </div>
+          <div class="apt-footer">
+            <div><span class="apt-price">95 000</span><span class="apt-price-unit"> XAF/nuit</span></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('Loft Moderne Tie-Tie','Tie-Tie, Pointe-Noire',95000,'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=120&h=120&fit=crop')">Réserver</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="apt-card">
+        <div class="apt-img">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop" alt="Villa"/>
+          <span class="apt-badge tag-orange">En vedette</span>
+          <button class="apt-fav" aria-label="Favori"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        </div>
+        <div class="apt-body">
+          <div class="apt-rating"><span class="stars">★★★★★</span><span class="cnt">(44 avis)</span></div>
+          <div class="apt-name">Villa Familiale Ngoyo</div>
+          <div class="apt-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ngoyo, Pointe-Noire</div>
+          <div class="apt-feats">
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>4 chambres</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>220 m²</div>
+            <div class="apt-feat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Min 7 nuits</div>
+          </div>
+          <div class="apt-footer">
+            <div><span class="apt-price">280 000</span><span class="apt-price-unit"> XAF/nuit</span></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('Villa Familiale Ngoyo','Ngoyo, Pointe-Noire',280000,'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=120&h=120&fit=crop')">Réserver</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /carousel-track -->
+  </div>
+
+  <!-- Dots -->
+  <div class="carousel-dots" id="dots">
+    <button class="c-dot active"></button>
+    <button class="c-dot"></button>
+    <button class="c-dot"></button>
+    <button class="c-dot"></button>
+    <button class="c-dot"></button>
+  </div>
+</div>
+
+<!-- ╔══ HUMAN / SEARCH SECTION ═════════════════════════╗ -->
+<div class="human-grid">
+  <div class="human-img">
+    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=540&fit=crop&crop=top" alt="Personne cherchant un appartement"/>
+    <div class="human-img-overlay"></div>
+  </div>
+  <div class="human-content">
+    <div class="sec-label">Recherche simplifiée</div>
+    <h2>Trouvez votre<br>résidence idéale</h2>
+    <p>Notre équipe vous accompagne à chaque étape — sélection, réservation, check-in et services. Confirmation WhatsApp en moins de 30 minutes.</p>
+    <ul class="feat-list">
+      <li>
+        <div class="feat-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        Disponibilité en temps réel sur le calendrier
+      </li>
+      <li>
+        <div class="feat-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        Paiement Airtel Money, MTN MoMo ou espèces
+      </li>
+      <li>
+        <div class="feat-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        Confirmation WhatsApp sous 30 minutes
+      </li>
+      <li>
+        <div class="feat-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        Services premium sur mesure disponibles
+      </li>
+    </ul>
+    <a href="tel:+242064359090" class="btn btn-primary" style="width:fit-content">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.09 4.18 2 2 0 0 1 5.08 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Parler à un agent
+    </a>
+  </div>
+</div>
+
+<!-- ╔══ TESTIMONIALS ════════════════════════════════════╗ -->
+<div class="testi-bg" id="temoignages">
+  <div class="section" style="padding-top:0;padding-bottom:0">
+    <div class="sec-label">Avis clients vérifiés</div>
+    <h2 class="sec-title">Ce que disent nos résidents</h2>
+    <div class="divider"></div>
+    <div class="testi-grid">
+
+      <div class="testi-card">
+        <div class="testi-top">
+          <span class="testi-stars">★★★★★</span>
+          <span class="testi-verified">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Vérifié
+          </span>
+        </div>
+        <p class="testi-text">"Appartement impeccable, exactement comme sur les photos. L'équipe NDOMBI a répondu sur WhatsApp en 10 minutes. Je reviendrai à chaque déplacement."</p>
+        <div class="testi-author">
+          <img class="testi-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" alt="Marc A."/>
+          <div>
+            <div class="testi-name">Marc A.</div>
+            <div class="testi-meta">Paris, France · Séjour professionnel</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-top">
+          <span class="testi-stars">★★★★★</span>
+          <span class="testi-verified">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Vérifié
+          </span>
+        </div>
+        <p class="testi-text">"Séjour de 3 semaines pour raisons professionnelles. Confort total, WiFi rapide, parking sécurisé. Le service de chef cuisinier était une belle surprise !"</p>
+        <div class="testi-author">
+          <img class="testi-avatar" src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&crop=face" alt="Sophie K."/>
+          <div>
+            <div class="testi-name">Sophie K.</div>
+            <div class="testi-meta">Bruxelles, Belgique · Séjour longue durée</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-top">
+          <span class="testi-stars">★★★★★</span>
+          <span class="testi-verified">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Vérifié
+          </span>
+        </div>
+        <p class="testi-text">"Cadre magnifique, vue sur le fleuve, personnel aux petits soins. Vacances en famille dans un confort absolu. Paiement par MTN MoMo très pratique !"</p>
+        <div class="testi-author">
+          <img class="testi-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="Jean-Pierre M."/>
+          <div>
+            <div class="testi-name">Jean-Pierre M.</div>
+            <div class="testi-meta">Pointe-Noire, Congo · Séjour famille</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══ SERVICES ════════════════════════════════════════╗ -->
+<div class="services-strip" id="services">
+  <div class="services-inner">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div>
+        <div class="sec-label" style="color:var(--orange-lt)">Services premium</div>
+        <h2 class="sec-title" style="color:#fff">Une expérience complète</h2>
+      </div>
+      <a href="#" class="btn btn-ghost" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)">Voir tous les services</a>
+    </div>
+    <div class="services-grid">
+      <div class="svc-item">
+        <div class="svc-icon" style="background:rgba(224,122,47,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="svc-name">Navette aéroport</div>
+        <div class="svc-desc">Transfert privé 24h/24</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-icon" style="background:rgba(22,163,74,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+        </div>
+        <div class="svc-name">Conciergerie</div>
+        <div class="svc-desc">Assistance personnalisée</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-icon" style="background:rgba(3,105,161,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="svc-name">Chef cuisinier</div>
+        <div class="svc-desc">Cuisine à domicile</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-icon" style="background:rgba(224,122,47,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="svc-name">Sécurité 24h</div>
+        <div class="svc-desc">Gardiennage & surveillance</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-icon" style="background:rgba(22,163,74,.15)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="svc-name">Ménage quotidien</div>
+        <div class="svc-desc">Linge et nettoyage inclus</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══ ARCHITECTURE TECHNIQUE ══════════════════════════╗ -->
+<div class="arch-bg" id="architecture">
+  <div class="section">
+    <div class="sec-label">Documentation technique</div>
+    <h2 class="sec-title">Architecture du projet</h2>
+    <div class="divider" style="margin-bottom:32px"></div>
+
+    <div class="arch-tabs">
+      <button class="arch-tab active" onclick="showTab('structure',this)">Structure</button>
+      <button class="arch-tab" onclick="showTab('schemas',this)">Schémas ERD</button>
+      <button class="arch-tab" onclick="showTab('stack',this)">Tech Stack</button>
+      <button class="arch-tab" onclick="showTab('flow',this)">Flux réservation</button>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="arch-panel active" id="tab-structure">
+      <div class="tree-grid">
+        <div class="tree-card">
+          <h3>Frontend — Next.js 15 App Router</h3>
+          <div class="tree">
+            <div class="d">frontend/</div>
+            <div class="i1 d">├── app/</div>
+            <div class="i2 f">│   ├── layout.tsx <span class="c">← Navbar, Footer, Chatbot</span></div>
+            <div class="i2 f">│   ├── page.tsx <span class="c">← Accueil</span></div>
+            <div class="i2 d">│   ├── appartements/</div>
+            <div class="i3 f">│   │   ├── page.tsx <span class="c">← Catalogue + filtres</span></div>
+            <div class="i3 f">│   │   └── [slug]/page.tsx</div>
+            <div class="i2 d">│   ├── reservation/[slug]/</div>
+            <div class="i3 f">│   │   └── page.tsx <span class="c">← Formulaire multi-étapes</span></div>
+            <div class="i2 d">│   └── api/</div>
+            <div class="i3 f">│       ├── disponibilite/route.ts</div>
+            <div class="i3 f">│       └── reservation/route.ts</div>
+            <div class="i1 d">├── components/</div>
+            <div class="i2 f">│   ├── ui/ <span class="c">← Shadcn/ui</span></div>
+            <div class="i2 f">│   ├── appartement/ <span class="c">← Cards, Gallery, Map</span></div>
+            <div class="i2 f">│   ├── reservation/ <span class="c">← Calendar, Form, Payment</span></div>
+            <div class="i2 f">│   └── layout/ <span class="c">← Navbar, Footer, Chatbot</span></div>
+            <div class="i1 d">├── lib/</div>
+            <div class="i2 f">│   ├── strapi.ts</div>
+            <div class="i2 f">│   ├── notifications.ts <span class="c">← WA, SMS, Email</span></div>
+            <div class="i2 f">│   └── utils.ts</div>
+            <div class="i1 f">└── next.config.ts</div>
+          </div>
+        </div>
+        <div class="tree-card">
+          <h3>Backend — Strapi 5 + PostgreSQL</h3>
+          <div class="tree">
+            <div class="d">backend/</div>
+            <div class="i1 d">├── src/api/</div>
+            <div class="i2 d">│   ├── appartement/</div>
+            <div class="i3 f">│   │   └── schema.json <span class="c">← 43 champs</span></div>
+            <div class="i2 d">│   ├── reservation/</div>
+            <div class="i3 f">│   │   └── schema.json</div>
+            <div class="i2 d">│   ├── avis/</div>
+            <div class="i3 f">│   │   └── schema.json</div>
+            <div class="i2 d">│   └── service-premium/</div>
+            <div class="i3 f">│       └── schema.json</div>
+            <div class="i1 d">├── src/components/</div>
+            <div class="i2 d">│   ├── appartement/</div>
+            <div class="i3 f">│   │   ├── equipement.json</div>
+            <div class="i3 f">│   │   └── tarif-saison.json</div>
+            <div class="i2 d">│   └── shared/</div>
+            <div class="i3 f">│       └── seo.json</div>
+            <div class="i1 f">├── .env <span class="c">← DB, JWT, API keys</span></div>
+            <div class="i1 f">└── package.json</div>
+          </div>
+          <div class="info-box">
+            <strong>Ports dev :</strong> Strapi :1337 · Next.js :3000
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEMAS -->
+    <div class="arch-panel" id="tab-schemas">
+      <div class="erd-grid">
+        <div class="erd-table">
+          <div class="erd-head"><h4>Appartement</h4><span class="tag tag-orange" style="font-size:10px">43 champs</span></div>
+          <div class="erd-body">
+            <div class="erd-row"><span class="fn pk">id</span><span class="ft">uuid</span><span></span></div>
+            <div class="erd-row"><span class="fn">titre</span><span class="ft">string</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">slug</span><span class="ft">uid</span><span class="fb fb-o">auto</span></div>
+            <div class="erd-row"><span class="fn">type_logement</span><span class="ft">enum</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">statut</span><span class="ft">enum</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">prix_nuit_base</span><span class="ft">decimal</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">devise</span><span class="ft">XAF/USD/EUR/CDF</span><span></span></div>
+            <div class="erd-row"><span class="fn">image_principale</span><span class="ft">media</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">galerie</span><span class="ft">media[]</span><span></span></div>
+            <div class="erd-row"><span class="fn">equipements</span><span class="ft">component[]</span><span class="fb fb-rel">répétable</span></div>
+            <div class="erd-row"><span class="fn">tarifs_saisonniers</span><span class="ft">component[]</span><span class="fb fb-rel">répétable</span></div>
+            <div class="erd-row"><span class="fn fk">avis</span><span class="ft">oneToMany</span><span class="fb fb-rel">FK</span></div>
+            <div class="erd-row"><span class="fn fk">reservations</span><span class="ft">oneToMany</span><span class="fb fb-rel">FK</span></div>
+          </div>
+        </div>
+        <div class="erd-table">
+          <div class="erd-head"><h4>Réservation</h4><span class="tag tag-green" style="font-size:10px">Draft OFF</span></div>
+          <div class="erd-body">
+            <div class="erd-row"><span class="fn pk">reference</span><span class="ft">uid</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">statut</span><span class="ft">enum</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">date_arrivee</span><span class="ft">date</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">date_depart</span><span class="ft">date</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">prix_total</span><span class="ft">decimal</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">mode_paiement</span><span class="ft">enum</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">prenom_client</span><span class="ft">string</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">email_client</span><span class="ft">email</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">telephone_client</span><span class="ft">string</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">whatsapp_client</span><span class="ft">string</span><span class="fb fb-o">optionnel</span></div>
+            <div class="erd-row"><span class="fn">type_client</span><span class="ft">particulier/pro</span><span></span></div>
+            <div class="erd-row"><span class="fn">nom_societe</span><span class="ft">string</span><span class="fb fb-o">si pro</span></div>
+            <div class="erd-row"><span class="fn fk">appartement</span><span class="ft">manyToOne</span><span class="fb fb-rel">FK</span></div>
+          </div>
+        </div>
+        <div class="erd-table">
+          <div class="erd-head"><h4>Avis Client</h4><span class="tag tag-blue" style="font-size:10px">Modéré</span></div>
+          <div class="erd-body">
+            <div class="erd-row"><span class="fn">prenom_auteur</span><span class="ft">string</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">initiale_nom</span><span class="ft">string(1)</span><span class="fb fb-o">anonymat</span></div>
+            <div class="erd-row"><span class="fn">note_globale</span><span class="ft">decimal 1–5</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">note_proprete</span><span class="ft">int 1–5</span><span></span></div>
+            <div class="erd-row"><span class="fn">note_communication</span><span class="ft">int 1–5</span><span></span></div>
+            <div class="erd-row"><span class="fn">commentaire</span><span class="ft">text ≤1000</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">verifie</span><span class="ft">boolean</span><span class="fb fb-o">admin</span></div>
+            <div class="erd-row"><span class="fn fk">appartement</span><span class="ft">manyToOne</span><span class="fb fb-rel">FK</span></div>
+          </div>
+        </div>
+        <div class="erd-table">
+          <div class="erd-head"><h4>Service Premium</h4><span class="tag tag-orange" style="font-size:10px">manyToMany</span></div>
+          <div class="erd-body">
+            <div class="erd-row"><span class="fn">nom</span><span class="ft">string</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">slug</span><span class="ft">uid</span><span class="fb fb-o">auto</span></div>
+            <div class="erd-row"><span class="fn">description</span><span class="ft">text</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn">icone</span><span class="ft">string</span><span class="fb fb-o">Lucide</span></div>
+            <div class="erd-row"><span class="fn">prix</span><span class="ft">decimal ≥0</span><span class="fb fb-o">0=inclus</span></div>
+            <div class="erd-row"><span class="fn">categorie</span><span class="ft">enum</span><span class="fb fb-r">requis</span></div>
+            <div class="erd-row"><span class="fn fk">appartements</span><span class="ft">manyToMany</span><span class="fb fb-rel">FK</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STACK -->
+    <div class="arch-panel" id="tab-stack">
+      <div class="stack-grid">
+        <div class="stack-card"><div class="stack-icon" style="background:#EFF6FF"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg></div><div class="stack-name">Next.js 15</div><div class="stack-desc">App Router · SSR/ISR · TypeScript</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#F0FDF4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="stack-name">Tailwind + Shadcn</div><div class="stack-desc">Design system · Composants UI</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:rgba(224,122,47,.1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div><div class="stack-name">Strapi 5</div><div class="stack-desc">Headless CMS · REST/GraphQL</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#EFF6FF"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div><div class="stack-name">PostgreSQL</div><div class="stack-desc">Base relationnelle · FK · Migrations</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#F0FDF4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="stack-name">Leaflet / Mapbox</div><div class="stack-desc">Cartes interactives · Géolocalisation</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:rgba(224,122,47,.1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stack-name">react-day-picker</div><div class="stack-desc">Calendrier réservation · Dates désactivées</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#F0FDF4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="stack-name">WhatsApp API</div><div class="stack-desc">Meta Cloud API · Notifications auto</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#EFF6FF"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="stack-name">Resend / Email</div><div class="stack-desc">Emails transactionnels · Rappels</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:rgba(224,122,47,.1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stack-name">GitHub Actions</div><div class="stack-desc">CI/CD → VPS OVH via SSH</div></div>
+        <div class="stack-card"><div class="stack-icon" style="background:#F0FDF4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="stack-name">Mobile Money</div><div class="stack-desc">Airtel · MTN MoMo · Espèces</div></div>
+      </div>
+    </div>
+
+    <!-- FLOW -->
+    <div class="arch-panel" id="tab-flow">
+      <div class="flow-steps">
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-title">Sélection</div><div class="flow-desc">Appartement + dates sur calendrier</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-title">Identité</div><div class="flow-desc">Prénom, tél, WhatsApp, type client</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-title">Paiement</div><div class="flow-desc">Airtel, MTN, Espèces, Virement</div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-title">Confirmation</div><div class="flow-desc">Référence + WhatsApp + Email</div></div>
+        <div class="flow-step"><div class="flow-num">5</div><div class="flow-title">Check-in</div><div class="flow-desc">Accueil sur place · Services activés</div></div>
+      </div>
+      <div class="info-box">
+        <strong>Statuts :</strong> en_attente → confirmee → acompte_versé → soldée / annulée / no_show<br>
+        <strong>Notifications :</strong> WhatsApp Business API · SMS Twilio/Infobip · Email Resend
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══ CARTE & GÉOLOCALISATION ════════════════════════╗ -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin="anonymous"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN2GqA4="
+  crossorigin="anonymous"></script>
+<div class="map-section" id="localisation">
+  <div class="section" style="padding-top:0;padding-bottom:0">
+    <div class="sec-label">Carte interactive</div>
+    <h2 class="sec-title">Nos résidences à Pointe-Noire</h2>
+    <p class="sec-sub" style="margin-bottom:20px">Localisez les appartements et calculez votre trajet en temps réel</p>
+    <div class="map-controls">
+      <button class="btn btn-blue btn-sm" id="btn-geolocate" onclick="geolocate()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        Ma position GPS
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="resetMap()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        Centrer Pointe-Noire
+      </button>
+      <div class="map-dist-badge" id="dist-badge" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="dist-text">Calcul…</span>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div style="display:flex;align-items:center;gap:20px;margin-top:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)">
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--orange)"></div>
+        Résidences NDOMBI
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)">
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--blue)"></div>
+        Votre position
+      </div>
+      <div style="margin-left:auto;font-size:12px;color:var(--muted)">© OpenStreetMap contributors</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Pointe-Noire : -4.7761, 11.8635 */
+const BRAZ=[
+  {lat:-4.780,lng:11.862,name:'Studio Prestige',loc:'Foucks',price:'75 000',pr:75000,img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=80&fit=crop',imgr:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=120&h=120&fit=crop'},
+  {lat:-4.770,lng:11.877,name:'T2 Élégance',loc:'Loandjili',price:'120 000',pr:120000,img:'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=80&h=80&fit=crop',imgr:'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=120&h=120&fit=crop'},
+  {lat:-4.772,lng:11.863,name:'Penthouse Vue Océan',loc:'Centre-ville',price:'200 000',pr:200000,img:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=80&h=80&fit=crop',imgr:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=120&h=120&fit=crop'},
+  {lat:-4.783,lng:11.854,name:'Loft Moderne Tie-Tie',loc:'Tie-Tie',price:'95 000',pr:95000,img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=80&h=80&fit=crop',imgr:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=120&h=120&fit=crop'},
+  {lat:-4.762,lng:11.869,name:'Villa Familiale Ngoyo',loc:'Ngoyo',price:'280 000',pr:280000,img:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=80&h=80&fit=crop',imgr:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=120&h=120&fit=crop'}
+]
+let lmap,uMarker,uCircle
+function mkIcon(c){return L.divIcon({className:'',iconAnchor:[16,38],popupAnchor:[0,-38],html:`<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16c0 9 16 24 16 24s16-15 16-24C32 7.163 24.837 0 16 0z" fill="${c}"/><circle cx="16" cy="16" r="7" fill="white"/></svg>`})}
+window.addEventListener('DOMContentLoaded',()=>{
+  lmap=L.map('map',{scrollWheelZoom:false}).setView([-4.7761,11.8635],14)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(lmap)
+  BRAZ.forEach(a=>{
+    const m=L.marker([a.lat,a.lng],{icon:mkIcon('#E07A2F')}).addTo(lmap)
+    m.bindPopup(`<div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:190px;padding:2px"><img src="${a.img}" style="width:100%;height:90px;object-fit:cover;border-radius:8px;margin-bottom:9px"/><div style="font-weight:800;font-size:14px;margin-bottom:2px">${a.name}</div><div style="font-size:12px;color:#7A6550;margin-bottom:8px">📍 ${a.loc}, Pointe-Noire</div><div style="font-weight:900;font-size:16px;color:#E07A2F;margin-bottom:9px">${a.price} XAF/nuit</div><button onclick="openModal('${a.name}','${a.loc}, Pointe-Noire',${a.pr},'${a.imgr}')" style="background:#E07A2F;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer;width:100%">Réserver</button></div>`,{maxWidth:220})
+  })
+})
+function geolocate(){
+  const btn=document.getElementById('btn-geolocate')
+  if(!navigator.geolocation){alert('Géolocalisation non disponible.');return}
+  btn.textContent='Localisation…';btn.disabled=true
+  navigator.geolocation.getCurrentPosition(p=>{
+    const lt=p.coords.latitude,ln=p.coords.longitude
+    if(uMarker)lmap.removeLayer(uMarker)
+    if(uCircle)lmap.removeLayer(uCircle)
+    uMarker=L.marker([lt,ln],{icon:mkIcon('#0369A1')}).addTo(lmap).bindPopup('<strong>Vous êtes ici</strong>').openPopup()
+    uCircle=L.circle([lt,ln],{radius:300,color:'#0369A1',fillColor:'#0369A1',fillOpacity:.1,weight:2}).addTo(lmap)
+    lmap.flyTo([lt,ln],14,{duration:1.5})
+    const near=BRAZ.map(a=>{const R=6371000,dLa=(a.lat-lt)*Math.PI/180,dLn=(a.lng-ln)*Math.PI/180,x=Math.sin(dLa/2)**2+Math.cos(lt*Math.PI/180)*Math.cos(a.lat*Math.PI/180)*Math.sin(dLn/2)**2;return{n:a.name,d:Math.round(R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)))}}).sort((a,b)=>a.d-b.d)[0]
+    const ds=near.d<1000?near.d+'m':+(near.d/1000).toFixed(1)+'km'
+    document.getElementById('dist-badge').style.display='inline-flex'
+    document.getElementById('dist-text').textContent=`Plus proche : ${near.n} — ${ds}`
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Position trouvée'
+    btn.style.background='var(--green)';btn.disabled=false
+  },()=>{alert('Autorisation GPS refusée.');btn.textContent='Ma position GPS';btn.disabled=false},{enableHighAccuracy:true,timeout:10000})
+}
+function resetMap(){if(lmap)lmap.flyTo([-4.7761,11.8635],14,{duration:1})}
+function filterChip(el){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'))
+  el.classList.add('active')
+  document.getElementById('appartements').scrollIntoView({behavior:'smooth'})
+}
+</script>
+
+<!-- ╔══ FOOTER ══════════════════════════════════════════╗ -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="footer-mono">RN</div>
+          <div>
+            <div class="fn">Résidence NDOMBI</div>
+            <div class="fs">Confort · Luxe · Élégance</div>
+          </div>
+        </div>
+        <p class="footer-desc">Appartements meublés haut de gamme pour séjours courts et longs à Pointe-Noire. Une expérience unique alliant confort, luxe et service personnalisé.</p>
+        <div class="footer-contact">
+          <div class="fc-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.09 4.18 2 2 0 0 1 5.08 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>+242 06 435 90 90</div>
+          <div class="fc-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>residencendombi@gmail.com</div>
+          <div class="fc-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Foucks, Pointe-Noire — près de la Clinique MOUAMBA, République du Congo</div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Appartements</h5>
+        <ul class="footer-links">
+          <li><a href="#">Studios</a></li>
+          <li><a href="#">T2 &amp; T3</a></li>
+          <li><a href="#">Penthouse</a></li>
+          <li><a href="#">Villas</a></li>
+          <li><a href="#">Lofts &amp; Duplex</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul class="footer-links">
+          <li><a href="#">Navette aéroport</a></li>
+          <li><a href="#">Chef cuisinier</a></li>
+          <li><a href="#">Conciergerie</a></li>
+          <li><a href="#">Sécurité 24h</a></li>
+          <li><a href="#">Ménage quotidien</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Informations</h5>
+        <ul class="footer-links">
+          <li><a href="#">À propos</a></li>
+          <li><a href="#">Politique d'annulation</a></li>
+          <li><a href="#">Règlement intérieur</a></li>
+          <li><a href="#">Modes de paiement</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Résidence NDOMBI — Tous droits réservés</span>
+      <div class="socials">
+        <a href="#" class="social-btn" aria-label="Facebook">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="WhatsApp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="YouTube">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#1A0E06"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ╔══ CHATBOT ═════════════════════════════════════════╗ -->
+<div class="chatbot">
+  <div class="chatbot-win" id="chatbot-win">
+    <div class="cw-head">
+      <img class="cw-avatar" src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face" alt="Agent"/>
+      <div>
+        <div class="cw-name">Agent NDOMBI</div>
+        <div class="cw-status">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#22C55E"/></svg>
+          En ligne · répond en &lt;5 min
+        </div>
+      </div>
+      <button class="cw-close" onclick="toggleChat()" aria-label="Fermer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cw-messages" id="cw-messages">
+      <div class="cw-bubble">
+        Bonjour ! Je suis l'assistant Résidence NDOMBI. Comment puis-je vous aider ?
+        <div class="cw-time">À l'instant</div>
+      </div>
+    </div>
+    <div class="cw-quick" id="cw-quick">
+      <button class="cw-qr" onclick="quickReply('Disponibilités')">Disponibilités</button>
+      <button class="cw-qr" onclick="quickReply('Tarifs')">Tarifs</button>
+      <button class="cw-qr" onclick="quickReply('Réserver')">Réserver</button>
+      <button class="cw-qr" onclick="quickReply('Services')">Services</button>
+    </div>
+    <div class="cw-input-row">
+      <input class="cw-input" id="cw-input" type="text" placeholder="Votre message…" aria-label="Message"/>
+      <button class="cw-send" onclick="sendMsg()" aria-label="Envoyer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+  <button class="chatbot-trigger" onclick="toggleChat()" aria-label="Chat">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="notif-dot"></span>
+  </button>
+</div>
+
+<!-- ╔══ MODALE RÉSERVATION ══════════════════════════════╗ -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Réserver un appartement</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="modal-step-label">Étape 1 sur 4 — Votre séjour</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Steps bar -->
+    <div class="steps-bar">
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div class="step-circle active" id="sc1">1</div>
+          <span class="step-label active" id="sl1">Séjour</span>
+        </div>
+        <div class="step-line" id="line1"></div>
+      </div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div class="step-circle" id="sc2">2</div>
+          <span class="step-label" id="sl2">Identité</span>
+        </div>
+        <div class="step-line" id="line2"></div>
+      </div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div class="step-circle" id="sc3">3</div>
+          <span class="step-label" id="sl3">Paiement</span>
+        </div>
+        <div class="step-line" id="line3"></div>
+      </div>
+      <div class="step-item" style="flex:0">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div class="step-circle" id="sc4">4</div>
+          <span class="step-label" id="sl4">Confirmation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- ── ÉTAPE 1 : Séjour ── -->
+      <div class="modal-step active" id="step1">
+        <div class="apt-summary">
+          <img class="apt-summary-img" id="modal-apt-img" src="" alt="Appartement"/>
+          <div>
+            <div class="apt-summary-name" id="modal-apt-name">—</div>
+            <div class="apt-summary-loc" id="modal-apt-loc">—</div>
+          </div>
+          <div class="apt-summary-price">
+            <span id="modal-apt-price">—</span>
+            <span style="font-size:12px;font-weight:400;color:var(--muted)">/nuit</span>
+          </div>
+        </div>
+
+        <div class="field-row field-group">
+          <div>
+            <label class="field-label" for="date-arrivee">Date d'arrivée <span class="req">*</span></label>
+            <input class="field-input" type="date" id="date-arrivee" onchange="calcNights()"/>
+          </div>
+          <div>
+            <label class="field-label" for="date-depart">Date de départ <span class="req">*</span></label>
+            <input class="field-input" type="date" id="date-depart" onchange="calcNights()"/>
+          </div>
+        </div>
+        <div id="nights-display" style="display:none">
+          <div class="nights-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span id="nights-count">0</span> nuit(s) — Total : <strong id="nights-total">0 XAF</strong>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-top:18px">
+          <label class="field-label" for="nb-personnes">Nombre de personnes <span class="req">*</span></label>
+          <select class="field-input" id="nb-personnes" style="max-width:200px">
+            <option value="">Sélectionner…</option>
+            <option>1 voyageur</option>
+            <option>2 voyageurs</option>
+            <option>3 voyageurs</option>
+            <option>4 voyageurs</option>
+            <option>5 voyageurs</option>
+            <option>6+ voyageurs</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="heure-arrivee">Heure d'arrivée estimée</label>
+          <select class="field-input" id="heure-arrivee" style="max-width:180px">
+            <option>14:00 (check-in standard)</option>
+            <option>15:00</option><option>16:00</option><option>17:00</option>
+            <option>18:00</option><option>19:00</option><option>20:00</option>
+            <option>Arrivée tardive (après 22h)</option>
+          </select>
+          <div class="field-hint">Check-in standard 14h00 · Check-out 11h00</div>
+        </div>
+      </div>
+
+      <!-- ── ÉTAPE 2 : Identité ── -->
+      <div class="modal-step" id="step2">
+        <div class="field-row field-group">
+          <div>
+            <label class="field-label" for="prenom">Prénom <span class="req">*</span></label>
+            <input class="field-input" type="text" id="prenom" placeholder="Jean"/>
+          </div>
+          <div>
+            <label class="field-label" for="nom">Nom <span class="req">*</span></label>
+            <input class="field-input" type="text" id="nom" placeholder="Mutombo"/>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="email">Email <span class="req">*</span></label>
+          <input class="field-input green" type="email" id="email" placeholder="vous@email.com"/>
+        </div>
+
+        <div class="field-row field-group">
+          <div>
+            <label class="field-label" for="telephone">Téléphone <span class="req">*</span></label>
+            <input class="field-input" type="tel" id="telephone" placeholder="+242 06 000 00 00"/>
+          </div>
+          <div>
+            <label class="field-label" for="whatsapp">WhatsApp</label>
+            <input class="field-input" type="tel" id="whatsapp" placeholder="Si différent du tél."/>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Type de client <span class="req">*</span></label>
+          <div class="radio-group" id="type-client-group">
+            <div class="radio-card selected" onclick="selectType(this,'particulier')">
+              <input type="radio" name="type_client" value="particulier" checked/>
+              <div class="radio-card-label">
+                <div class="radio-dot"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">Particulier</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:1px">Voyage personnel</div>
+                </div>
+              </div>
+            </div>
+            <div class="radio-card" onclick="selectType(this,'professionnel')">
+              <input type="radio" name="type_client" value="professionnel"/>
+              <div class="radio-card-label">
+                <div class="radio-dot"></div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">Professionnel</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:1px">Mission ou entreprise</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group" id="societe-field" style="display:none">
+          <label class="field-label" for="societe">Nom de la société <span class="req">*</span></label>
+          <input class="field-input" type="text" id="societe" placeholder="SARL Mon Entreprise"/>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="nationalite">Nationalité</label>
+          <input class="field-input" type="text" id="nationalite" placeholder="Congolaise, Française…"/>
+        </div>
+      </div>
+
+      <!-- ── ÉTAPE 3 : Paiement ── -->
+      <div class="modal-step" id="step3">
+        <div class="field-group">
+          <label class="field-label">Mode de paiement <span class="req">*</span></label>
+          <div class="pay-grid" id="pay-grid">
+            <div class="pay-card" onclick="selectPay(this,'airtel_money')">
+              <input type="radio" name="paiement" value="airtel_money"/>
+              <div class="pay-icon" style="background:#FEF0E6">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <div class="pay-name">Airtel Money</div>
+            </div>
+            <div class="pay-card" onclick="selectPay(this,'mtn_momo')">
+              <input type="radio" name="paiement" value="mtn_momo"/>
+              <div class="pay-icon" style="background:#FEF9E6">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CA8A04" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+              </div>
+              <div class="pay-name">MTN MoMo</div>
+            </div>
+            <div class="pay-card" onclick="selectPay(this,'espece')">
+              <input type="radio" name="paiement" value="espece"/>
+              <div class="pay-icon" style="background:#DCFCE7">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
+              </div>
+              <div class="pay-name">Espèces</div>
+            </div>
+            <div class="pay-card" onclick="selectPay(this,'virement')">
+              <input type="radio" name="paiement" value="virement"/>
+              <div class="pay-icon" style="background:#DBEAFE">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="pay-name">Virement</div>
+            </div>
+            <div class="pay-card" onclick="selectPay(this,'cheque')">
+              <input type="radio" name="paiement" value="cheque"/>
+              <div class="pay-icon" style="background:#F3E8FF">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </div>
+              <div class="pay-name">Chèque</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="demandes">Demandes spéciales</label>
+          <textarea class="field-input" id="demandes" rows="3" placeholder="Arrivée tardive, lit bébé, régime alimentaire…" style="resize:vertical"></textarea>
+          <div class="field-hint">Nous ferons de notre mieux pour satisfaire vos demandes.</div>
+        </div>
+
+        <div style="background:#DBEAFE;border:1px solid #93C5FD;border-radius:10px;padding:12px 16px;font-size:13px;color:var(--blue)">
+          <strong>Note :</strong> La caution est versée à l'arrivée. Confirmation de réservation par WhatsApp sous 30 minutes.
+        </div>
+      </div>
+
+      <!-- ── ÉTAPE 4 : Confirmation ── -->
+      <div class="modal-step" id="step4">
+        <div class="success-screen" id="recap-view">
+          <div class="recap-card">
+            <div class="recap-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M8 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-2"/></svg>
+              <span class="recap-title">Récapitulatif</span>
+              <span class="recap-ref" id="recap-ref" style="margin-left:auto">RES-2025-0042</span>
+            </div>
+            <div class="recap-rows">
+              <div class="recap-row"><span class="lbl">Appartement</span><span class="val" id="r-apt">—</span></div>
+              <div class="recap-row"><span class="lbl">Arrivée</span><span class="val" id="r-arrivee">—</span></div>
+              <div class="recap-row"><span class="lbl">Départ</span><span class="val" id="r-depart">—</span></div>
+              <div class="recap-row"><span class="lbl">Durée</span><span class="val" id="r-nuits">—</span></div>
+              <div class="recap-row"><span class="lbl">Voyageurs</span><span class="val" id="r-pers">—</span></div>
+              <div class="recap-row"><span class="lbl">Client</span><span class="val" id="r-client">—</span></div>
+              <div class="recap-row"><span class="lbl">Paiement</span><span class="val" id="r-pay">—</span></div>
+            </div>
+            <div class="recap-total">
+              <span class="lbl">Total estimé</span>
+              <span class="val" id="r-total">—</span>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:0">En cliquant sur <strong>Confirmer</strong>, vous acceptez nos conditions de réservation.</p>
+        </div>
+
+        <div class="success-screen" id="success-view" style="display:none">
+          <div class="success-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">Réservation envoyée !</div>
+          <div class="success-sub">Votre demande a bien été reçue. Notre équipe vous contacte sous <strong>30 minutes</strong>.</div>
+          <div class="notif-pills">
+            <div class="notif-pill wa">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#16A34A"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+              WhatsApp confirmé
+            </div>
+            <div class="notif-pill email">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email envoyé
+            </div>
+            <div class="notif-pill sms">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E07A2F" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              SMS envoyé
+            </div>
+          </div>
+          <button class="btn btn-green" style="margin:0 auto" onclick="closeModal()">Fermer</button>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- Footer -->
+    <div class="modal-footer" id="modal-footer">
+      <div>
+        <span class="modal-progress" id="modal-progress">Étape 1 / 4</span>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" id="btn-prev" onclick="prevStep()" style="display:none">← Retour</button>
+        <button class="btn btn-primary btn-sm" id="btn-next" onclick="nextStep()">Continuer →</button>
+      </div>
+    </div>
+
+  </div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
+<script>
+/* ── NAVBAR scroll ── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',scrollY>10)
+})
+
+/* ── AUTH demo ── */
+function showLogin(){
+  document.getElementById('btn-login').style.display='none'
+  document.getElementById('user-menu').classList.add('visible')
+}
+function logout(e){
+  e.preventDefault()
+  document.getElementById('dropdown').classList.remove('open')
+  document.getElementById('user-menu').classList.remove('visible')
+  document.getElementById('btn-login').style.display='flex'
+}
+function toggleDropdown(){
+  document.getElementById('dropdown').classList.toggle('open')
+}
+document.addEventListener('click',e=>{
+  const pill=document.getElementById('user-pill')
+  const dd=document.getElementById('dropdown')
+  if(pill&&!pill.contains(e.target))dd.classList.remove('open')
+})
+
+/* ── CAROUSEL ── */
+const track=document.getElementById('carousel')
+const dots=[...document.querySelectorAll('.c-dot')]
+const CARD_W=300+24 // card + gap
+
+function updateDots(){
+  const idx=Math.round(track.scrollLeft/CARD_W)
+  dots.forEach((d,i)=>d.classList.toggle('active',i===idx))
+}
+
+document.getElementById('prev-btn').addEventListener('click',()=>{
+  track.scrollBy({left:-CARD_W,behavior:'smooth'})
+})
+document.getElementById('next-btn').addEventListener('click',()=>{
+  track.scrollBy({left:CARD_W,behavior:'smooth'})
+})
+dots.forEach((d,i)=>d.addEventListener('click',()=>{
+  track.scrollTo({left:i*CARD_W,behavior:'smooth'})
+}))
+track.addEventListener('scroll',updateDots,{passive:true})
+
+/* ── FAVOURITES toggle ── */
+document.querySelectorAll('.apt-fav').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation()
+    btn.classList.toggle('active')
+    const svg=btn.querySelector('svg')
+    svg.setAttribute('fill',btn.classList.contains('active')?'#E07A2F':'none')
+  })
+})
+
+/* ── COUNT-UP ── */
+const counters=document.querySelectorAll('[data-target]')
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting)return
+    const el=en.target, end=+el.dataset.target
+    let n=0; const step=end/50
+    const t=setInterval(()=>{
+      n=Math.min(n+step,end)
+      el.textContent=(Number.isInteger(end)?Math.floor(n):n.toFixed(1))+(el.dataset.suffix||'')
+      if(n>=end)clearInterval(t)
+    },25)
+    io.unobserve(el)
+  })
+},{threshold:.5})
+counters.forEach(el=>io.observe(el))
+
+/* ── SCROLL REVEAL ── */
+const revealEls=document.querySelectorAll('.apt-card,.testi-card,.stack-card,.svc-item')
+const rio=new IntersectionObserver(entries=>{
+  entries.forEach((en,i)=>{
+    if(!en.isIntersecting)return
+    setTimeout(()=>{en.target.style.opacity='1';en.target.style.transform='translateY(0)'},i*70)
+    rio.unobserve(en.target)
+  })
+},{threshold:.1})
+revealEls.forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(20px)'
+  el.style.transition='opacity .5s ease,transform .5s ease'
+  rio.observe(el)
+})
+
+/* ── ARCH TABS ── */
+function showTab(name,btn){
+  document.querySelectorAll('.arch-panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.arch-tab').forEach(t=>t.classList.remove('active'))
+  document.getElementById('tab-'+name).classList.add('active')
+  btn.classList.add('active')
+}
+
+/* ── CHATBOT ── */
+const win=document.getElementById('chatbot-win')
+const msgs=document.getElementById('cw-messages')
+const inp=document.getElementById('cw-input')
+
+function toggleChat(){win.classList.toggle('open');if(win.classList.contains('open'))inp.focus()}
+
+function addBubble(text,role,isHtml){
+  const b=document.createElement('div')
+  b.className='cw-bubble '+(role==='user'?'user':'')
+  const span=document.createElement('span')
+  if(isHtml){span.innerHTML=text}else{span.textContent=text}
+  const t=document.createElement('div')
+  t.className='cw-time';t.textContent='À l\'instant'
+  b.appendChild(span);b.appendChild(t)
+  msgs.appendChild(b);msgs.scrollTop=msgs.scrollHeight
+}
+
+const REPLIES={
+  'Disponibilités':'Consultez notre calendrier en ligne ou appelez le <strong>+242 06 435 90 90</strong> pour vérifier les disponibilités.',
+  'Tarifs':'Nos tarifs débutent à <strong>75 000 XAF / nuit</strong> selon l\'appartement et la saison.',
+  'Réserver':'Choisissez votre appartement, sélectionnez vos dates et remplissez le formulaire. Confirmation en 30 min !',
+  'Services':'Navette aéroport, chef cuisinier, conciergerie, ménage quotidien et sécurité 24h/24.'
+}
+
+function quickReply(text){
+  addBubble(text,'user',false)
+  document.getElementById('cw-quick').style.display='none'
+  setTimeout(()=>addBubble(REPLIES[text]||'Un agent vous répond sous peu.','agent',true),600)
+}
+
+function sendMsg(){
+  const v=inp.value.trim();if(!v)return
+  addBubble(v,'user',false);inp.value=''
+  document.getElementById('cw-quick').style.display='none'
+  setTimeout(()=>addBubble('Merci ! Un agent de l\'équipe NDOMBI vous répondra très vite. Appelez aussi le <strong>+242 06 435 90 90</strong>.','agent',true),700)
+}
+
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg()})
+
+/* ── MODAL ── */
+let currentStep=1
+let modalData={}
+
+function openModal(name,loc,price,img){
+  modalData={name,loc,price,img}
+  document.getElementById('modal-apt-name').textContent=name
+  document.getElementById('modal-apt-loc').textContent=loc
+  document.getElementById('modal-apt-price').textContent=price.toLocaleString('fr-FR')+' XAF'
+  document.getElementById('modal-apt-img').src=img
+  // reset
+  currentStep=1
+  renderStep()
+  document.getElementById('modal-overlay').classList.add('open')
+  document.body.style.overflow='hidden'
+  // set min date to today
+  const today=new Date().toISOString().split('T')[0]
+  document.getElementById('date-arrivee').min=today
+  document.getElementById('date-depart').min=today
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open')
+  document.body.style.overflow=''
+  // reset success view
+  document.getElementById('recap-view').style.display='block'
+  document.getElementById('success-view').style.display='none'
+  currentStep=1
+  renderStep()
+}
+
+function handleOverlayClick(e){
+  if(e.target===document.getElementById('modal-overlay'))closeModal()
+}
+
+const stepLabels=['Votre séjour','Vos informations','Mode de paiement','Confirmation']
+
+function renderStep(){
+  // panels
+  for(let i=1;i<=4;i++){
+    document.getElementById('step'+i).classList.toggle('active',i===currentStep)
+  }
+  // circles & lines
+  for(let i=1;i<=4;i++){
+    const sc=document.getElementById('sc'+i)
+    const sl=document.getElementById('sl'+i)
+    sc.classList.remove('active','done')
+    sl.classList.remove('active','done')
+    if(i<currentStep){sc.classList.add('done');sc.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';sl.classList.add('done')}
+    else if(i===currentStep){sc.classList.add('active');sc.textContent=i;sl.classList.add('active')}
+    else{sc.textContent=i}
+    if(i<4){const l=document.getElementById('line'+i);l.classList.toggle('done',i<currentStep)}
+  }
+  // footer label
+  document.getElementById('modal-step-label').textContent='Étape '+currentStep+' sur 4 — '+stepLabels[currentStep-1]
+  document.getElementById('modal-progress').textContent='Étape '+currentStep+' / 4'
+  // buttons
+  document.getElementById('btn-prev').style.display=currentStep>1?'flex':'none'
+  const next=document.getElementById('btn-next')
+  if(currentStep===4){next.style.display='none'}
+  else if(currentStep===3){next.textContent='Voir le récapitulatif →';next.style.display='flex'}
+  else{next.textContent='Continuer →';next.style.display='flex'}
+  // modal footer visibility
+  document.getElementById('modal-footer').style.display=currentStep===4&&document.getElementById('success-view').style.display==='block'?'none':'flex'
+}
+
+function nextStep(){
+  if(currentStep===1){
+    const a=document.getElementById('date-arrivee').value
+    const d=document.getElementById('date-depart').value
+    const p=document.getElementById('nb-personnes').value
+    if(!a||!d||!p){alert('Veuillez remplir les dates et le nombre de voyageurs.');return}
+    if(new Date(d)<=new Date(a)){alert('La date de départ doit être après la date d\'arrivée.');return}
+  }
+  if(currentStep===2){
+    const pr=document.getElementById('prenom').value.trim()
+    const n=document.getElementById('nom').value.trim()
+    const em=document.getElementById('email').value.trim()
+    const tel=document.getElementById('telephone').value.trim()
+    if(!pr||!n||!em||!tel){alert('Veuillez remplir tous les champs obligatoires.');return}
+  }
+  if(currentStep===3){
+    if(!document.querySelector('input[name="paiement"]:checked')){alert('Veuillez choisir un mode de paiement.');return}
+    buildRecap()
+  }
+  if(currentStep<4){currentStep++;renderStep()}
+}
+
+function prevStep(){if(currentStep>1){currentStep--;renderStep()}}
+
+function buildRecap(){
+  const a=document.getElementById('date-arrivee').value
+  const d=document.getElementById('date-depart').value
+  const nights=Math.round((new Date(d)-new Date(a))/(1000*60*60*24))
+  const total=(nights*modalData.price).toLocaleString('fr-FR')
+  const payMap={airtel_money:'Airtel Money',mtn_momo:'MTN MoMo',espece:'Espèces',virement:'Virement bancaire',cheque:'Chèque'}
+  const payVal=document.querySelector('input[name="paiement"]:checked')?.value
+  document.getElementById('r-apt').textContent=modalData.name
+  document.getElementById('r-arrivee').textContent=new Date(a+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+  document.getElementById('r-depart').textContent=new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+  document.getElementById('r-nuits').textContent=nights+' nuit'+(nights>1?'s':'')
+  document.getElementById('r-pers').textContent=document.getElementById('nb-personnes').value
+  document.getElementById('r-client').textContent=(document.getElementById('prenom').value+' '+document.getElementById('nom').value).trim()
+  document.getElementById('r-pay').textContent=payMap[payVal]||payVal
+  document.getElementById('r-total').textContent=total+' XAF'
+  document.getElementById('recap-ref').textContent='RES-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000)
+}
+
+// Confirm button in recap
+document.addEventListener('click',e=>{
+  if(e.target.closest('#step4') && e.target.classList.contains('btn-primary')){
+    document.getElementById('recap-view').style.display='none'
+    document.getElementById('success-view').style.display='block'
+    document.getElementById('modal-footer').style.display='none'
+  }
+})
+
+// Add confirm button to recap view
+window.addEventListener('DOMContentLoaded',()=>{
+  const sv=document.getElementById('recap-view')
+  const btn=document.createElement('div')
+  btn.style.cssText='display:flex;justify-content:center;margin-top:20px'
+  btn.innerHTML='<button class="btn btn-primary">Confirmer la réservation</button>'
+  sv.appendChild(btn)
+})
+
+function calcNights(){
+  const a=document.getElementById('date-arrivee').value
+  const d=document.getElementById('date-depart').value
+  const disp=document.getElementById('nights-display')
+  if(a&&d&&new Date(d)>new Date(a)){
+    const n=Math.round((new Date(d)-new Date(a))/(1000*60*60*24))
+    document.getElementById('nights-count').textContent=n
+    document.getElementById('nights-total').textContent=(n*modalData.price).toLocaleString('fr-FR')+' XAF'
+    disp.style.display='block'
+    // auto-set min for depart
+    document.getElementById('date-depart').min=a
+  }else{disp.style.display='none'}
+}
+
+function selectType(card,val){
+  document.querySelectorAll('#type-client-group .radio-card').forEach(c=>c.classList.remove('selected'))
+  card.classList.add('selected')
+  card.querySelector('input[type=radio]').checked=true
+  document.getElementById('societe-field').style.display=val==='professionnel'?'block':'none'
+}
+
+function selectPay(card,val){
+  document.querySelectorAll('#pay-grid .pay-card').forEach(c=>c.classList.remove('selected'))
+  card.classList.add('selected')
+  card.querySelector('input[type=radio]').checked=true
+}
+</script>
+</body>
+</html>
