@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Phone, User, LogOut, Calendar, Heart, ChevronDown, Menu, X } from 'lucide-react'
 
 const NAV_LINKS = [
@@ -13,6 +14,7 @@ const NAV_LINKS = [
 ]
 
 export default function Navbar() {
+  const router = useRouter()
   const [scrolled,    setScrolled]    = useState(false)
   const [menuOpen,    setMenuOpen]    = useState(false)
   const [userOpen,    setUserOpen]    = useState(false)
@@ -100,7 +102,7 @@ export default function Navbar() {
         <div className="relative hidden md:block">
           {!isLoggedIn ? (
             <button
-              onClick={() => setIsLoggedIn(true)}
+              onClick={() => router.push('/login')}
               className="flex items-center gap-2 px-4 py-[9px] rounded-lg text-[13px] font-bold transition-all duration-200"
               style={{ background: '#E07A2F', color: '#fff', fontFamily: 'var(--font-heading)' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#B85E18' }}
