@@ -14,6 +14,16 @@ function fmtDate(d: string) {
   return new Date(d + 'T12:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+// Échappe toutes les valeurs utilisateur avant insertion dans du HTML
+function esc(s: unknown): string {
+  return String(s ?? '')
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;')
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   if (!RESEND_KEY) return // Pas de clé → on saute silencieusement
   try {
@@ -78,10 +88,21 @@ export async function POST(req: NextRequest) {
   if (!res.ok)
     return NextResponse.json({ error: data?.error?.message ?? 'Erreur création réservation' }, { status: res.status })
 
-  const aptNom     = String(appartement_titre || `Appartement #${appartement_id}`)
+  // Valeurs échappées pour usage HTML (empêche l'injection)
+  const ePrenom   = esc(prenom)
+  const eNom      = esc(nom)
+  const eEmail    = esc(email)
+  const eTel      = esc(telephone)
+  const eDemandes = esc(demandes || 'Aucune')
+  const eRef      = esc(reference)
+  const aptNom    = esc(appartement_titre || `Appartement #${appartement_id}`)
+  const ePay      = esc(String(mode_paiement).replace(/_/g, ' '))
+
   const totalFormate = Number(prix_total).toLocaleString('fr-FR')
-  const arrFormate  = fmtDate(String(arrivee))
-  const depFormate  = fmtDate(String(depart))
+  const arrFormate   = fmtDate(String(arrivee))
+  const depFormate   = fmtDate(String(depart))
+  // Numéro de téléphone pour href whatsapp — chiffres uniquement, longueur vérifiée
+  const telDigits = String(telephone).replace(/\D/g, '').slice(0, 15)
 
   // ── Email client ─────────────────────────────────
   await sendEmail(
@@ -94,20 +115,20 @@ export async function POST(req: NextRequest) {
         <div style="font-size:12px;color:#F09A55;margin-top:2px">Votre réservation a bien été reçue</div>
       </div>
       <div style="padding:28px">
-        <h2 style="font-size:18px;margin:0 0 16px;color:#1A0E06">Bonjour ${prenom},</h2>
+        <h2 style="font-size:18px;margin:0 0 16px;color:#1A0E06">Bonjour ${ePrenom},</h2>
         <p style="color:#7A6550;margin-bottom:20px">Votre demande de réservation a été enregistrée. Notre équipe vous contactera sous <strong>30 minutes</strong> pour confirmer.</p>
         <div style="background:#FBF8F4;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #E5DDD4">
           <div style="font-size:13px;color:#7A6550;margin-bottom:4px">Référence</div>
-          <div style="font-size:18px;font-weight:900;color:#E07A2F;letter-spacing:0.5px">${reference}</div>
+          <div style="font-size:18px;font-weight:900;color:#E07A2F;letter-spacing:0.5px">${eRef}</div>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:14px">
           ${[
             ['Appartement', aptNom],
-            ['Arrivée',     arrFormate],
-            ['Départ',      depFormate],
-            ['Durée',       `${nb_nuits} nuit${Number(nb_nuits)>1?'s':''}`],
-            ['Total',       `${totalFormate} XAF`],
-            ['Paiement',    String(mode_paiement).replace('_',' ')],
+            ['Arrivée',     esc(arrFormate)],
+            ['Départ',      esc(depFormate)],
+            ['Durée',       `${esc(nb_nuits)} nuit${Number(nb_nuits)>1?'s':''}`],
+            ['Total',       `${esc(totalFormate)} XAF`],
+            ['Paiement',    ePay],
           ].map(([k,v]) => `
           <tr style="border-bottom:1px solid #E5DDD4">
             <td style="padding:8px 0;color:#7A6550">${k}</td>
@@ -115,7 +136,7 @@ export async function POST(req: NextRequest) {
           </tr>`).join('')}
         </table>
         <div style="margin-top:20px;padding:16px;background:#DBEAFE;border-radius:8px;font-size:13px;color:#0369A1">
-          Notre équipe vous contactera par WhatsApp au numéro ${telephone} pour finaliser votre réservation.
+          Notre équipe vous contactera par WhatsApp au numéro ${eTel} pour finaliser votre réservation.
         </div>
       </div>
       <div style="background:#F3EFE9;padding:16px 28px;font-size:12px;color:#7A6550;text-align:center">
@@ -128,26 +149,26 @@ export async function POST(req: NextRequest) {
   // ── Email propriétaire ────────────────────────────
   await sendEmail(
     OWNER_EMAIL,
-    `[NOUVELLE RÉSERVATION] ${reference} — ${prenom} ${nom}`,
+    `[NOUVELLE RÉSERVATION] ${reference} — ${String(prenom)} ${String(nom)}`,
     `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #E5DDD4">
       <div style="background:#E07A2F;padding:20px 28px">
         <div style="font-size:18px;font-weight:900;color:#fff">Nouvelle réservation</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.8)">${reference}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.8)">${eRef}</div>
       </div>
       <div style="padding:24px">
         <table style="width:100%;border-collapse:collapse;font-size:14px">
           ${[
-            ['Client',      `${prenom} ${nom}`],
-            ['Email',       String(email)],
-            ['Téléphone',   String(telephone)],
+            ['Client',      `${ePrenom} ${eNom}`],
+            ['Email',       eEmail],
+            ['Téléphone',   eTel],
             ['Appartement', aptNom],
-            ['Arrivée',     arrFormate],
-            ['Départ',      depFormate],
-            ['Durée',       `${nb_nuits} nuit${Number(nb_nuits)>1?'s':''}`],
-            ['Total',       `${totalFormate} XAF`],
-            ['Paiement',    String(mode_paiement).replace('_',' ')],
-            ['Demandes',    String(demandes||'Aucune')],
+            ['Arrivée',     esc(arrFormate)],
+            ['Départ',      esc(depFormate)],
+            ['Durée',       `${esc(nb_nuits)} nuit${Number(nb_nuits)>1?'s':''}`],
+            ['Total',       `${esc(totalFormate)} XAF`],
+            ['Paiement',    ePay],
+            ['Demandes',    eDemandes],
           ].map(([k,v]) => `
           <tr style="border-bottom:1px solid #F3EDE7">
             <td style="padding:8px 0;color:#7A6550;width:130px">${k}</td>
@@ -155,7 +176,7 @@ export async function POST(req: NextRequest) {
           </tr>`).join('')}
         </table>
         <div style="margin-top:16px">
-          <a href="https://wa.me/${String(telephone).replace(/\D/g,'')}" style="display:inline-block;padding:12px 20px;background:#16A34A;color:#fff;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px">
+          <a href="https://wa.me/${telDigits}" style="display:inline-block;padding:12px 20px;background:#16A34A;color:#fff;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px">
             Contacter le client sur WhatsApp
           </a>
         </div>

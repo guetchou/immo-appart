@@ -192,6 +192,22 @@ export default function BookingModal({ apt, onClose }: Props) {
       if (!res.ok) { setErrMsg(data.error ?? 'Erreur lors de la réservation.'); return }
       setRef(data.reference)
       setWaUrl(data.whatsappUrl)
+
+      // Si mobile money et réservation créée → initier paiement avec documentId serveur
+      if (MOBILE_PAY_IDS.has(pay) && data.documentId && telMobile) {
+        const payRes  = await fetch('/api/paiement/initier', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ operateur: pay, telephone: telMobile, reservation_documentId: data.documentId }),
+        })
+        const payData = await payRes.json()
+        if (payRes.ok && payData.transactionId) {
+          setTransactionId(payData.transactionId)
+          setMobileStatut('polling')
+          startPolling(payData.transactionId, pay)
+        }
+      }
+
       setConfirm(true)
     } catch {
       setErrMsg('Erreur réseau. Veuillez réessayer.')
