@@ -6,7 +6,7 @@ import {
 } from '@/lib/strapi'
 import HomeClient from './HomeClient'
 
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 30
+export const revalidate = 30
 
 export default async function HomePage() {
   const [

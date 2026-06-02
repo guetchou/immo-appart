@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Découvrez notre sélection de résidences de luxe à Pointe-Noire — studios, T2/T3, penthouses et villas.',
 }
 
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 30
+export const revalidate = 30
 
 async function getAppartementsAll() {
   try {

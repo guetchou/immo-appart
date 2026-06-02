@@ -5,7 +5,7 @@ import AppartementClient from './AppartementClient'
 
 type Props = { params: Promise<{ slug: string }> }
 
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 30
+export const revalidate = 30
 
 async function getAppartement(slug: string) {
   try {
