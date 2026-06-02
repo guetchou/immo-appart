@@ -38,6 +38,26 @@ export default function Navbar({
   const [menuOpen,    setMenuOpen]    = useState(false)
   const [userOpen,    setUserOpen]    = useState(false)
   const [isLoggedIn,  setIsLoggedIn]  = useState(false)
+  const [userName,    setUserName]    = useState('')
+
+  useEffect(() => {
+    // Lire la session depuis sessionStorage
+    try {
+      const stored = sessionStorage.getItem('ndombi_user')
+      if (stored) {
+        const u = JSON.parse(stored)
+        setIsLoggedIn(true)
+        setUserName(u.username || u.email?.split('@')[0] || 'Compte')
+      }
+    } catch { /* ignore */ }
+  }, [])
+
+  const handleLogout = async () => {
+    sessionStorage.removeItem('ndombi_user')
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    setIsLoggedIn(false); setUserName(''); setUserOpen(false)
+    router.push('/')
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -153,14 +173,12 @@ export default function Navbar({
                 className="flex items-center gap-2 rounded-full px-3 py-[5px] pr-4 transition-all"
                 style={{ background: '#FBF8F4', border: '1.5px solid #E07A2F' }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face"
-                  alt="Profil"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span className="text-[13px] font-bold text-[#1A0E06]" style={{ fontFamily: 'var(--font-heading)' }}>
-                  Marc A.
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-[13px] text-white flex-shrink-0"
+                  style={{ background: '#E07A2F' }}>
+                  {userName[0]?.toUpperCase() ?? 'U'}
+                </div>
+                <span className="text-[13px] font-bold text-[#1A0E06] max-w-[80px] truncate" style={{ fontFamily: 'var(--font-heading)' }}>
+                  {userName}
                 </span>
                 <ChevronDown size={13} className="text-[#7A6550]" />
               </button>
@@ -171,32 +189,27 @@ export default function Navbar({
                   style={{ background: '#fff', border: '1px solid #E5DDD4', boxShadow: '0 24px 60px rgba(26,14,6,.16)' }}
                 >
                   <div className="px-4 py-3 border-b border-[#E5DDD4]">
-                    <div className="font-bold text-[14px] text-[#1A0E06]">Marc Ardoin</div>
-                    <div className="text-[12px] text-[#7A6550]">marc@email.com</div>
+                    <div className="font-bold text-[14px] text-[#1A0E06] truncate">{userName}</div>
                   </div>
                   {[
-                    { icon: <User size={15} />,     label: 'Mon profil'       },
-                    { icon: <Calendar size={15} />, label: 'Mes réservations', badge: '2' },
-                    { icon: <Heart size={15} />,    label: 'Mes favoris'      },
+                    { icon: <User size={15} />,     label: 'Mon espace',      href: '/mon-espace'          },
+                    { icon: <Calendar size={15} />, label: 'Mes réservations', href: '/mon-espace'          },
+                    { icon: <Heart size={15} />,    label: 'Mes favoris',      href: '/mon-espace'          },
                   ].map(item => (
-                    <button
+                    <Link
                       key={item.label}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-[14px] text-[#1C110A] hover:bg-[#FBF8F4] transition-colors"
+                      href={item.href}
+                      className="flex items-center gap-3 px-4 py-3 text-[14px] text-[#1C110A] hover:bg-[#FBF8F4] transition-colors"
                       onClick={() => setUserOpen(false)}
                     >
                       <span className="text-[#7A6550]">{item.icon}</span>
                       {item.label}
-                      {item.badge && (
-                        <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FEF0E6] text-[#E07A2F]">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
+                    </Link>
                   ))}
                   <div className="h-px bg-[#E5DDD4] mx-4" />
                   <button
                     className="w-full flex items-center gap-3 px-4 py-3 text-[14px] text-red-600 hover:bg-red-50 transition-colors"
-                    onClick={() => { setIsLoggedIn(false); setUserOpen(false) }}
+                    onClick={handleLogout}
                   >
                     <LogOut size={15} />
                     Se déconnecter

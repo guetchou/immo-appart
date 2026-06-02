@@ -21,7 +21,20 @@ async function getAppartementsAll() {
   }
 }
 
-export default async function AppartementsPage() {
+export default async function AppartementsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>
+}) {
+  const params = await searchParams
   const { data: appartements } = await getAppartementsAll()
-  return <CatalogueClient appartements={appartements as never[]} />
+  return (
+    <CatalogueClient
+      appartements={appartements as never[]}
+      initSearch={params.q ?? ''}
+      initArrivee={params.arrivee ?? ''}
+      initDepart={params.depart ?? ''}
+      initPers={params.pers ? Number(params.pers) : 1}
+    />
+  )
 }

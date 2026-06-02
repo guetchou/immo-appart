@@ -23,11 +23,11 @@ const DEFAULT_COLONNES: FooterColonne[] = [
     { label: 'Ménage quotidien', href: '/#services' },
   ]},
   { titre: 'Informations', liens: [
-    { label: 'À propos',               href: '/#apropos'    },
-    { label: "Politique d'annulation", href: '/#annulation' },
-    { label: 'Règlement intérieur',    href: '/#reglement'  },
-    { label: 'Modes de paiement',      href: '/#paiement'   },
-    { label: 'Contact',                href: '/#contact'    },
+    { label: 'À propos',               href: '/a-propos'  },
+    { label: "Politique d'annulation", href: '/annulation' },
+    { label: 'Règlement intérieur',    href: '/reglement'  },
+    { label: 'Modes de paiement',      href: '/paiement'   },
+    { label: 'Contact',                href: '/#contact'   },
   ]},
 ]
 
