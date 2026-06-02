@@ -1,28 +1,24 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 WORKDIR /opt/app
 
-# Dépendances de compilation
-RUN apk add --no-cache python3 make g++
+# Dépendances de compilation native
+RUN apk add --no-cache python3 make g++ dumb-init
 
+# Dépendances npm
 COPY package*.json ./
 RUN npm ci
 
+# Code source complet
 COPY . .
+
+# Supprimer les schema.json qui entrent en conflit avec schema.ts
+# (esbuild compile les .ts → .js dans dist/, les .json créent un doublon)
+RUN find src/api -name "schema.json" -delete 2>/dev/null || true
+
+# Build Strapi (compile TypeScript → dist/)
 RUN npm run build
 
-# Image finale — prod uniquement
-FROM node:20-alpine AS runner
-WORKDIR /opt/app
-
-RUN apk add --no-cache dumb-init
-
-COPY --from=builder /opt/app/package*.json ./
-COPY --from=builder /opt/app/dist         ./dist
-COPY --from=builder /opt/app/config       ./config
-COPY --from=builder /opt/app/src          ./src
-COPY --from=builder /opt/app/public       ./public
-COPY --from=builder /opt/app/node_modules ./node_modules
-
+# Dossier uploads
 RUN mkdir -p public/uploads && chown -R node:node /opt/app
 
 USER node
