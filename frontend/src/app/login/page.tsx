@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Phone } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Loader2, Phone } from 'lucide-react'
 import { FaGoogle, FaFacebook } from 'react-icons/fa'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [showPwd,  setShowPwd]  = useState(false)
@@ -18,10 +20,23 @@ export default function LoginPage() {
     if (!email || !password) { setError('Veuillez remplir tous les champs.'); return }
 
     setLoading(true)
-    // TODO: brancher sur Strapi users-permissions ou next-auth
-    await new Promise(r => setTimeout(r, 1200))
-    setLoading(false)
-    setError('Identifiants incorrects. Vérifiez votre email et mot de passe.')
+    try {
+      const res = await fetch('/api/auth/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ identifier: email, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Identifiants incorrects.'); return }
+
+      // Stocker le profil en sessionStorage pour l'affichage
+      if (data.user) sessionStorage.setItem('ndombi_user', JSON.stringify(data.user))
+      router.push('/')
+    } catch {
+      setError('Erreur réseau. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -41,8 +56,8 @@ export default function LoginPage() {
         <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(26,14,6,.85) 0%, rgba(224,122,47,.3) 100%)' }} />
 
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+        <Link href="/" className="relative z-10 flex items-center gap-3 group w-fit">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
             style={{ border: '2px solid #E07A2F', background: 'rgba(26,14,6,.6)' }}>
             <span className="font-serif text-[14px] font-bold text-white">RN</span>
           </div>
@@ -54,7 +69,7 @@ export default function LoginPage() {
               Confort · Luxe · Élégance
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Accroche centrale */}
         <div className="relative z-10">
@@ -177,15 +192,10 @@ export default function LoginPage() {
             onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#B85E18' }}
             onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#E07A2F' }}
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                </svg>
-                Connexion…
-              </span>
-            ) : 'Se connecter'}
+            {loading
+              ? <span className="flex items-center justify-center gap-2"><Loader2 size={16} className="animate-spin" /> Connexion…</span>
+              : 'Se connecter'
+            }
           </button>
 
           {/* Séparateur */}

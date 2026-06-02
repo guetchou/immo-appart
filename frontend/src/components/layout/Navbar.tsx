@@ -90,33 +90,48 @@ export default function Navbar({
 
         {/* ── Agent CTA ── */}
         <a
-          href="tel:+242064359090"
-          className="hidden md:flex items-center gap-3 rounded-full px-3 py-[5px] pr-4 transition-all duration-200"
+          href={`tel:${telephone.replace(/\s/g,'')}`}
+          className="hidden md:flex items-center gap-3 rounded-full px-3 py-[5px] pr-5 transition-all duration-200"
           style={{ background: '#FBF8F4', border: '1px solid #E5DDD4' }}
           onMouseEnter={e => {
             e.currentTarget.style.borderColor = '#E07A2F'
-            e.currentTarget.style.boxShadow   = '0 4px 14px rgba(224,122,47,.18)'
+            e.currentTarget.style.boxShadow   = '0 4px 18px rgba(224,122,47,.22)'
           }}
           onMouseLeave={e => {
             e.currentTarget.style.borderColor = '#E5DDD4'
             e.currentTarget.style.boxShadow   = 'none'
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={agentPhotoUrl}
-            alt={agentNom}
-            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-            style={{ border: '2px solid #E07A2F' }}
-          />
+          {/* Photo agent avec indicateur en ligne */}
+          <div className="relative flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={agentPhotoUrl}
+              alt={agentNom}
+              className="w-11 h-11 rounded-full object-cover"
+              style={{ border: '2.5px solid #E07A2F' }}
+            />
+            {/* Point vert "en ligne" avec pulse */}
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white"
+              style={{ background: '#22C55E', animation: 'navPulse 2s ease-in-out infinite' }} />
+          </div>
           <div className="leading-none">
-            <div className="text-[10px] text-[#7A6550] font-medium">Appelez notre agent</div>
-            <div className="text-[13px] font-black text-[#1A0E06]" style={{ fontFamily: 'var(--font-heading)' }}>
+            <div className="text-[11px] text-[#7A6550] font-medium mb-0.5">Appelez notre agent</div>
+            <div className="text-[13px] font-black text-[#1A0E06] tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
               {telephone}
+            </div>
+            <div className="text-[10px] font-semibold mt-0.5" style={{ color: '#22C55E' }}>
+              En ligne · Répond en 5 min
             </div>
           </div>
         </a>
+
+        <style jsx>{`
+          @keyframes navPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+            50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+          }
+        `}</style>
 
         {/* ── Auth ── */}
         <div className="relative hidden md:block">

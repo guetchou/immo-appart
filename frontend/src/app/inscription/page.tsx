@@ -34,10 +34,28 @@ export default function InscriptionPage() {
       return
     }
     setLoading(true)
-    // TODO: POST /api/auth/local/register (Strapi users-permissions)
-    await new Promise(r => setTimeout(r, 1200))
-    setLoading(false)
-    setStep(2)
+    try {
+      const res = await fetch('/api/auth/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          email:     form.email,
+          password:  form.password,
+          prenom:    form.prenom,
+          nom:       form.nom,
+          telephone: form.telephone,
+          username:  form.email,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Erreur lors de l\'inscription.'); return }
+      if (data.user) sessionStorage.setItem('ndombi_user', JSON.stringify(data.user))
+      setStep(2)
+    } catch {
+      setError('Erreur réseau. Veuillez réessayer.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // ── Succès ────────────────────────────────────────
@@ -84,8 +102,8 @@ export default function InscriptionPage() {
           style={{ background: 'linear-gradient(135deg, rgba(26,14,6,.88) 0%, rgba(224,122,47,.25) 100%)' }} />
 
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+        <Link href="/" className="relative z-10 flex items-center gap-3 group w-fit">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
             style={{ border: '2px solid #E07A2F', background: 'rgba(26,14,6,.6)' }}>
             <span className="font-serif text-[14px] font-bold text-white">RN</span>
           </div>
@@ -97,7 +115,7 @@ export default function InscriptionPage() {
               Confort · Luxe · Élégance
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Accroche */}
         <div className="relative z-10">

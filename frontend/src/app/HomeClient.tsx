@@ -2,10 +2,11 @@
 
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { Search, CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star } from 'lucide-react'
+import { CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
 import Navbar            from '@/components/layout/Navbar'
+import HeroSearch        from '@/components/hero/HeroSearch'
 import Footer            from '@/components/layout/Footer'
 import ChatBot           from '@/components/layout/ChatBot'
 import ApartmentCarousel from '@/components/appartement/ApartmentCarousel'
@@ -38,7 +39,7 @@ type ServiceItem = {
 
 type NavLink       = { label: string; href: string }
 type FooterColonne = { titre: string; liens: { label: string; href: string }[] }
-type ModalApt      = { name: string; loc: string; price: number; img: string } | null
+type ModalApt      = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
 // ── Icon mapping Lucide ──────────────────────────────
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -120,8 +121,25 @@ export default function HomeClient({
       img:   a.image_principale?.url ?? 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=80&fit=crop',
     }))
 
-  const openModal = (name: string, loc: string, price: number, img: string) =>
-    setModal({ name, loc, price, img })
+  const openModal = (name: string, loc: string, price: number, img: string, documentId?: string) =>
+    setModal({ name, loc, price, img, documentId })
+
+  const handleSearch = ({ query, arrivee, depart, pers, apt }: {
+    query: string; arrivee: string; depart: string; pers: number
+    apt?: { titre: string; quartier: string; ville: string; prix_nuit_base: number; image_principale?: { url: string } }
+  }) => {
+    if (apt) {
+      openModal(apt.titre, `${apt.quartier}, ${apt.ville}`, apt.prix_nuit_base, apt.image_principale?.url ?? '', (apt as { documentId?: string }).documentId)
+    } else {
+      // Recherche libre → navigue vers le catalogue avec filtres
+      const params = new URLSearchParams()
+      if (query) params.set('q', query)
+      if (arrivee) params.set('arrivee', arrivee)
+      if (depart) params.set('depart', depart)
+      if (pers > 1) params.set('pers', String(pers))
+      window.location.href = `/appartements?${params.toString()}`
+    }
+  }
 
   return (
     <>
@@ -149,26 +167,7 @@ export default function HomeClient({
           <p className="mb-8 font-light" style={{ color: 'rgba(255,255,255,.72)', fontSize: '16px' }}>
             {heroSousTitre}
           </p>
-          <div className="flex items-center rounded-[14px] mx-auto"
-            style={{ background:'#fff', border:'1px solid #E5DDD4', boxShadow:'0 20px 60px rgba(0,0,0,.3)', maxWidth:'720px' }}>
-            <Search size={18} className="ml-4 flex-shrink-0" style={{ color: '#7A6550' }} />
-            <input type="text" placeholder="Où êtes-vous situé ?"
-              className="flex-1 px-4 py-3.5 text-[14px] bg-transparent border-none outline-none text-[#1C110A] placeholder:text-[#7A6550]" />
-            <div className="w-px h-8 bg-[#E5DDD4] flex-shrink-0" />
-            <input type="date" className="px-4 py-3.5 text-[14px] bg-transparent border-none outline-none text-[#1C110A] w-[130px]" title="Arrivée" />
-            <div className="w-px h-8 bg-[#E5DDD4] flex-shrink-0" />
-            <input type="date" className="px-4 py-3.5 text-[14px] bg-transparent border-none outline-none text-[#1C110A] w-[130px]" title="Départ" />
-            <div className="w-px h-8 bg-[#E5DDD4] flex-shrink-0" />
-            <select className="px-3 py-3.5 text-[14px] bg-transparent border-none outline-none text-[#1C110A] w-[110px]">
-              <option>1 voyageur</option><option>2 voyageurs</option><option>3+ voyageurs</option>
-            </select>
-            <button className="m-1.5 flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white flex-shrink-0"
-              style={{ background: '#E07A2F', fontFamily: 'var(--font-heading)' }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#B85E18')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#E07A2F')}>
-              <Search size={14} /> Rechercher
-            </button>
-          </div>
+          <HeroSearch appartements={appartements} onSearch={handleSearch} />
         </div>
       </section>
 
@@ -215,7 +214,7 @@ export default function HomeClient({
           </div>
           <ApartmentCarousel
             apartments={appartements}
-            onReserve={apt => openModal(apt.titre, `${apt.quartier}, ${apt.ville}`, apt.prix_nuit_base, apt.image_principale?.url ?? '')}
+            onReserve={apt => openModal(apt.titre, `${apt.quartier}, ${apt.ville}`, apt.prix_nuit_base, apt.image_principale?.url ?? '', apt.documentId)}
           />
         </section>
       )}
