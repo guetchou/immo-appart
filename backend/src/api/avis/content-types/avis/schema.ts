@@ -1,0 +1,72 @@
+export default {
+  "kind": "collectionType",
+  "collectionName": "avis",
+  "info": {
+    "singularName": "avis",
+    "pluralName": "avis-clients",
+    "displayName": "Avis Client",
+    "description": "Avis et notes laissés par les voyageurs"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "prenom_auteur": {
+      "type": "string",
+      "required": true
+    },
+    "initiale_nom": {
+      "type": "string",
+      "maxLength": 1,
+      "description": "Ex: M pour Martin — pour préserver l'anonymat"
+    },
+    "nationalite": {
+      "type": "string"
+    },
+    "note_globale": {
+      "type": "decimal",
+      "required": true,
+      "min": 1,
+      "max": 5
+    },
+    "note_proprete": {
+      "type": "integer",
+      "min": 1,
+      "max": 5
+    },
+    "note_communication": {
+      "type": "integer",
+      "min": 1,
+      "max": 5
+    },
+    "note_emplacement": {
+      "type": "integer",
+      "min": 1,
+      "max": 5
+    },
+    "note_rapport_qualite_prix": {
+      "type": "integer",
+      "min": 1,
+      "max": 5
+    },
+    "commentaire": {
+      "type": "text",
+      "required": true,
+      "maxLength": 1000
+    },
+    "date_sejour": {
+      "type": "date"
+    },
+    "verifie": {
+      "type": "boolean",
+      "default": false,
+      "description": "Avis vérifié par un admin (lié à une réservation réelle)"
+    },
+    "appartement": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::appartement.appartement",
+      "inversedBy": "avis"
+    }
+  }
+} as const;

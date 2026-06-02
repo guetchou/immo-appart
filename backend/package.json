@@ -4,13 +4,10 @@
   "version": "0.1.0",
   "description": "Résidence NDOMBI — Backend Strapi 5",
   "scripts": {
-    "copy-schemas": "node scripts/copy-schemas.js",
-    "prebuild": "node scripts/copy-schemas.js",
-    "prestart": "node scripts/copy-schemas.js",
     "develop": "node scripts/develop.js",
-    "start": "strapi start",
-    "build": "strapi build",
-    "deploy": "strapi deploy"
+    "start":   "strapi start",
+    "build":   "strapi build",
+    "deploy":  "strapi deploy"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.47.0",

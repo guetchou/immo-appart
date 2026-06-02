@@ -1,0 +1,40 @@
+export default {
+  "collectionName": "components_appartement_equipements",
+  "info": {
+    "displayName": "Equipement",
+    "icon": "puzzle-piece",
+    "description": "Équipement ou commodité d'un appartement"
+  },
+  "options": {},
+  "attributes": {
+    "nom": {
+      "type": "string",
+      "required": true
+    },
+    "icone": {
+      "type": "string",
+      "description": "Nom de l'icône Lucide React (ex: wifi, car, pool)"
+    },
+    "categorie": {
+      "type": "enumeration",
+      "enum": [
+        "connectivite",
+        "confort",
+        "cuisine",
+        "securite",
+        "exterieur",
+        "transport",
+        "divertissement",
+        "sante",
+        "bebe",
+        "accessibilite"
+      ],
+      "required": true
+    },
+    "premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Équipement de luxe mis en avant"
+    }
+  }
+} as const;
