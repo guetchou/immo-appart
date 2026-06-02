@@ -2,28 +2,28 @@ import { draftMode } from 'next/headers'
 
 const STRAPI_URL   = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? ''
+const IS_DEV       = process.env.NODE_ENV === 'development'
 
 type FetchOptions = {
   method?:     'GET' | 'POST' | 'PUT' | 'DELETE'
   body?:       unknown
   tags?:       string[]
   revalidate?: number
-  preview?:    boolean   // forcer le mode preview
+  preview?:    boolean
 }
 
 export async function strapiRequest<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const { method = 'GET', body, tags, revalidate = 60 } = options
 
-  // Draft Mode — si Next.js est en preview, on demande les brouillons à Strapi
+  // Draft Mode — brouillons Strapi si preview activé
   let isPreview = options.preview ?? false
   try {
     const draft = await draftMode()
     if (draft.isEnabled) isPreview = true
   } catch {
-    // draftMode() non disponible hors Server Components — ignorer
+    // draftMode() indisponible hors Server Components
   }
 
-  // Ajouter status=draft si en preview (nécessite un token Strapi avec droits)
   const url = new URL(`${STRAPI_URL}/api${path}`)
   if (isPreview) url.searchParams.set('status', 'draft')
 
@@ -35,59 +35,82 @@ export async function strapiRequest<T>(path: string, options: FetchOptions = {})
       ...(isPreview    ? { 'strapi-encode-source-maps': 'true' }    : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
-    next: { tags, revalidate: isPreview ? 0 : revalidate },
+    // En développement : no-store → toujours frais, jamais de cache
+    // En preview       : no-store → brouillon immédiat
+    // En production    : ISR avec tags pour revalidation via webhook
+    ...(IS_DEV || isPreview
+      ? { cache: 'no-store' as const }
+      : { next: { tags, revalidate } }
+    ),
   })
-  if (!res.ok) throw new Error(`Strapi ${method} ${path} → ${res.status}`)
+
+  if (!res.ok) throw new Error(`Strapi ${method} ${path} → ${res.status} ${res.statusText}`)
   return res.json()
 }
 
-// ── Helpers Single Types ─────────────────────────────
+// ── Single Types ─────────────────────────────────────
 export async function getHomepage() {
   try {
-    const r = await strapiRequest<{ data: Record<string, unknown> }>('/homepage', { revalidate: 120, tags: ['homepage'] })
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/homepage', { revalidate: 30, tags: ['homepage'] }
+    )
     return r.data
   } catch { return null }
 }
 
 export async function getNavigation() {
   try {
-    const r = await strapiRequest<{ data: Record<string, unknown> }>('/navigation', { revalidate: 300, tags: ['navigation'] })
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/navigation', { revalidate: 60, tags: ['navigation'] }
+    )
     return r.data
   } catch { return null }
 }
 
 export async function getFooterConfig() {
   try {
-    const r = await strapiRequest<{ data: Record<string, unknown> }>('/footer-config', { revalidate: 300, tags: ['footer'] })
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/footer-config', { revalidate: 60, tags: ['footer'] }
+    )
     return r.data
   } catch { return null }
 }
 
 export async function getReseauxSociaux() {
   try {
-    const r = await strapiRequest<{ data: Record<string, unknown> }>('/reseaux-sociaux', { revalidate: 120, tags: ['reseaux'] })
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/reseaux-sociaux', { revalidate: 30, tags: ['reseaux'] }
+    )
     return r.data
   } catch { return null }
 }
 
-// ── Helpers Collections ──────────────────────────────
+// ── Collections ──────────────────────────────────────
 export async function getAppartements(params = '') {
   try {
-    const r = await strapiRequest<{ data: unknown[]; meta: unknown }>(`/appartements${params}`, { revalidate: 60, tags: ['appartements'] })
+    const r = await strapiRequest<{ data: unknown[]; meta: unknown }>(
+      `/appartements${params}`, { revalidate: 30, tags: ['appartements'] }
+    )
     return r.data
   } catch { return [] }
 }
 
 export async function getPublicationsSociales() {
   try {
-    const r = await strapiRequest<{ data: unknown[] }>('/publications-sociales?filters[actif][$eq]=true&sort=ordre:desc&pagination[pageSize]=12', { revalidate: 60, tags: ['publications'] })
+    const r = await strapiRequest<{ data: unknown[] }>(
+      '/publications-sociales?filters[actif][$eq]=true&sort=ordre:desc&pagination[pageSize]=12',
+      { revalidate: 30, tags: ['publications'] }
+    )
     return r.data
   } catch { return [] }
 }
 
 export async function getServicesPremium() {
   try {
-    const r = await strapiRequest<{ data: unknown[] }>('/services-premium?filters[disponible][$eq]=true', { revalidate: 300, tags: ['services'] })
+    const r = await strapiRequest<{ data: unknown[] }>(
+      '/services-premium?filters[disponible][$eq]=true',
+      { revalidate: 60, tags: ['services'] }
+    )
     return r.data
   } catch { return [] }
 }
