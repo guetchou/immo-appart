@@ -67,6 +67,19 @@ export default {
       "relation": "manyToOne",
       "target": "api::appartement.appartement",
       "inversedBy": "avis"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "URL de la photo de l'auteur (Unsplash ou upload)"
+    },
+    "origine": {
+      "type": "string",
+      "description": "Ex: Paris, France · Séjour professionnel"
+    },
+    "en_vedette": {
+      "type": "boolean",
+      "default": false,
+      "description": "Afficher dans la section témoignages de la homepage"
     }
   }
 } as const;

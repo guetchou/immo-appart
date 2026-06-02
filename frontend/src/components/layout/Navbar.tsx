@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Phone, User, LogOut, Calendar, Heart, ChevronDown, Menu, X } from 'lucide-react'
 
-const NAV_LINKS = [
+const DEFAULT_navLinks = [
   { label: 'Accueil',       href: '/'              },
   { label: 'Appartements',  href: '/appartements'  },
   { label: 'Services',      href: '/#services'     },
@@ -13,12 +13,15 @@ const NAV_LINKS = [
   { label: 'Contact',       href: '/#contact'      },
 ]
 
+type NavLink = { label: string; href: string }
+
 type NavProps = {
   logoNom?:       string
   logoTagline?:   string
   telephone?:     string
   agentNom?:      string
   agentPhotoUrl?: string
+  liensNav?:      NavLink[]
 }
 
 export default function Navbar({
@@ -27,7 +30,9 @@ export default function Navbar({
   telephone     = '+242 06 435 90 90',
   agentNom      = 'Agent NDOMBI',
   agentPhotoUrl = 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face',
+  liensNav,
 }: NavProps = {}) {
+  const navLinks = liensNav?.length ? liensNav : DEFAULT_navLinks
   const router = useRouter()
   const [scrolled,    setScrolled]    = useState(false)
   const [menuOpen,    setMenuOpen]    = useState(false)
@@ -72,7 +77,7 @@ export default function Navbar({
 
         {/* ── Nav links ── */}
         <nav className="hidden lg:flex items-center gap-7 ml-auto">
-          {NAV_LINKS.map(l => (
+          {navLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
@@ -203,7 +208,7 @@ export default function Navbar({
           className="lg:hidden absolute inset-x-0 top-[68px] py-4 px-6 space-y-1"
           style={{ background: '#fff', borderBottom: '1px solid #E5DDD4', boxShadow: '0 8px 32px rgba(26,14,6,.12)' }}
         >
-          {NAV_LINKS.map(l => (
+          {navLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}

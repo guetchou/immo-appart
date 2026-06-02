@@ -19,5 +19,41 @@ export default {
     youtube_url:   { type: "string" },
     whatsapp_url:  { type: "string", default: "https://wa.me/242064359090" },
     tiktok_url:    { type: "string", default: "https://www.tiktok.com/@rsidence.ndombi" },
+    colonnes_liens: {
+      type: "json",
+      description: "Colonnes de liens du footer — tableau [{titre, liens:[{label,href}]}]",
+      default: [
+        {
+          "titre": "Appartements",
+          "liens": [
+            { "label": "Studios",         "href": "/appartements" },
+            { "label": "T2 & T3",         "href": "/appartements" },
+            { "label": "Penthouse",        "href": "/appartements" },
+            { "label": "Villas",           "href": "/appartements" },
+            { "label": "Lofts & Duplex",   "href": "/appartements" }
+          ]
+        },
+        {
+          "titre": "Services",
+          "liens": [
+            { "label": "Navette aéroport", "href": "/#services" },
+            { "label": "Chef cuisinier",   "href": "/#services" },
+            { "label": "Conciergerie",     "href": "/#services" },
+            { "label": "Sécurité 24h",     "href": "/#services" },
+            { "label": "Ménage quotidien", "href": "/#services" }
+          ]
+        },
+        {
+          "titre": "Informations",
+          "liens": [
+            { "label": "À propos",                "href": "/#apropos"  },
+            { "label": "Politique d'annulation",  "href": "/#annulation" },
+            { "label": "Règlement intérieur",     "href": "/#reglement" },
+            { "label": "Modes de paiement",       "href": "/#paiement" },
+            { "label": "Contact",                 "href": "/#contact"  }
+          ]
+        }
+      ]
+    }
   }
 } as const;

@@ -1,24 +1,50 @@
+'use client'
+
 import Link from 'next/link'
 import { Phone, Mail, MapPin } from 'lucide-react'
 import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
-const APARTMENTS = ['Studios', 'T2 & T3', 'Penthouse', 'Villas', 'Lofts & Duplex']
-const SERVICES   = ['Navette aéroport', 'Chef cuisinier', 'Conciergerie', 'Sécurité 24h', 'Ménage quotidien']
-const INFO       = ["À propos", "Politique d'annulation", 'Règlement intérieur', 'Modes de paiement', 'Contact']
+type FooterLink    = { label: string; href: string }
+type FooterColonne = { titre: string; liens: FooterLink[] }
+
+const DEFAULT_COLONNES: FooterColonne[] = [
+  { titre: 'Appartements', liens: [
+    { label: 'Studios',        href: '/appartements' },
+    { label: 'T2 & T3',        href: '/appartements' },
+    { label: 'Penthouse',      href: '/appartements' },
+    { label: 'Villas',         href: '/appartements' },
+    { label: 'Lofts & Duplex', href: '/appartements' },
+  ]},
+  { titre: 'Services', liens: [
+    { label: 'Navette aéroport', href: '/#services' },
+    { label: 'Chef cuisinier',   href: '/#services' },
+    { label: 'Conciergerie',     href: '/#services' },
+    { label: 'Sécurité 24h',     href: '/#services' },
+    { label: 'Ménage quotidien', href: '/#services' },
+  ]},
+  { titre: 'Informations', liens: [
+    { label: 'À propos',               href: '/#apropos'    },
+    { label: "Politique d'annulation", href: '/#annulation' },
+    { label: 'Règlement intérieur',    href: '/#reglement'  },
+    { label: 'Modes de paiement',      href: '/#paiement'   },
+    { label: 'Contact',                href: '/#contact'    },
+  ]},
+]
 
 type FooterProps = {
-  logoNom?:     string
-  logoTagline?: string
-  description?: string
-  adresse?:     string
-  email?:       string
-  telephone?:   string
-  copyright?:   string
-  facebookUrl?:  string
-  instagramUrl?: string
-  youtubeUrl?:   string
-  whatsappUrl?:  string
-  tiktokUrl?:    string
+  logoNom?:       string
+  logoTagline?:   string
+  description?:   string
+  adresse?:       string
+  email?:         string
+  telephone?:     string
+  copyright?:     string
+  facebookUrl?:   string
+  instagramUrl?:  string
+  youtubeUrl?:    string
+  whatsappUrl?:   string
+  tiktokUrl?:     string
+  colonnesLiens?: FooterColonne[]
 }
 
 export default function Footer({
@@ -30,9 +56,12 @@ export default function Footer({
   telephone   = '+242 06 435 90 90',
   copyright   = 'Résidence NDOMBI — Tous droits réservés',
   facebookUrl,  instagramUrl,
-  youtubeUrl,   whatsappUrl    = 'https://wa.me/242064359090',
+  youtubeUrl,   whatsappUrl  = 'https://wa.me/242064359090',
   tiktokUrl   = 'https://www.tiktok.com/@rsidence.ndombi',
+  colonnesLiens,
 }: FooterProps = {}) {
+  const colonnes = colonnesLiens?.length ? colonnesLiens : DEFAULT_COLONNES
+
   return (
     <footer id="contact" style={{ background: '#1A0E06' }}>
       <div className="max-w-[1240px] mx-auto px-8 pt-16 pb-8">
@@ -70,9 +99,9 @@ export default function Footer({
                 { icon: <MapPin size={14} />, text: adresse,   href: '/#localisation'  },
               ].map(item => (
                 <a
-                  key={item.text}
+                  key={item.href}
                   href={item.href}
-                  className="flex items-start gap-3 text-[13px] transition-colors hover:text-white group"
+                  className="flex items-start gap-3 text-[13px] transition-colors hover:text-white"
                   style={{ color: 'rgba(255,255,255,.65)' }}
                 >
                   <span className="mt-0.5 flex-shrink-0 text-[#E07A2F]">{item.icon}</span>
@@ -82,30 +111,26 @@ export default function Footer({
             </div>
           </div>
 
-          {/* Link columns */}
-          {[
-            { title: 'Appartements', links: APARTMENTS },
-            { title: 'Services',     links: SERVICES   },
-            { title: 'Informations', links: INFO        },
-          ].map(col => (
-            <div key={col.title}>
+          {/* Link columns from Strapi */}
+          {colonnes.map(col => (
+            <div key={col.titre}>
               <h5
                 className="text-[11px] font-bold tracking-[1.8px] uppercase mb-5"
                 style={{ color: '#E07A2F' }}
               >
-                {col.title}
+                {col.titre}
               </h5>
               <ul className="space-y-2.5">
-                {col.links.map(l => (
-                  <li key={l}>
+                {col.liens.map(l => (
+                  <li key={l.label}>
                     <Link
-                      href="#"
+                      href={l.href}
                       className="text-[14px] transition-colors duration-200"
                       style={{ color: 'rgba(255,255,255,.5)' }}
                       onMouseEnter={e => (e.currentTarget.style.color = '#E07A2F')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,.5)')}
                     >
-                      {l}
+                      {l.label}
                     </Link>
                   </li>
                 ))}
@@ -124,26 +149,28 @@ export default function Footer({
           </span>
           <div className="flex items-center gap-3">
             {[
-              { icon: <FaFacebook size={14} />,  label: 'Facebook'  },
-              { icon: <FaInstagram size={14} />, label: 'Instagram' },
-              { icon: <FaYoutube size={14} />,   label: 'YouTube'   },
-              { icon: <FaWhatsapp size={14} />,  label: 'WhatsApp'  },
-            ].map(s => (
+              { icon: <FaFacebook size={14} />,  label: 'Facebook',  href: facebookUrl  },
+              { icon: <FaInstagram size={14} />, label: 'Instagram', href: instagramUrl },
+              { icon: <FaYoutube size={14} />,   label: 'YouTube',   href: youtubeUrl   },
+              { icon: <FaWhatsapp size={14} />,  label: 'WhatsApp',  href: whatsappUrl  },
+            ].filter(s => s.href).map(s => (
               <a
                 key={s.label}
-                href="#"
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={s.label}
                 className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
                 style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', color: 'rgba(255,255,255,.5)' }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background   = '#E07A2F'
-                  e.currentTarget.style.borderColor  = '#E07A2F'
-                  e.currentTarget.style.color        = '#fff'
+                  e.currentTarget.style.background  = '#E07A2F'
+                  e.currentTarget.style.borderColor = '#E07A2F'
+                  e.currentTarget.style.color       = '#fff'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background   = 'rgba(255,255,255,.06)'
-                  e.currentTarget.style.borderColor  = 'rgba(255,255,255,.12)'
-                  e.currentTarget.style.color        = 'rgba(255,255,255,.5)'
+                  e.currentTarget.style.background  = 'rgba(255,255,255,.06)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'
+                  e.currentTarget.style.color       = 'rgba(255,255,255,.5)'
                 }}
               >
                 {s.icon}

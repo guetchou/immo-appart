@@ -115,8 +115,18 @@ export async function getPublicationsSociales() {
 export async function getServicesPremium() {
   try {
     const r = await strapiRequest<{ data: unknown[] }>(
-      '/services-premium?filters[disponible][$eq]=true',
+      '/services-premium?filters[disponible][$eq]=true&sort=createdAt:asc&pagination[pageSize]=8',
       { revalidate: 60, tags: ['services'] }
+    )
+    return r.data
+  } catch { return [] }
+}
+
+export async function getAvis() {
+  try {
+    const r = await strapiRequest<{ data: unknown[] }>(
+      '/avis?filters[en_vedette][$eq]=true&filters[verifie][$eq]=true&sort=createdAt:desc&pagination[pageSize]=6',
+      { revalidate: 60, tags: ['avis'] }
     )
     return r.data
   } catch { return [] }

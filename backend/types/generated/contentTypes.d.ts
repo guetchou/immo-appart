@@ -484,7 +484,7 @@ export interface ApiAppartementAppartement extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 2;
       }> &
-      Schema.Attribute.DefaultTo<'CD'>;
+      Schema.Attribute.DefaultTo<'CG'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -570,7 +570,7 @@ export interface ApiAppartementAppartement extends Struct.CollectionTypeSchema {
     ordre_affichage: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     pays: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'R\u00E9publique D\u00E9mocratique du Congo'>;
+      Schema.Attribute.DefaultTo<'R\u00E9publique du Congo'>;
     politique_annulation: Schema.Attribute.Enumeration<
       ['flexible', 'moderee', 'stricte', 'non_remboursable']
     > &
@@ -639,7 +639,7 @@ export interface ApiAppartementAppartement extends Struct.CollectionTypeSchema {
     video_url: Schema.Attribute.String;
     ville: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'Kinshasa'>;
+      Schema.Attribute.DefaultTo<'Pointe-Noire'>;
     visite_3d_url: Schema.Attribute.String;
   };
 }
@@ -669,6 +669,7 @@ export interface ApiAvisAvis extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     date_sejour: Schema.Attribute.Date;
+    en_vedette: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     initiale_nom: Schema.Attribute.String &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 1;
@@ -718,12 +719,361 @@ export interface ApiAvisAvis extends Struct.CollectionTypeSchema {
         },
         number
       >;
+    origine: Schema.Attribute.String;
+    photo_url: Schema.Attribute.String;
     prenom_auteur: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     verifie: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+  };
+}
+
+export interface ApiFooterConfigFooterConfig extends Struct.SingleTypeSchema {
+  collectionName: 'footer_config';
+  info: {
+    description: 'Contenu du pied de page';
+    displayName: 'Footer';
+    pluralName: 'footer-configs';
+    singularName: 'footer-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    adresse: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Foucks, Pointe-Noire \u2014 pr\u00E8s de la Clinique MOUAMBA, R\u00E9publique du Congo'>;
+    colonnes_liens: Schema.Attribute.JSON &
+      Schema.Attribute.DefaultTo<
+        [
+          {
+            liens: [
+              {
+                href: '/appartements';
+                label: 'Studios';
+              },
+              {
+                href: '/appartements';
+                label: 'T2 & T3';
+              },
+              {
+                href: '/appartements';
+                label: 'Penthouse';
+              },
+              {
+                href: '/appartements';
+                label: 'Villas';
+              },
+              {
+                href: '/appartements';
+                label: 'Lofts & Duplex';
+              },
+            ];
+            titre: 'Appartements';
+          },
+          {
+            liens: [
+              {
+                href: '/#services';
+                label: 'Navette a\u00E9roport';
+              },
+              {
+                href: '/#services';
+                label: 'Chef cuisinier';
+              },
+              {
+                href: '/#services';
+                label: 'Conciergerie';
+              },
+              {
+                href: '/#services';
+                label: 'S\u00E9curit\u00E9 24h';
+              },
+              {
+                href: '/#services';
+                label: 'M\u00E9nage quotidien';
+              },
+            ];
+            titre: 'Services';
+          },
+          {
+            liens: [
+              {
+                href: '/#apropos';
+                label: '\u00C0 propos';
+              },
+              {
+                href: '/#annulation';
+                label: "Politique d'annulation";
+              },
+              {
+                href: '/#reglement';
+                label: 'R\u00E8glement int\u00E9rieur';
+              },
+              {
+                href: '/#paiement';
+                label: 'Modes de paiement';
+              },
+              {
+                href: '/#contact';
+                label: 'Contact';
+              },
+            ];
+            titre: 'Informations';
+          },
+        ]
+      >;
+    copyright: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'R\u00E9sidence NDOMBI \u2014 Tous droits r\u00E9serv\u00E9s'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.DefaultTo<'Appartements meubl\u00E9s haut de gamme pour s\u00E9jours courts et longs \u00E0 Pointe-Noire. Une exp\u00E9rience unique alliant confort, luxe et service personnalis\u00E9.'>;
+    email: Schema.Attribute.Email &
+      Schema.Attribute.DefaultTo<'residencendombi@gmail.com'>;
+    facebook_url: Schema.Attribute.String;
+    instagram_url: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::footer-config.footer-config'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    telephone: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'+242 06 435 90 90'>;
+    tiktok_url: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://www.tiktok.com/@rsidence.ndombi'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    whatsapp_url: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://wa.me/242064359090'>;
+    youtube_url: Schema.Attribute.String;
+  };
+}
+
+export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
+  collectionName: 'homepage';
+  info: {
+    description: "Contenu \u00E9ditorial de la page d'accueil";
+    displayName: "Page d'accueil";
+    pluralName: 'homepages';
+    singularName: 'homepage';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    catalogue_label: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Notre s\u00E9lection'>;
+    catalogue_titre: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Appartements disponibles'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    hero_image: Schema.Attribute.Media<'images'>;
+    hero_image_url_defaut: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'>;
+    hero_sous_titre: Schema.Attribute.Text &
+      Schema.Attribute.DefaultTo<'Appartements meubl\u00E9s haut de gamme \u00B7 Confirmation WhatsApp en 30 min'>;
+    hero_titre: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'R\u00E9servez votre r\u00E9sidence \u00E0 Pointe-Noire'>;
+    humain_image: Schema.Attribute.Media<'images'>;
+    humain_image_url_defaut: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=500&fit=crop&crop=top'>;
+    humain_label: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Recherche simplifi\u00E9e'>;
+    humain_texte: Schema.Attribute.Text &
+      Schema.Attribute.DefaultTo<'Notre \u00E9quipe vous accompagne \u00E0 chaque \u00E9tape \u2014 s\u00E9lection, r\u00E9servation, check-in et services.'>;
+    humain_titre: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Trouvez votre r\u00E9sidence id\u00E9ale'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::homepage.homepage'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    services_label: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Services premium'>;
+    services_titre: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Une exp\u00E9rience compl\u00E8te'>;
+    social_actif: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    social_sous_titre: Schema.Attribute.Text &
+      Schema.Attribute.DefaultTo<'Retrouvez-nous sur les r\u00E9seaux sociaux'>;
+    social_titre: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Suivez-nous'>;
+    stat_confirmation: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'< 30 min'>;
+    stat_note: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<4.9>;
+    stat_prix_min: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<45000>;
+    stat_residences: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<48>;
+    temoignages_label: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Avis clients v\u00E9rifi\u00E9s'>;
+    temoignages_titre: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Ce que disent nos r\u00E9sidents'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiNavigationNavigation extends Struct.SingleTypeSchema {
+  collectionName: 'navigation';
+  info: {
+    description: 'Contenu de la barre de navigation';
+    displayName: 'Navigation (Header)';
+    pluralName: 'navigations';
+    singularName: 'navigation';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    agent_nom: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Agent NDOMBI'>;
+    agent_photo: Schema.Attribute.Media<'images'>;
+    agent_photo_url: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face'>;
+    bouton_reserver_texte: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'R\u00E9server'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    liens_nav: Schema.Attribute.JSON &
+      Schema.Attribute.DefaultTo<
+        [
+          {
+            href: '/';
+            label: 'Accueil';
+          },
+          {
+            href: '/appartements';
+            label: 'Appartements';
+          },
+          {
+            href: '/#services';
+            label: 'Services';
+          },
+          {
+            href: '/#temoignages';
+            label: 'Avis';
+          },
+          {
+            href: '/#contact';
+            label: 'Contact';
+          },
+        ]
+      >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::navigation.navigation'
+    > &
+      Schema.Attribute.Private;
+    logo_image: Schema.Attribute.Media<'images'>;
+    logo_nom: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'R\u00E9sidence NDOMBI'>;
+    logo_tagline: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Confort \u00B7 Luxe \u00B7 \u00C9l\u00E9gance'>;
+    publishedAt: Schema.Attribute.DateTime;
+    telephone: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'+242 06 435 90 90'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    whatsapp: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'+242 06 435 90 90'>;
+  };
+}
+
+export interface ApiPublicationSocialePublicationSociale
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'publications_sociales';
+  info: {
+    description: 'Posts r\u00E9seaux sociaux affich\u00E9s sur le site (TikTok, Instagram, YouTube, Facebook)';
+    displayName: 'Publication Sociale';
+    pluralName: 'publications-sociales';
+    singularName: 'publication-sociale';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    actif: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date_publication: Schema.Attribute.Date;
+    description: Schema.Attribute.Text;
+    embed_url: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::publication-sociale.publication-sociale'
+    > &
+      Schema.Attribute.Private;
+    miniature: Schema.Attribute.Media<'images'>;
+    miniature_url: Schema.Attribute.String;
+    ordre: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    publishedAt: Schema.Attribute.DateTime;
+    reseau: Schema.Attribute.Enumeration<
+      ['tiktok', 'instagram', 'youtube', 'facebook']
+    > &
+      Schema.Attribute.Required;
+    titre: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    url_post: Schema.Attribute.String & Schema.Attribute.Required;
+    vues: Schema.Attribute.Integer;
+  };
+}
+
+export interface ApiReseauxSociauxReseauxSociaux
+  extends Struct.SingleTypeSchema {
+  collectionName: 'reseaux_sociaux';
+  info: {
+    description: 'URLs et activation des r\u00E9seaux sociaux';
+    displayName: 'R\u00E9seaux Sociaux';
+    pluralName: 'reseaux-sociaux-list';
+    singularName: 'reseaux-sociaux';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    facebook_actif: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    facebook_url: Schema.Attribute.String;
+    instagram_actif: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    instagram_url: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::reseaux-sociaux.reseaux-sociaux'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    tiktok_actif: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    tiktok_url: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://www.tiktok.com/@rsidence.ndombi'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    whatsapp_actif: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    whatsapp_numero: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'+242064359090'>;
+    youtube_actif: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    youtube_url: Schema.Attribute.String;
   };
 }
 
@@ -1389,6 +1739,11 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::appartement.appartement': ApiAppartementAppartement;
       'api::avis.avis': ApiAvisAvis;
+      'api::footer-config.footer-config': ApiFooterConfigFooterConfig;
+      'api::homepage.homepage': ApiHomepageHomepage;
+      'api::navigation.navigation': ApiNavigationNavigation;
+      'api::publication-sociale.publication-sociale': ApiPublicationSocialePublicationSociale;
+      'api::reseaux-sociaux.reseaux-sociaux': ApiReseauxSociauxReseauxSociaux;
       'api::reservation.reservation': ApiReservationReservation;
       'api::service-premium.service-premium': ApiServicePremiumServicePremium;
       'plugin::content-releases.release': PluginContentReleasesRelease;

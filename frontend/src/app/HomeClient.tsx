@@ -2,101 +2,136 @@
 
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import { Search, CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles } from 'lucide-react'
-import Navbar         from '@/components/layout/Navbar'
-import Footer         from '@/components/layout/Footer'
-import ChatBot        from '@/components/layout/ChatBot'
+import { Search, CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import type { Appartement } from '@/types/strapi'
+import Navbar            from '@/components/layout/Navbar'
+import Footer            from '@/components/layout/Footer'
+import ChatBot           from '@/components/layout/ChatBot'
 import ApartmentCarousel from '@/components/appartement/ApartmentCarousel'
-import BookingModal   from '@/components/reservation/BookingModal'
-import SocialWall     from '@/components/social/SocialWall'
+import BookingModal      from '@/components/reservation/BookingModal'
+import SocialWall        from '@/components/social/SocialWall'
 
 const MapSection = dynamic(() => import('@/components/appartement/MapSection'), { ssr: false })
 
 // ── Types ────────────────────────────────────────────
-type AptItem = {
-  id: number; documentId: string; titre: string; slug: string; quartier: string; ville: string
-  prix_nuit_base: number; devise: 'XAF' | 'USD' | 'EUR' | 'CDF'
-  type_logement: 'studio'|'t1'|'t2'|'t3'|'t4'|'t5_plus'|'villa'|'penthouse'|'duplex'|'loft'
-  nombre_chambres: number; superficie?: number; duree_min_sejour: number
-  note_moyenne?: number; nombre_avis: number
-  en_vedette: boolean; nouveau: boolean; statut: 'disponible'|'occupe'|'maintenance'|'inactif'
-  image_principale?: { url: string; alternativeText: string | null }
+type AptItem = Pick<Appartement,
+  'id' | 'documentId' | 'titre' | 'slug' | 'quartier' | 'ville' |
+  'prix_nuit_base' | 'devise' | 'type_logement' | 'nombre_chambres' |
+  'superficie' | 'duree_min_sejour' | 'note_moyenne' | 'nombre_avis' |
+  'en_vedette' | 'nouveau' | 'statut' | 'latitude' | 'longitude'
+> & { image_principale?: { url: string; alternativeText: string | null } }
+
+type AvisItem = {
+  id: number; documentId: string
+  prenom_auteur: string; initiale_nom?: string
+  note_globale: number; commentaire: string
+  photo_url?: string; origine?: string; verifie?: boolean
 }
-type ModalApt = { name: string; loc: string; price: number; img: string } | null
 
-// ── Données de démo (fallback Strapi vide) ───────────
-const DEMO_APTS: AptItem[] = [
-  { id:1, documentId:'apt1', titre:'Studio Prestige',       slug:'studio-prestige',      quartier:'Foucks',       ville:'Pointe-Noire', prix_nuit_base:75000,  devise:'XAF', type_logement:'studio',    nombre_chambres:1, superficie:45,  duree_min_sejour:2, note_moyenne:4.9, nombre_avis:32, en_vedette:true,  nouveau:false, statut:'disponible', image_principale:{url:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=300&fit=crop',alternativeText:'Studio Prestige'} },
-  { id:2, documentId:'apt2', titre:'T2 Élégance',           slug:'t2-elegance',          quartier:'Loandjili',    ville:'Pointe-Noire', prix_nuit_base:120000, devise:'XAF', type_logement:'t2',        nombre_chambres:2, superficie:80,  duree_min_sejour:3, note_moyenne:4.8, nombre_avis:18, en_vedette:false, nouveau:true,  statut:'disponible', image_principale:{url:'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&h=300&fit=crop',alternativeText:'T2 Élégance'} },
-  { id:3, documentId:'apt3', titre:'Penthouse Vue Océan',   slug:'penthouse-vue-ocean',  quartier:'Centre-ville', ville:'Pointe-Noire', prix_nuit_base:200000, devise:'XAF', type_logement:'penthouse', nombre_chambres:3, superficie:150, duree_min_sejour:5, note_moyenne:5.0, nombre_avis:51, en_vedette:true,  nouveau:false, statut:'disponible', image_principale:{url:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&h=300&fit=crop',alternativeText:'Penthouse'} },
-  { id:4, documentId:'apt4', titre:'Loft Moderne Tie-Tie',  slug:'loft-moderne-tie-tie', quartier:'Tie-Tie',      ville:'Pointe-Noire', prix_nuit_base:95000,  devise:'XAF', type_logement:'loft',      nombre_chambres:1, superficie:65,  duree_min_sejour:1, note_moyenne:4.7, nombre_avis:27, en_vedette:false, nouveau:false, statut:'disponible', image_principale:{url:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=300&fit=crop',alternativeText:'Loft'} },
-  { id:5, documentId:'apt5', titre:'Villa Familiale Ngoyo', slug:'villa-ngoyo',           quartier:'Ngoyo',        ville:'Pointe-Noire', prix_nuit_base:280000, devise:'XAF', type_logement:'villa',     nombre_chambres:4, superficie:220, duree_min_sejour:7, note_moyenne:4.9, nombre_avis:44, en_vedette:true,  nouveau:false, statut:'disponible', image_principale:{url:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop',alternativeText:'Villa'} },
-]
+type ServiceItem = {
+  id: number; documentId: string
+  nom: string; description: string
+  icone?: string; categorie?: string
+  prix?: number; disponible?: boolean
+}
 
-const SERVICES_DEFAULT = [
-  { label:'Navette aéroport', desc:'Transfert privé 24h/24', color:'#E07A2F', bg:'#FEF0E6', Icon: Car          },
-  { label:'Conciergerie',     desc:'Assistance personnalisée',color:'#16A34A', bg:'#DCFCE7', Icon: ConciergeBell },
-  { label:'Chef cuisinier',   desc:'Cuisine à domicile',     color:'#0369A1', bg:'#DBEAFE', Icon: ChefHat       },
-  { label:'Sécurité 24h',     desc:'Gardiennage & surveillance',color:'#7C3AED',bg:'#F3E8FF',Icon: ShieldCheck   },
-  { label:'Ménage & linge',   desc:'Nettoyage quotidien',    color:'#0EA5E9', bg:'#E0F2FE', Icon: Sparkles      },
-]
+type NavLink       = { label: string; href: string }
+type FooterColonne = { titre: string; liens: { label: string; href: string }[] }
+type ModalApt      = { name: string; loc: string; price: number; img: string } | null
 
-const TESTIMONIALS = [
-  { stars:5, text:'Appartement impeccable, exactement comme sur les photos. Réponse WhatsApp en 10 minutes.', name:'Marc A.',        meta:'Paris · Séjour pro',      img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face' },
-  { stars:5, text:'Séjour de 3 semaines, WiFi rapide, parking sécurisé. Service chef cuisinier excellent !', name:'Sophie K.',      meta:'Bruxelles · Longue durée', img:'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&crop=face' },
-  { stars:5, text:'Cadre magnifique, vue sur l\'océan. Paiement MTN MoMo très pratique !',                  name:'Jean-Pierre M.', meta:'Pointe-Noire · Famille',   img:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face' },
-]
+// ── Icon mapping Lucide ──────────────────────────────
+const ICON_MAP: Record<string, LucideIcon> = {
+  Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star,
+  car: Car, concierge_bell: ConciergeBell, chef_hat: ChefHat,
+  shield_check: ShieldCheck, sparkles: Sparkles,
+}
+
+const CAT_COLORS: Record<string, { color: string; bg: string }> = {
+  transport:    { color: '#E07A2F', bg: '#FEF0E6' },
+  concierge:    { color: '#16A34A', bg: '#DCFCE7' },
+  restauration: { color: '#0369A1', bg: '#DBEAFE' },
+  securite:     { color: '#7C3AED', bg: '#F3E8FF' },
+  menage:       { color: '#0EA5E9', bg: '#E0F2FE' },
+  bien_etre:    { color: '#DB2777', bg: '#FCE7F3' },
+  autre:        { color: '#6B7280', bg: '#F3F4F6' },
+}
 
 const FILTERS = ['Tous', 'Studios', 'T2 / T3', 'Penthouse', 'Villas', 'Services']
 
 // ── Props depuis le Server Component ────────────────
 type Props = {
-  homepage?: Record<string, unknown> | null
-  navigation?: Record<string, unknown> | null
-  footerConfig?: Record<string, unknown> | null
-  reseauxSociaux?: Record<string, unknown> | null
-  appartements?: AptItem[]
-  publications?: unknown[]
+  homepage?:        Record<string, unknown> | null
+  navigation?:      Record<string, unknown> | null
+  footerConfig?:    Record<string, unknown> | null
+  reseauxSociaux?:  Record<string, unknown> | null
+  appartements?:    AptItem[]
+  publications?:    unknown[]
+  servicesPremium?: ServiceItem[]
+  avis?:            AvisItem[]
 }
 
-export default function HomeClient({ homepage, navigation, footerConfig, reseauxSociaux, appartements = [], publications = [] }: Props) {
+export default function HomeClient({
+  homepage, navigation, footerConfig, reseauxSociaux,
+  appartements = [], publications = [],
+  servicesPremium = [], avis = [],
+}: Props) {
   const [filter, setFilter] = useState('Tous')
   const [modal,  setModal]  = useState<ModalApt>(null)
 
-  const apts = appartements.length > 0 ? appartements : DEMO_APTS
-  const hp   = homepage     as Record<string, string | number | boolean> | null
-  const nav  = navigation   as Record<string, string> | null
-  const fc   = footerConfig as Record<string, string> | null
-  const rs   = reseauxSociaux as Record<string, string | boolean> | null
+  const hp  = homepage     as Record<string, string | number | boolean> | null
+  const nav = navigation   as Record<string, unknown> | null
+  const fc  = footerConfig as Record<string, unknown> | null
+  const rs  = reseauxSociaux as Record<string, string | boolean> | null
 
-  const heroTitre   = (hp?.hero_titre        as string) || 'Réservez votre résidence à Pointe-Noire'
-  const heroSousTitre = (hp?.hero_sous_titre as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
-  const heroBg      = (hp?.hero_image_url_defaut as string) || 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
-  const statRes     = (hp?.stat_residences   as number) || 48
-  const statPrix    = (hp?.stat_prix_min     as number) || 45000
-  const statNote    = (hp?.stat_note         as number) || 4.9
-  const statConfirm = (hp?.stat_confirmation as string) || '< 30 min'
-  const catLabel    = (hp?.catalogue_label   as string) || 'Notre sélection'
-  const catTitre    = (hp?.catalogue_titre   as string) || 'Appartements disponibles'
-  const humLabel    = (hp?.humain_label      as string) || 'Recherche simplifiée'
-  const humTitre    = (hp?.humain_titre      as string) || 'Trouvez votre résidence idéale'
-  const humTexte    = (hp?.humain_texte      as string) || 'Notre équipe vous accompagne à chaque étape.'
-  const humBg       = (hp?.humain_image_url_defaut as string) || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=500&fit=crop&crop=top'
-  const svcTitre    = (hp?.services_titre    as string) || 'Une expérience complète'
-  const socialActif = hp?.social_actif !== false
-  const socialTitre = (hp?.social_titre      as string) || 'Suivez-nous'
-  const socialSous  = (hp?.social_sous_titre as string) || ''
+  const heroTitre    = (hp?.hero_titre        as string) || 'Réservez votre résidence à Pointe-Noire'
+  const heroSousTitre= (hp?.hero_sous_titre   as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
+  const heroBg       = (hp?.hero_image_url_defaut as string) || 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
+  const statRes      = (hp?.stat_residences   as number) || 48
+  const statPrix     = (hp?.stat_prix_min     as number) || 45000
+  const statNote     = (hp?.stat_note         as number) || 4.9
+  const statConfirm  = (hp?.stat_confirmation as string) || '< 30 min'
+  const catLabel     = (hp?.catalogue_label   as string) || 'Notre sélection'
+  const catTitre     = (hp?.catalogue_titre   as string) || 'Appartements disponibles'
+  const humLabel     = (hp?.humain_label      as string) || 'Recherche simplifiée'
+  const humTitre     = (hp?.humain_titre      as string) || 'Trouvez votre résidence idéale'
+  const humTexte     = (hp?.humain_texte      as string) || 'Notre équipe vous accompagne à chaque étape.'
+  const humBg        = (hp?.humain_image_url_defaut as string) || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=500&fit=crop&crop=top'
+  const svcTitre     = (hp?.services_titre    as string) || 'Une expérience complète'
+  const socialActif  = hp?.social_actif !== false
+  const socialTitre  = (hp?.social_titre      as string) || 'Suivez-nous'
+  const socialSous   = (hp?.social_sous_titre as string) || ''
 
-  const openModal = (name: string, loc: string, price: number, img: string) => setModal({ name, loc, price, img })
+  // Nav links from Strapi
+  const liensNav  = (nav?.liens_nav  as NavLink[]      | null) ?? undefined
+  // Footer columns from Strapi
+  const colonnesLiens = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
+
+  // Map: appartements with GPS → pins
+  const residences = appartements
+    .filter(a => a.latitude && a.longitude)
+    .map(a => ({
+      lat:   a.latitude!,
+      lng:   a.longitude!,
+      name:  a.titre,
+      loc:   a.quartier,
+      price: a.prix_nuit_base.toLocaleString('fr-FR'),
+      pr:    a.prix_nuit_base,
+      img:   a.image_principale?.url ?? 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=80&fit=crop',
+    }))
+
+  const openModal = (name: string, loc: string, price: number, img: string) =>
+    setModal({ name, loc, price, img })
 
   return (
     <>
       <Navbar
-        logoNom={nav?.logo_nom}
-        logoTagline={nav?.logo_tagline}
-        telephone={nav?.telephone}
-        agentNom={nav?.agent_nom}
-        agentPhotoUrl={nav?.agent_photo_url}
+        logoNom={nav?.logo_nom as string | undefined}
+        logoTagline={nav?.logo_tagline as string | undefined}
+        telephone={nav?.telephone as string | undefined}
+        agentNom={nav?.agent_nom as string | undefined}
+        agentPhotoUrl={nav?.agent_photo_url as string | undefined}
+        liensNav={liensNav}
       />
 
       {/* ── HERO ──────────────────────────────────────── */}
@@ -165,23 +200,25 @@ export default function HomeClient({ homepage, navigation, footerConfig, reseaux
       </div>
 
       {/* ── CAROUSEL ──────────────────────────────────── */}
-      <section className="py-20" id="appartements">
-        <div className="max-w-[1240px] mx-auto px-10 flex items-end justify-between mb-9">
-          <div>
-            <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">{catLabel}</div>
-            <h2 className="font-black text-[#1A0E06] mb-1" style={{ fontSize:'32px', fontFamily:'var(--font-heading)' }}>{catTitre}</h2>
-            <div className="w-10 h-[3px] rounded-full" style={{ background:'#E07A2F' }} />
+      {appartements.length > 0 && (
+        <section className="py-20" id="appartements">
+          <div className="max-w-[1240px] mx-auto px-10 flex items-end justify-between mb-9">
+            <div>
+              <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">{catLabel}</div>
+              <h2 className="font-black text-[#1A0E06] mb-1" style={{ fontSize:'32px', fontFamily:'var(--font-heading)' }}>{catTitre}</h2>
+              <div className="w-10 h-[3px] rounded-full" style={{ background:'#E07A2F' }} />
+            </div>
+            <a href="/appartements" className="flex items-center gap-2 text-[14px] font-bold hover:text-[#E07A2F]"
+              style={{ color:'#7A6550', fontFamily:'var(--font-heading)' }}>
+              Voir tout <ArrowRight size={15} />
+            </a>
           </div>
-          <a href="/appartements" className="flex items-center gap-2 text-[14px] font-bold hover:text-[#E07A2F]"
-            style={{ color:'#7A6550', fontFamily:'var(--font-heading)' }}>
-            Voir tout <ArrowRight size={15} />
-          </a>
-        </div>
-        <ApartmentCarousel
-          apartments={apts}
-          onReserve={apt => openModal(apt.titre, `${apt.quartier}, ${apt.ville}`, apt.prix_nuit_base, apt.image_principale?.url ?? '')}
-        />
-      </section>
+          <ApartmentCarousel
+            apartments={appartements}
+            onReserve={apt => openModal(apt.titre, `${apt.quartier}, ${apt.ville}`, apt.prix_nuit_base, apt.image_principale?.url ?? '')}
+          />
+        </section>
+      )}
 
       {/* ── HUMAIN ────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2" style={{ minHeight:'480px' }}>
@@ -212,71 +249,93 @@ export default function HomeClient({ homepage, navigation, footerConfig, reseaux
       </div>
 
       {/* ── TÉMOIGNAGES ───────────────────────────────── */}
-      <section className="py-20" id="temoignages" style={{ background:'#FBF8F4' }}>
-        <div className="max-w-[1240px] mx-auto px-10">
-          <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">Avis clients vérifiés</div>
-          <h2 className="font-black text-[#1A0E06] mb-1" style={{ fontSize:'32px', fontFamily:'var(--font-heading)' }}>Ce que disent nos résidents</h2>
-          <div className="w-10 h-[3px] rounded-full mb-10" style={{ background:'#E07A2F' }} />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-white rounded-2xl p-7 transition-all"
-                style={{ border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.07)' }}
-                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(26,14,6,.11)' }}
-                onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 2px 8px rgba(26,14,6,.07)' }}>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[14px]" style={{ color:'#E07A2F' }}>{'★'.repeat(t.stars)}</span>
-                  <span className="flex items-center gap-1 text-[11px] font-semibold" style={{ color:'#16A34A' }}>
-                    <CheckCircle2 size={11} /> Vérifié
-                  </span>
-                </div>
-                <p className="text-[14px] leading-[1.75] italic mb-5 text-[#7A6550]">&ldquo;{t.text}&rdquo;</p>
-                <div className="flex items-center gap-3 pt-4" style={{ borderTop:'1px solid #E5DDD4' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.img} alt={t.name} className="w-11 h-11 rounded-full object-cover" style={{ border:'2px solid #E5DDD4' }} />
-                  <div>
-                    <div className="font-bold text-[14px]">{t.name}</div>
-                    <div className="text-[12px] text-[#7A6550]">{t.meta}</div>
+      {avis.length > 0 && (
+        <section className="py-20" id="temoignages" style={{ background:'#FBF8F4' }}>
+          <div className="max-w-[1240px] mx-auto px-10">
+            <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">Avis clients vérifiés</div>
+            <h2 className="font-black text-[#1A0E06] mb-1" style={{ fontSize:'32px', fontFamily:'var(--font-heading)' }}>Ce que disent nos résidents</h2>
+            <div className="w-10 h-[3px] rounded-full mb-10" style={{ background:'#E07A2F' }} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {avis.map(t => (
+                <div key={t.id} className="bg-white rounded-2xl p-7 transition-all"
+                  style={{ border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.07)' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(26,14,6,.11)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 2px 8px rgba(26,14,6,.07)' }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[14px]" style={{ color:'#E07A2F' }}>{'★'.repeat(Math.round(t.note_globale))}</span>
+                    {t.verifie && (
+                      <span className="flex items-center gap-1 text-[11px] font-semibold" style={{ color:'#16A34A' }}>
+                        <CheckCircle2 size={11} /> Vérifié
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[14px] leading-[1.75] italic mb-5 text-[#7A6550]">&ldquo;{t.commentaire}&rdquo;</p>
+                  <div className="flex items-center gap-3 pt-4" style={{ borderTop:'1px solid #E5DDD4' }}>
+                    {t.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={t.photo_url} alt={t.prenom_auteur}
+                        className="w-11 h-11 rounded-full object-cover flex-shrink-0"
+                        style={{ border:'2px solid #E5DDD4' }} />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white text-[15px]"
+                        style={{ background:'#E07A2F', border:'2px solid #E5DDD4' }}>
+                        {t.prenom_auteur[0]}
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-bold text-[14px]">
+                        {t.prenom_auteur}{t.initiale_nom ? ` ${t.initiale_nom}.` : ''}
+                      </div>
+                      {t.origine && <div className="text-[12px] text-[#7A6550]">{t.origine}</div>}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── SERVICES ──────────────────────────────────── */}
-      <section className="py-20" id="services" style={{ background:'#F3EFE9' }}>
-        <div className="max-w-[1240px] mx-auto px-10">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">Services premium</div>
-              <h2 className="font-black text-[#1A0E06]" style={{ fontSize:'30px', fontFamily:'var(--font-heading)' }}>{svcTitre}</h2>
-              <div className="w-10 h-[3px] rounded-full mt-2" style={{ background:'#E07A2F' }} />
-            </div>
-            <a href="#" className="text-[13px] font-bold transition-colors"
-              style={{ color:'#7A6550', fontFamily:'var(--font-heading)', border:'1.5px solid #E5DDD4', padding:'8px 16px', borderRadius:'8px', background:'#fff' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor='#E07A2F'; e.currentTarget.style.color='#E07A2F' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor='#E5DDD4'; e.currentTarget.style.color='#7A6550' }}>
-              Voir tout
-            </a>
-          </div>
-          <div className="grid rounded-2xl overflow-hidden"
-            style={{ gridTemplateColumns:'repeat(5,1fr)', background:'#fff', border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.06)' }}>
-            {SERVICES_DEFAULT.map((s, i) => (
-              <div key={s.label} className="px-5 py-8 text-center transition-all cursor-default"
-                style={{ borderRight: i < 4 ? '1px solid #E5DDD4' : 'none', background:'#fff' }}
-                onMouseEnter={e => (e.currentTarget.style.background='#FBF8F4')}
-                onMouseLeave={e => (e.currentTarget.style.background='#fff')}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style={{ background:s.bg }}>
-                  <s.Icon size={22} color={s.color} strokeWidth={1.75} />
-                </div>
-                <div className="font-bold text-[13px] text-[#1A0E06] mb-1" style={{ fontFamily:'var(--font-heading)' }}>{s.label}</div>
-                <div className="text-[12px] text-[#7A6550] leading-snug">{s.desc}</div>
+      {servicesPremium.length > 0 && (
+        <section className="py-20" id="services" style={{ background:'#F3EFE9' }}>
+          <div className="max-w-[1240px] mx-auto px-10">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <div className="text-[11px] font-bold tracking-[2px] uppercase mb-2 text-[#7A6550]">Services premium</div>
+                <h2 className="font-black text-[#1A0E06]" style={{ fontSize:'30px', fontFamily:'var(--font-heading)' }}>{svcTitre}</h2>
+                <div className="w-10 h-[3px] rounded-full mt-2" style={{ background:'#E07A2F' }} />
               </div>
-            ))}
+              <a href="#" className="text-[13px] font-bold transition-colors"
+                style={{ color:'#7A6550', fontFamily:'var(--font-heading)', border:'1.5px solid #E5DDD4', padding:'8px 16px', borderRadius:'8px', background:'#fff' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor='#E07A2F'; e.currentTarget.style.color='#E07A2F' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor='#E5DDD4'; e.currentTarget.style.color='#7A6550' }}>
+                Voir tout
+              </a>
+            </div>
+            <div className="grid rounded-2xl overflow-hidden"
+              style={{ gridTemplateColumns:`repeat(${Math.min(servicesPremium.length, 5)},1fr)`, background:'#fff', border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.06)' }}>
+              {servicesPremium.slice(0, 5).map((s, i) => {
+                const cat     = s.categorie ?? 'autre'
+                const colors  = CAT_COLORS[cat] ?? CAT_COLORS.autre
+                const IconCmp = s.icone ? (ICON_MAP[s.icone] ?? Sparkles) : Sparkles
+                return (
+                  <div key={s.id} className="px-5 py-8 text-center transition-all cursor-default"
+                    style={{ borderRight: i < servicesPremium.slice(0,5).length - 1 ? '1px solid #E5DDD4' : 'none', background:'#fff' }}
+                    onMouseEnter={e => (e.currentTarget.style.background='#FBF8F4')}
+                    onMouseLeave={e => (e.currentTarget.style.background='#fff')}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style={{ background: colors.bg }}>
+                      <IconCmp size={22} color={colors.color} strokeWidth={1.75} />
+                    </div>
+                    <div className="font-bold text-[13px] text-[#1A0E06] mb-1" style={{ fontFamily:'var(--font-heading)' }}>{s.nom}</div>
+                    <div className="text-[12px] text-[#7A6550] leading-snug">{s.description}</div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── SOCIAL WALL ───────────────────────────────── */}
       {socialActif && (
@@ -298,21 +357,22 @@ export default function HomeClient({ homepage, navigation, footerConfig, reseaux
       )}
 
       {/* ── MAP ───────────────────────────────────────── */}
-      <MapSection onReserve={openModal} />
+      <MapSection onReserve={openModal} residences={residences} />
 
       <Footer
-        logoNom={fc?.logo_nom ?? nav?.logo_nom}
-        logoTagline={fc?.logo_tagline ?? nav?.logo_tagline}
-        description={fc?.description}
-        adresse={fc?.adresse}
-        email={fc?.email}
-        telephone={fc?.telephone ?? nav?.telephone}
-        copyright={fc?.copyright}
-        tiktokUrl={fc?.tiktok_url}
-        facebookUrl={fc?.facebook_url}
-        instagramUrl={fc?.instagram_url}
-        youtubeUrl={fc?.youtube_url}
-        whatsappUrl={fc?.whatsapp_url}
+        logoNom={fc?.logo_nom        as string | undefined ?? nav?.logo_nom        as string | undefined}
+        logoTagline={fc?.logo_tagline as string | undefined ?? nav?.logo_tagline    as string | undefined}
+        description={fc?.description  as string | undefined}
+        adresse={fc?.adresse          as string | undefined}
+        email={fc?.email              as string | undefined}
+        telephone={fc?.telephone      as string | undefined ?? nav?.telephone       as string | undefined}
+        copyright={fc?.copyright      as string | undefined}
+        tiktokUrl={fc?.tiktok_url     as string | undefined}
+        facebookUrl={fc?.facebook_url as string | undefined}
+        instagramUrl={fc?.instagram_url as string | undefined}
+        youtubeUrl={fc?.youtube_url   as string | undefined}
+        whatsappUrl={fc?.whatsapp_url as string | undefined}
+        colonnesLiens={colonnesLiens}
       />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />

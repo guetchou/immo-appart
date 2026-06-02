@@ -5,31 +5,30 @@ import { Crosshair, RotateCcw } from 'lucide-react'
 
 const POINTE_NOIRE = [-4.7761, 11.8635] as [number, number]
 
-const RESIDENCES = [
-  { lat: -4.780, lng: 11.862, name: 'Studio Prestige',      loc: 'Foucks',       price: '75 000', pr: 75000,  img: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=80&h=80&fit=crop' },
-  { lat: -4.770, lng: 11.877, name: 'T2 Élégance',          loc: 'Loandjili',    price: '120 000',pr: 120000, img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=80&h=80&fit=crop' },
-  { lat: -4.772, lng: 11.863, name: 'Penthouse Vue Océan',  loc: 'Centre-ville', price: '200 000',pr: 200000, img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=80&h=80&fit=crop' },
-  { lat: -4.783, lng: 11.854, name: 'Loft Moderne Tie-Tie', loc: 'Tie-Tie',      price: '95 000', pr: 95000,  img: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=80&h=80&fit=crop' },
-  { lat: -4.762, lng: 11.869, name: 'Villa Familiale Ngoyo',loc: 'Ngoyo',        price: '280 000',pr: 280000, img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=80&h=80&fit=crop' },
-]
+type ResidencePin = {
+  lat: number; lng: number; name: string; loc: string
+  price: string; pr: number; img: string
+}
 
-type Props = { onReserve?: (name: string, loc: string, price: number, img: string) => void }
+type Props = {
+  onReserve?:  (name: string, loc: string, price: number, img: string) => void
+  residences?: ResidencePin[]
+}
 
-export default function MapSection({ onReserve }: Props) {
+export default function MapSection({ onReserve, residences = [] }: Props) {
   const mapRef  = useRef<HTMLDivElement>(null)
   const mapObj  = useRef<L.Map | null>(null)
-  const [near,   setNear]  = useState<string | null>(null)
+  const [near,   setNear]   = useState<string | null>(null)
   const [locBtn, setLocBtn] = useState<'idle' | 'loading' | 'done'>('idle')
 
   useEffect(() => {
-    let L: typeof import('leaflet')
+    if (!residences.length) return
     let mounted = true
 
     import('leaflet').then(mod => {
       if (!mounted || !mapRef.current || mapObj.current) return
-      L = mod.default
+      const L = mod.default
 
-      // Fix Leaflet default icon paths in Next.js
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
@@ -49,18 +48,18 @@ export default function MapSection({ onReserve }: Props) {
 
       const mkIcon = (color: string) => L.divIcon({
         className: '',
-        iconAnchor:   [16, 38],
-        popupAnchor:  [0, -38],
+        iconAnchor:  [16, 38],
+        popupAnchor: [0, -38],
         html: `<svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16c0 9 16 24 16 24s16-15 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/><circle cx="16" cy="16" r="7" fill="white"/></svg>`,
       })
 
-      RESIDENCES.forEach(r => {
+      residences.forEach(r => {
         const m = L.marker([r.lat, r.lng], { icon: mkIcon('#E07A2F') }).addTo(map)
         m.bindPopup(`
           <div style="font-family:system-ui;min-width:190px;padding:4px">
             <img src="${r.img}" style="width:100%;height:88px;object-fit:cover;border-radius:8px;margin-bottom:9px"/>
             <div style="font-weight:800;font-size:14px;margin-bottom:2px">${r.name}</div>
-            <div style="font-size:12px;color:#7A6550;margin-bottom:8px">📍 ${r.loc}, Pointe-Noire</div>
+            <div style="font-size:12px;color:#7A6550;margin-bottom:8px">${r.loc}, Pointe-Noire</div>
             <div style="font-weight:900;font-size:16px;color:#E07A2F;margin-bottom:9px">${r.price} XAF/nuit</div>
             <button id="res-${r.pr}" style="background:#E07A2F;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer;width:100%">
               Réserver
@@ -79,7 +78,7 @@ export default function MapSection({ onReserve }: Props) {
     })
 
     return () => { mounted = false }
-  }, [onReserve])
+  }, [onReserve, residences])
 
   const geolocate = () => {
     if (!navigator.geolocation || !mapObj.current) return
@@ -100,13 +99,12 @@ export default function MapSection({ onReserve }: Props) {
           L.circle([lat, lng], { radius: 300, color: '#0369A1', fillColor: '#0369A1', fillOpacity: 0.1, weight: 2 }).addTo(map)
           map.flyTo([lat, lng], 14, { duration: 1.5 })
 
-          const nearest = RESIDENCES
-            .map(r => {
-              const d = Math.sqrt((r.lat - lat) ** 2 + (r.lng - lng) ** 2) * 111000
-              return { name: r.name, d }
-            })
-            .sort((a, b) => a.d - b.d)[0]
-          setNear(`${nearest.name} — ${nearest.d < 1000 ? Math.round(nearest.d) + 'm' : (nearest.d / 1000).toFixed(1) + 'km'}`)
+          if (residences.length) {
+            const nearest = residences
+              .map(r => ({ name: r.name, d: Math.sqrt((r.lat - lat) ** 2 + (r.lng - lng) ** 2) * 111000 }))
+              .sort((a, b) => a.d - b.d)[0]
+            setNear(`${nearest.name} — ${nearest.d < 1000 ? Math.round(nearest.d) + 'm' : (nearest.d / 1000).toFixed(1) + 'km'}`)
+          }
           setLocBtn('done')
         },
         () => { alert('Autorisation GPS refusée.'); setLocBtn('idle') },
@@ -148,7 +146,7 @@ export default function MapSection({ onReserve }: Props) {
           {near && (
             <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold"
               style={{ background: '#DBEAFE', color: '#0369A1', border: '1px solid #93C5FD' }}>
-              📍 Plus proche : {near}
+              La plus proche : {near}
             </span>
           )}
         </div>
