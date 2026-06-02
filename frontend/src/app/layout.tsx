@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Montserrat, Plus_Jakarta_Sans } from 'next/font/google'
+import PreviewBanner from '@/components/ui/PreviewBanner'
 import './globals.css'
 
 const montserrat = Montserrat({
@@ -36,14 +37,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${montserrat.variable} ${plusJakartaSans.variable}`}>
       <body className="min-h-screen bg-background antialiased">
+        {/* Bannière orange si mode preview actif */}
+        <PreviewBanner />
         {children}
       </body>
     </html>
