@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /opt/app
 
 # Dépendances de compilation
@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 # Image finale — prod uniquement
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /opt/app
 
 RUN apk add --no-cache dumb-init
