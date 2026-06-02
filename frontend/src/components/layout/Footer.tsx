@@ -6,7 +6,33 @@ const APARTMENTS = ['Studios', 'T2 & T3', 'Penthouse', 'Villas', 'Lofts & Duplex
 const SERVICES   = ['Navette aéroport', 'Chef cuisinier', 'Conciergerie', 'Sécurité 24h', 'Ménage quotidien']
 const INFO       = ["À propos", "Politique d'annulation", 'Règlement intérieur', 'Modes de paiement', 'Contact']
 
-export default function Footer() {
+type FooterProps = {
+  logoNom?:     string
+  logoTagline?: string
+  description?: string
+  adresse?:     string
+  email?:       string
+  telephone?:   string
+  copyright?:   string
+  facebookUrl?:  string
+  instagramUrl?: string
+  youtubeUrl?:   string
+  whatsappUrl?:  string
+  tiktokUrl?:    string
+}
+
+export default function Footer({
+  logoNom     = 'Résidence NDOMBI',
+  logoTagline = 'Confort · Luxe · Élégance',
+  description = "Appartements meublés haut de gamme pour séjours courts et longs à Pointe-Noire. Une expérience unique alliant confort, luxe et service personnalisé.",
+  adresse     = 'Foucks, Pointe-Noire — près de la Clinique MOUAMBA, République du Congo',
+  email       = 'residencendombi@gmail.com',
+  telephone   = '+242 06 435 90 90',
+  copyright   = 'Résidence NDOMBI — Tous droits réservés',
+  facebookUrl,  instagramUrl,
+  youtubeUrl,   whatsappUrl    = 'https://wa.me/242064359090',
+  tiktokUrl   = 'https://www.tiktok.com/@rsidence.ndombi',
+}: FooterProps = {}) {
   return (
     <footer id="contact" style={{ background: '#1A0E06' }}>
       <div className="max-w-[1240px] mx-auto px-8 pt-16 pb-8">
@@ -25,24 +51,23 @@ export default function Footer() {
               </div>
               <div>
                 <div className="font-black text-[15px] text-white" style={{ fontFamily: 'var(--font-heading)' }}>
-                  Résidence NDOMBI
+                  {logoNom}
                 </div>
                 <div className="text-[10px] font-semibold tracking-[2px] uppercase text-[#E07A2F]">
-                  Confort · Luxe · Élégance
+                  {logoTagline}
                 </div>
               </div>
             </div>
 
             <p className="text-[14px] leading-[1.8] mb-5" style={{ color: 'rgba(255,255,255,.45)' }}>
-              Appartements meublés haut de gamme pour séjours courts et longs à Pointe-Noire.
-              Une expérience unique alliant confort, luxe et service personnalisé.
+              {description}
             </p>
 
             <div className="space-y-2.5">
               {[
-                { icon: <Phone size={14} />,  text: '+242 06 435 90 90',                          href: 'tel:+242064359090' },
-                { icon: <Mail size={14} />,   text: 'residencendombi@gmail.com',                   href: 'mailto:residencendombi@gmail.com' },
-                { icon: <MapPin size={14} />, text: 'Foucks, Pointe-Noire — près Clinique MOUAMBA', href: '/#localisation' },
+                { icon: <Phone size={14} />,  text: telephone, href: `tel:${telephone.replace(/\s/g,'')}` },
+                { icon: <Mail size={14} />,   text: email,     href: `mailto:${email}` },
+                { icon: <MapPin size={14} />, text: adresse,   href: '/#localisation'  },
               ].map(item => (
                 <a
                   key={item.text}
@@ -95,7 +120,7 @@ export default function Footer() {
           style={{ borderTop: '1px solid rgba(255,255,255,.08)' }}
         >
           <span className="text-[13px]" style={{ color: 'rgba(255,255,255,.3)' }}>
-            © {new Date().getFullYear()} Résidence NDOMBI — Tous droits réservés
+            © {new Date().getFullYear()} {copyright}
           </span>
           <div className="flex items-center gap-3">
             {[

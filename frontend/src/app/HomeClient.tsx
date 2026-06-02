@@ -59,13 +59,15 @@ type Props = {
   publications?: unknown[]
 }
 
-export default function HomeClient({ homepage, reseauxSociaux, appartements = [], publications = [] }: Props) {
+export default function HomeClient({ homepage, navigation, footerConfig, reseauxSociaux, appartements = [], publications = [] }: Props) {
   const [filter, setFilter] = useState('Tous')
   const [modal,  setModal]  = useState<ModalApt>(null)
 
-  const apts   = appartements.length > 0 ? appartements : DEMO_APTS
-  const hp     = homepage as Record<string, string | number | boolean> | null
-  const rs     = reseauxSociaux as Record<string, string | boolean> | null
+  const apts = appartements.length > 0 ? appartements : DEMO_APTS
+  const hp   = homepage     as Record<string, string | number | boolean> | null
+  const nav  = navigation   as Record<string, string> | null
+  const fc   = footerConfig as Record<string, string> | null
+  const rs   = reseauxSociaux as Record<string, string | boolean> | null
 
   const heroTitre   = (hp?.hero_titre        as string) || 'Réservez votre résidence à Pointe-Noire'
   const heroSousTitre = (hp?.hero_sous_titre as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
@@ -89,7 +91,13 @@ export default function HomeClient({ homepage, reseauxSociaux, appartements = []
 
   return (
     <>
-      <Navbar />
+      <Navbar
+        logoNom={nav?.logo_nom}
+        logoTagline={nav?.logo_tagline}
+        telephone={nav?.telephone}
+        agentNom={nav?.agent_nom}
+        agentPhotoUrl={nav?.agent_photo_url}
+      />
 
       {/* ── HERO ──────────────────────────────────────── */}
       <section className="relative mt-[68px] flex items-center justify-center overflow-hidden"
@@ -292,7 +300,20 @@ export default function HomeClient({ homepage, reseauxSociaux, appartements = []
       {/* ── MAP ───────────────────────────────────────── */}
       <MapSection onReserve={openModal} />
 
-      <Footer />
+      <Footer
+        logoNom={fc?.logo_nom ?? nav?.logo_nom}
+        logoTagline={fc?.logo_tagline ?? nav?.logo_tagline}
+        description={fc?.description}
+        adresse={fc?.adresse}
+        email={fc?.email}
+        telephone={fc?.telephone ?? nav?.telephone}
+        copyright={fc?.copyright}
+        tiktokUrl={fc?.tiktok_url}
+        facebookUrl={fc?.facebook_url}
+        instagramUrl={fc?.instagram_url}
+        youtubeUrl={fc?.youtube_url}
+        whatsappUrl={fc?.whatsapp_url}
+      />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
     </>

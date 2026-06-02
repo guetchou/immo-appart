@@ -13,7 +13,21 @@ const NAV_LINKS = [
   { label: 'Contact',       href: '/#contact'      },
 ]
 
-export default function Navbar() {
+type NavProps = {
+  logoNom?:       string
+  logoTagline?:   string
+  telephone?:     string
+  agentNom?:      string
+  agentPhotoUrl?: string
+}
+
+export default function Navbar({
+  logoNom       = 'Résidence NDOMBI',
+  logoTagline   = 'Confort · Luxe · Élégance',
+  telephone     = '+242 06 435 90 90',
+  agentNom      = 'Agent NDOMBI',
+  agentPhotoUrl = 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face',
+}: NavProps = {}) {
   const router = useRouter()
   const [scrolled,    setScrolled]    = useState(false)
   const [menuOpen,    setMenuOpen]    = useState(false)
@@ -48,10 +62,10 @@ export default function Navbar() {
           </div>
           <div className="hidden sm:block leading-none">
             <div className="font-black text-[14px] text-[#1A0E06]" style={{ fontFamily: 'var(--font-heading)' }}>
-              Résidence NDOMBI
+              {logoNom}
             </div>
             <div className="text-[10px] font-semibold tracking-[1.8px] uppercase text-[#E07A2F]">
-              Confort · Luxe · Élégance
+              {logoTagline}
             </div>
           </div>
         </Link>
@@ -84,16 +98,17 @@ export default function Navbar() {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face"
-            alt="Agent Résidence NDOMBI"
+            src={agentPhotoUrl}
+            alt={agentNom}
             className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             style={{ border: '2px solid #E07A2F' }}
           />
           <div className="leading-none">
             <div className="text-[10px] text-[#7A6550] font-medium">Appelez notre agent</div>
             <div className="text-[13px] font-black text-[#1A0E06]" style={{ fontFamily: 'var(--font-heading)' }}>
-              +242 06 435 90 90
+              {telephone}
             </div>
           </div>
         </a>
@@ -203,7 +218,7 @@ export default function Navbar() {
             className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#FEF0E6] transition-colors"
           >
             <Phone size={16} className="text-[#E07A2F]" />
-            <span className="text-[15px] font-bold text-[#1A0E06]">+242 06 435 90 90</span>
+            <span className="text-[15px] font-bold text-[#1A0E06]">{telephone}</span>
           </a>
         </div>
       )}
