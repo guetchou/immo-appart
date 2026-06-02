@@ -17,6 +17,7 @@
 
 import { revalidateTag, revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse }     from 'next/server'
+import { timingSafeEqual }               from 'crypto'
 
 // ── Mapping model Strapi → tags Next.js ─────────────────────────
 // "model" = nom singulier du content-type (champ dans le payload webhook)
@@ -46,12 +47,16 @@ const REVALIDATE_EVENTS = new Set([
 export async function POST(request: NextRequest) {
   const secret = process.env.REVALIDATION_SECRET ?? ''
 
-  // 1. Vérification du token Bearer (configuré dans Strapi Admin → Webhook → Headers)
+  // 1. Vérification du token Bearer — comparaison en temps constant (anti timing-attack)
   if (secret) {
     const auth     = request.headers.get('authorization') ?? ''
     const provided = auth.replace(/^Bearer\s+/i, '').trim()
 
-    if (!provided || provided !== secret) {
+    const a = Buffer.from(provided)
+    const b = Buffer.from(secret)
+    const invalid = a.length !== b.length || !timingSafeEqual(a, b)
+
+    if (invalid) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
   }
