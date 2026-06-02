@@ -9,8 +9,9 @@ import BookingModal from '@/components/reservation/BookingModal'
 import {
   ArrowLeft, MapPin, BedDouble, Bath, Maximize2, Users,
   Clock, CheckCircle2, Star, ChevronLeft, ChevronRight,
-  Wifi, Car, Shield, ChefHat, Sparkles
+  Wifi, Car, Shield, ChefHat, Sparkles, Play, MessageSquarePlus
 } from 'lucide-react'
+import AvisModal from '@/components/avis/AvisModal'
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
 
@@ -23,11 +24,12 @@ const ICON_MAP: Record<string, React.ComponentType<{ size: number; className?: s
   'wifi': Wifi, 'voiture': Car, 'securite': Shield, 'cuisine': ChefHat, 'menage': Sparkles,
 }
 
-type ModalApt = { name: string; loc: string; price: number; img: string } | null
+type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
 export default function AppartementClient({ apt }: { apt: Record<string, unknown> }) {
-  const [imgIdx,   setImgIdx]   = useState(0)
-  const [modal,    setModal]    = useState<ModalApt>(null)
+  const [imgIdx,    setImgIdx]   = useState(0)
+  const [modal,     setModal]   = useState<ModalApt>(null)
+  const [showAvis,  setShowAvis] = useState(false)
 
   const titre    = apt.titre    as string
   const quartier = apt.quartier as string
@@ -49,9 +51,25 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
   const imgPrinc = apt.image_principale as { url: string } | null
   const galerie  = (apt.galerie  as { url: string }[] | null) ?? []
   const equipements = (apt.equipements as { nom: string; icone?: string; premium?: boolean }[] | null) ?? []
-  const avis     = (apt.avis     as { id: number; prenom_auteur: string; note_globale: number; commentaire: string; verifie: boolean; date_sejour?: string }[] | null) ?? []
+  const avis      = (apt.avis as { id: number; prenom_auteur: string; note_globale: number; commentaire: string; verifie: boolean; date_sejour?: string }[] | null) ?? []
+  const videoUrl  = apt.video_url as string | null
+  const documentId = apt.documentId as string
 
   const images = [imgPrinc?.url, ...galerie.map(g => g.url)].filter(Boolean) as string[]
+
+  // Extraire l'ID vidéo selon la plateforme
+  function getEmbedUrl(url: string): { embedUrl: string; type: 'tiktok' | 'youtube' | 'other' } | null {
+    if (!url) return null
+    // TikTok
+    const ttMatch = url.match(/tiktok\.com\/.*\/video\/(\d+)/)
+    if (ttMatch) return { embedUrl: `https://www.tiktok.com/embed/v2/${ttMatch[1]}`, type: 'tiktok' }
+    // YouTube
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/)
+    if (ytMatch) return { embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`, type: 'youtube' }
+    return null
+  }
+
+  const videoEmbed = videoUrl ? getEmbedUrl(videoUrl) : null
 
   const politiqueLabel: Record<string, string> = {
     flexible:         'Flexible — remboursement intégral sous 48h',
@@ -201,12 +219,54 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
                 <p className="text-[14px] text-[#7A6550]">{politiqueLabel[politique] ?? politique}</p>
               </div>
 
+              {/* Vidéo TikTok / YouTube */}
+              {videoEmbed && (
+                <div>
+                  <h2 className="font-black text-[18px] text-[#1A0E06] mb-4 flex items-center gap-2" style={{ fontFamily:'var(--font-heading)' }}>
+                    <Play size={18} style={{ color:'#E07A2F' }} /> Visite vidéo
+                  </h2>
+                  <div className="rounded-2xl overflow-hidden" style={{ border:'1px solid #E5DDD4', boxShadow:'0 4px 16px rgba(26,14,6,.08)' }}>
+                    {videoEmbed.type === 'tiktok' ? (
+                      <div className="flex justify-center bg-[#1A0E06] py-4">
+                        <iframe
+                          src={videoEmbed.embedUrl}
+                          style={{ width:'325px', height:'580px', border:'none' }}
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowFullScreen
+                          title="Vidéo TikTok"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative" style={{ paddingBottom:'56.25%', height:0 }}>
+                        <iframe
+                          src={videoEmbed.embedUrl}
+                          className="absolute inset-0 w-full h-full"
+                          style={{ border:'none' }}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title="Vidéo"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Avis */}
               {avis.length > 0 && (
                 <div>
-                  <h2 className="font-black text-[18px] text-[#1A0E06] mb-4" style={{ fontFamily:'var(--font-heading)' }}>
-                    Avis clients {noteM != null && <span className="text-[#E07A2F]">★ {noteM.toFixed(1)}</span>}
-                  </h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-black text-[18px] text-[#1A0E06]" style={{ fontFamily:'var(--font-heading)' }}>
+                      Avis clients {noteM != null && <span className="text-[#E07A2F]"> ★ {noteM.toFixed(1)}</span>}
+                    </h2>
+                    <button onClick={() => setShowAvis(true)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-bold transition-all"
+                      style={{ border:'1.5px solid #E07A2F', color:'#E07A2F', fontFamily:'var(--font-heading)' }}
+                      onMouseEnter={e => { e.currentTarget.style.background='#FEF0E6' }}
+                      onMouseLeave={e => { e.currentTarget.style.background='transparent' }}>
+                      <MessageSquarePlus size={14} /> Laisser un avis
+                    </button>
+                  </div>
                   <div className="space-y-4">
                     {avis.slice(0,5).map(av => (
                       <div key={av.id} className="rounded-xl p-5 bg-white" style={{ border:'1px solid #E5DDD4' }}>
@@ -238,7 +298,7 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
                 </div>
 
                 <button
-                  onClick={() => setModal({ name: titre, loc: `${quartier}, ${ville}`, price: prix, img: imgUrl(images[0]) })}
+                  onClick={() => setModal({ name: titre, loc: `${quartier}, ${ville}`, price: prix, img: imgUrl(images[0]), documentId })}
                   className="w-full py-4 rounded-xl font-black text-white text-[15px] transition-all mb-4"
                   style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}
                   onMouseEnter={e => (e.currentTarget.style.background='#B85E18')}
@@ -276,6 +336,12 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
       <Footer />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
+      <AvisModal
+        open={showAvis}
+        appartementId={documentId}
+        appartementTitre={titre}
+        onClose={() => setShowAvis(false)}
+      />
     </>
   )
 }

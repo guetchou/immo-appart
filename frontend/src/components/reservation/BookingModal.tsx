@@ -1,18 +1,21 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, CheckCircle2, MessageCircle, Loader2, AlertCircle, ExternalLink } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { X, ChevronLeft, CheckCircle2, MessageCircle, Loader2, AlertCircle, ExternalLink, Smartphone, RefreshCw } from 'lucide-react'
 
 type Apt = { name: string; loc: string; price: number; img: string; documentId?: string }
 type Step = 1 | 2 | 3 | 4
+type MobilePayStatut = 'idle' | 'initiating' | 'polling' | 'success' | 'failed' | 'timeout'
 
 const PAY_OPTIONS = [
-  { id: 'airtel_money', label: 'Airtel Money',  color: '#E07A2F', bg: '#FEF0E6' },
-  { id: 'mtn_momo',     label: 'MTN MoMo',      color: '#CA8A04', bg: '#FEF9E6' },
-  { id: 'espece',       label: 'Espèces',        color: '#16A34A', bg: '#DCFCE7' },
-  { id: 'virement',     label: 'Virement',       color: '#0369A1', bg: '#DBEAFE' },
-  { id: 'cheque',       label: 'Chèque',         color: '#7C3AED', bg: '#F3E8FF' },
+  { id: 'airtel_money', label: 'Airtel Money',  color: '#E07A2F', bg: '#FEF0E6', mobile: true  },
+  { id: 'mtn_momo',     label: 'MTN MoMo',      color: '#CA8A04', bg: '#FEF9E6', mobile: true  },
+  { id: 'espece',       label: 'Espèces',        color: '#16A34A', bg: '#DCFCE7', mobile: false },
+  { id: 'virement',     label: 'Virement',       color: '#0369A1', bg: '#DBEAFE', mobile: false },
+  { id: 'cheque',       label: 'Chèque',         color: '#7C3AED', bg: '#F3E8FF', mobile: false },
 ]
+
+const MOBILE_PAY_IDS = new Set(['airtel_money', 'mtn_momo'])
 
 const STEP_LABELS = ['Votre séjour', 'Vos informations', 'Paiement', 'Confirmation']
 
@@ -27,9 +30,14 @@ export default function BookingModal({ apt, onClose }: Props) {
   const [confirmed, setConfirm]  = useState(false)
   const [ref,       setRef]      = useState('')
   const [waUrl,     setWaUrl]    = useState('')
-  const [loading,   setLoading]  = useState(false)
-  const [errMsg,    setErrMsg]   = useState('')
-  const [dispo,     setDispo]    = useState<DispoState>('idle')
+  const [loading,       setLoading]       = useState(false)
+  const [errMsg,        setErrMsg]        = useState('')
+  const [dispo,         setDispo]         = useState<DispoState>('idle')
+  const [telMobile,     setTelMobile]     = useState('')
+  const [mobileStatut,  setMobileStatut]  = useState<MobilePayStatut>('idle')
+  const [transactionId, setTransactionId] = useState('')
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pollCount = useRef(0)
 
   // form
   const [arrivee,  setArrivee]  = useState('')
@@ -56,8 +64,65 @@ export default function BookingModal({ apt, onClose }: Props) {
   }, [arrivee, depart])
 
   useEffect(() => {
-    if (apt) { setStep(1); setConfirm(false); setRef(''); setPay(''); setDispo('idle'); setErrMsg('') }
+    if (apt) {
+      setStep(1); setConfirm(false); setRef(''); setPay('')
+      setDispo('idle'); setErrMsg('')
+      setMobileStatut('idle'); setTransactionId(''); setTelMobile('')
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
   }, [apt])
+
+  // Polling statut paiement mobile
+  const startPolling = useCallback((txId: string, operateur: string) => {
+    pollCount.current = 0
+    pollRef.current = setInterval(async () => {
+      pollCount.current++
+      if (pollCount.current > 18) { // 90s timeout
+        clearInterval(pollRef.current!)
+        setMobileStatut('timeout')
+        return
+      }
+      try {
+        const res  = await fetch(`/api/paiement/verifier?operateur=${operateur}&transactionId=${txId}`)
+        const data = await res.json()
+        if (data.statut === 'reussi') {
+          clearInterval(pollRef.current!)
+          setMobileStatut('success')
+          // Avancer automatiquement au récapitulatif
+          setTimeout(() => setStep(4), 800)
+        } else if (data.statut === 'echoue') {
+          clearInterval(pollRef.current!)
+          setMobileStatut('failed')
+        }
+      } catch { /* retry next tick */ }
+    }, 5000)
+  }, [])
+
+  const initierPaiementMobile = async () => {
+    if (!telMobile.trim()) { setErrMsg('Entrez votre numéro Mobile Money.'); return }
+    setErrMsg(''); setMobileStatut('initiating')
+    try {
+      const res  = await fetch('/api/paiement/initier', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          operateur:  pay,
+          telephone:  telMobile,
+          montant:    total,
+          reference:  `PRE-${Date.now()}`,
+          devise:     'XAF',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setMobileStatut('failed'); setErrMsg(data.error ?? 'Échec paiement'); return }
+      setTransactionId(data.transactionId)
+      setMobileStatut('polling')
+      startPolling(data.transactionId, pay)
+    } catch {
+      setMobileStatut('failed')
+      setErrMsg('Erreur réseau. Réessayez.')
+    }
+  }
 
   useEffect(() => {
     document.body.style.overflow = apt ? 'hidden' : ''
@@ -109,14 +174,15 @@ export default function BookingModal({ apt, onClose }: Props) {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          appartement_id: apt.documentId,
+          appartement_id:    apt.documentId,
+          appartement_titre: apt.name,
           arrivee, depart,
-          nb_nuits:   nights,
+          nb_nuits:     nights,
           nb_personnes: nbPers,
-          prix_total: total,
+          prix_total:   total,
           prenom, nom, email,
           telephone: tel,
-          whatsapp: wapp || tel,
+          whatsapp:  wapp || tel,
           type_client: type,
           societe, mode_paiement: pay,
           demandes,
@@ -342,14 +408,92 @@ export default function BookingModal({ apt, onClose }: Props) {
                 <span className="block text-[13px] font-semibold mb-3">Mode de paiement <span className="text-red-500">*</span></span>
                 <div className="grid grid-cols-3 gap-3">
                   {PAY_OPTIONS.map(p => (
-                    <button key={p.id} onClick={() => setPay(p.id)}
+                    <button key={p.id}
+                      onClick={() => { setPay(p.id); setMobileStatut('idle'); setErrMsg('') }}
                       className="p-3 rounded-xl text-center transition-all"
                       style={{ border: `1.5px solid ${pay === p.id ? p.color : '#E5DDD4'}`, background: pay === p.id ? p.bg : '#fff' }}>
+                      {p.mobile && <Smartphone size={14} className="mx-auto mb-1" style={{ color: pay === p.id ? p.color : '#B8A898' }} />}
                       <div className="text-[12px] font-bold" style={{ color: pay === p.id ? p.color : '#7A6550' }}>{p.label}</div>
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* ── Panneau Mobile Money ── */}
+              {MOBILE_PAY_IDS.has(pay) && (
+                <div className="rounded-xl p-4 space-y-4" style={{ background:'#FBF8F4', border:'1px solid #E5DDD4' }}>
+                  {mobileStatut === 'idle' && (
+                    <>
+                      <div className="text-[13px] font-semibold text-[#1A0E06]">
+                        Payer <strong style={{ color:'#E07A2F' }}>{total.toLocaleString('fr-FR')} XAF</strong> via {PAY_OPTIONS.find(p=>p.id===pay)?.label}
+                      </div>
+                      <label>
+                        <span className="block text-[12px] font-semibold mb-1.5 text-[#7A6550]">Numéro Mobile Money</span>
+                        <input type="tel" value={telMobile}
+                          onChange={e => setTelMobile(e.target.value)}
+                          placeholder={pay === 'airtel_money' ? '06 XXX XX XX' : '06 XXX XX XX'}
+                          className="w-full rounded-lg px-3 py-2.5 text-[14px] outline-none"
+                          style={{ border:'1.5px solid #E5DDD4', background:'#fff' }}
+                          onFocus={e => (e.target.style.borderColor='#E07A2F')}
+                          onBlur={e => (e.target.style.borderColor='#E5DDD4')} />
+                      </label>
+                      <button onClick={initierPaiementMobile}
+                        className="w-full py-2.5 rounded-xl font-bold text-white text-[13px] transition-all"
+                        style={{ background: pay === 'mtn_momo' ? '#CA8A04' : '#E07A2F', fontFamily:'var(--font-heading)' }}>
+                        Envoyer la demande de paiement
+                      </button>
+                    </>
+                  )}
+
+                  {mobileStatut === 'initiating' && (
+                    <div className="flex items-center gap-3 text-[13px] text-[#0369A1]">
+                      <Loader2 size={18} className="animate-spin flex-shrink-0" />
+                      Envoi de la demande…
+                    </div>
+                  )}
+
+                  {mobileStatut === 'polling' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background:'#DBEAFE' }}>
+                          <Smartphone size={18} style={{ color:'#0369A1' }} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-[14px] text-[#1A0E06]">Vérifiez votre téléphone</div>
+                          <div className="text-[12px] text-[#7A6550]">Tapez votre PIN {PAY_OPTIONS.find(p=>p.id===pay)?.label} pour valider</div>
+                        </div>
+                        <Loader2 size={16} className="ml-auto animate-spin text-[#0369A1] flex-shrink-0" />
+                      </div>
+                      <div className="text-[11px] text-[#7A6550] text-center">Vérification automatique en cours…</div>
+                    </div>
+                  )}
+
+                  {mobileStatut === 'success' && (
+                    <div className="flex items-center gap-3 text-[#16A34A]">
+                      <CheckCircle2 size={20} className="flex-shrink-0" />
+                      <div>
+                        <div className="font-bold text-[14px]">Paiement confirmé !</div>
+                        <div className="text-[12px]">Passage au récapitulatif…</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(mobileStatut === 'failed' || mobileStatut === 'timeout') && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-[#B91C1C] text-[13px]">
+                        <AlertCircle size={16} className="flex-shrink-0" />
+                        {mobileStatut === 'timeout' ? 'Délai dépassé — le paiement n\'a pas été confirmé.' : 'Paiement refusé ou annulé.'}
+                      </div>
+                      <button onClick={() => { setMobileStatut('idle'); setTransactionId('') }}
+                        className="flex items-center gap-1.5 text-[12px] font-bold transition-colors"
+                        style={{ color:'#E07A2F' }}>
+                        <RefreshCw size={12} /> Réessayer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <label>
                 <span className="block text-[13px] font-semibold mb-1.5">Demandes spéciales</span>
                 <textarea rows={3} value={demandes} onChange={e => setDemandes(e.target.value)}
@@ -359,10 +503,13 @@ export default function BookingModal({ apt, onClose }: Props) {
                   onFocus={e => (e.target.style.borderColor = '#E07A2F')}
                   onBlur={e => (e.target.style.borderColor = '#E5DDD4')} />
               </label>
-              <div className="rounded-xl px-4 py-3 text-[13px]"
-                style={{ background: '#DBEAFE', border: '1px solid #93C5FD', color: '#0369A1' }}>
-                La caution est versée à l&apos;arrivée. Confirmation WhatsApp sous 30 minutes.
-              </div>
+
+              {!MOBILE_PAY_IDS.has(pay) && (
+                <div className="rounded-xl px-4 py-3 text-[13px]"
+                  style={{ background: '#DBEAFE', border: '1px solid #93C5FD', color: '#0369A1' }}>
+                  La caution est versée à l&apos;arrivée. Confirmation WhatsApp sous 30 minutes.
+                </div>
+              )}
             </div>
           )}
 
