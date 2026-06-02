@@ -4,9 +4,28 @@ import MonEspaceClient from './MonEspaceClient'
 
 export const metadata = { title: 'Mon espace — Résidence NDOMBI' }
 
+const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+
+async function verifySession(jwt: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${STRAPI}/api/users/me`, {
+      headers: { Authorization: `Bearer ${jwt}` },
+      cache: 'no-store',
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
 export default async function MonEspacePage() {
   const jar = await cookies()
   const jwt = jar.get('ndombi_jwt')?.value
-  if (!jwt) redirect('/login')
+
+  // Vérification côté serveur : le cookie doit exister ET être valide sur Strapi
+  if (!jwt || !(await verifySession(jwt))) {
+    redirect('/login')
+  }
+
   return <MonEspaceClient />
 }
