@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
   const resaData = await resaRes.json()
   const resa = resaData.data
 
-  // Vérifier que la réservation appartient bien au caller
-  if (resa?.email_client && resa.email_client !== caller.email)
+  // Vérification fail-closed : email absent ou non concordant → refus
+  if (!resa?.email_client || resa.email_client !== caller.email)
     return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
   const montantAutorise = Number(resa?.prix_total ?? 0)
