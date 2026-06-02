@@ -47,7 +47,30 @@ const REVALIDATE_EVENTS = new Set([
 export async function POST(request: NextRequest) {
   const secret = process.env.REVALIDATION_SECRET ?? ''
 
-  // 1. Vérification du token Bearer — comparaison en temps constant (anti timing-attack)
+  // 1. Parse du payload d'abord (pour détecter trigger-test avant l'auth)
+  let payload: {
+    event?:  string
+    model?:  string
+    uid?:    string
+    entry?:  Record<string, unknown>
+  } = {}
+
+  try {
+    const text = await request.text()
+    payload = text ? JSON.parse(text) : {}
+  } catch {
+    return NextResponse.json({ error: 'Payload JSON invalide' }, { status: 400 })
+  }
+
+  const event = payload.event ?? ''
+  const model = payload.model ?? ''
+
+  // 2. Le "trigger-test" Strapi est un simple ping de connectivité — pas d'auth requise
+  if (event === 'trigger-test') {
+    return NextResponse.json({ ok: true, message: 'Webhook opérationnel', event })
+  }
+
+  // 3. Vérification du token Bearer — comparaison en temps constant (anti timing-attack)
   if (secret) {
     const auth     = request.headers.get('authorization') ?? ''
     const provided = auth.replace(/^Bearer\s+/i, '').trim()
@@ -61,24 +84,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 2. Parse du payload
-  let payload: {
-    event?:  string
-    model?:  string
-    uid?:    string
-    entry?:  Record<string, unknown>
-  } = {}
-
-  try {
-    payload = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Payload JSON invalide' }, { status: 400 })
-  }
-
-  const event = payload.event ?? ''
-  const model = payload.model ?? ''
-
-  // 3. Ignorer les événements non pertinents (media.create, review-workflows, etc.)
+  // 4. Ignorer les événements non pertinents (media.create, review-workflows, etc.)
   if (!REVALIDATE_EVENTS.has(event)) {
     return NextResponse.json({ message: 'Événement ignoré', event })
   }

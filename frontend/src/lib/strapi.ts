@@ -27,24 +27,31 @@ export async function strapiRequest<T>(path: string, options: FetchOptions = {})
   const url = new URL(`${STRAPI_URL}/api${path}`)
   if (isPreview) url.searchParams.set('status', 'draft')
 
-  const res = await fetch(url.toString(), {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
-      ...(isPreview    ? { 'strapi-encode-source-maps': 'true' }    : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    // En développement : no-store → toujours frais, jamais de cache
-    // En preview       : no-store → brouillon immédiat
-    // En production    : ISR avec tags pour revalidation via webhook
-    ...(IS_DEV || isPreview
-      ? { cache: 'no-store' as const }
-      : { next: { tags, revalidate } }
-    ),
-  })
+  let res: Response
+  try {
+    res = await fetch(url.toString(), {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
+        ...(isPreview    ? { 'strapi-encode-source-maps': 'true' }    : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      // Dev : no-store → toujours frais
+      // Preview : no-store → brouillon immédiat
+      // Production : ISR + revalidation webhook
+      ...(IS_DEV || isPreview
+        ? { cache: 'no-store' as const }
+        : { next: { tags, revalidate } }
+      ),
+    })
+  } catch (networkErr) {
+    throw new Error(`Strapi inaccessible (${STRAPI_URL}${path}) — vérifiez que Strapi tourne sur :1337`)
+  }
 
-  if (!res.ok) throw new Error(`Strapi ${method} ${path} → ${res.status} ${res.statusText}`)
+  if (!res.ok) {
+    throw new Error(`Strapi ${method} ${path} → ${res.status} ${res.statusText}`)
+  }
   return res.json()
 }
 
