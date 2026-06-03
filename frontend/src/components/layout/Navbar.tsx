@@ -132,8 +132,8 @@ export default function Navbar({
               style={{ border: '2.5px solid #E07A2F' }}
             />
             {/* Point vert "en ligne" avec pulse */}
-            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white"
-              style={{ background: '#22C55E', animation: 'navPulse 2s ease-in-out infinite' }} />
+            <span className="nav-agent-pulse absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white"
+              style={{ background: '#22C55E' }} />
           </div>
           <div className="leading-none">
             <div className="text-[11px] text-[#7A6550] font-medium mb-0.5">Appelez notre agent</div>
@@ -145,13 +145,6 @@ export default function Navbar({
             </div>
           </div>
         </a>
-
-        <style jsx>{`
-          @keyframes navPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
-            50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
-          }
-        `}</style>
 
         {/* ── Auth ── */}
         <div className="relative hidden md:block">
