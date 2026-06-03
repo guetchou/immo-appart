@@ -5,8 +5,11 @@ import { useState } from 'react'
 import { CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
-import { strapiImgUrl }  from '@/lib/strapi'
 import Navbar            from '@/components/layout/Navbar'
+
+const STRAPI_BASE = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const toAbsoluteUrl = (url?: string | null) =>
+  url ? (url.startsWith('http') ? url : `${STRAPI_BASE}${url}`) : null
 import HeroSearch        from '@/components/hero/HeroSearch'
 import Footer            from '@/components/layout/Footer'
 import ChatBot           from '@/components/layout/ChatBot'
@@ -90,9 +93,9 @@ export default function HomeClient({
   const heroSousTitre= (hp?.hero_sous_titre   as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
   // hero_image : champ media Strapi prioritaire, sinon URL texte, sinon Unsplash
   const heroImageMedia = hp?.hero_image as { url?: string } | null
-  const heroBg = heroImageMedia?.url
-    ? strapiImgUrl(heroImageMedia.url) ?? ''
-    : (hp?.hero_image_url_defaut as string) || 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
+  const heroBg = toAbsoluteUrl(heroImageMedia?.url)
+    ?? (hp?.hero_image_url_defaut as string)
+    ?? 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
   const statRes      = (hp?.stat_residences   as number) || 48
   const statPrix     = (hp?.stat_prix_min     as number) || 45000
   const statNote     = (hp?.stat_note         as number) || 4.9
@@ -111,7 +114,7 @@ export default function HomeClient({
   // Nav links + logo image + bouton réserver from Strapi
   const liensNav       = (nav?.liens_nav as NavLink[] | null) ?? undefined
   const logoImageMedia = nav?.logo_image as { url?: string } | null
-  const logoImageUrl   = logoImageMedia?.url ? strapiImgUrl(logoImageMedia.url) ?? undefined : undefined
+  const logoImageUrl   = toAbsoluteUrl(logoImageMedia?.url) ?? undefined
   const boutonReserver = (nav?.bouton_reserver_texte as string) || 'Réserver'
   // Footer columns from Strapi
   const colonnesLiens  = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
