@@ -8,9 +8,40 @@ export const STRAPI_SERVER_URL =
   process.env.STRAPI_URL ??
   STRAPI_PUBLIC_URL
 
+const INTERNAL_STRAPI_HOSTS = new Set(['localhost:1337', '127.0.0.1:1337', '160.113.0.124:1337', '5.196.22.149:1337'])
+
 export function strapiPublicUrl(url?: string | null) {
   if (!url) return null
-  return url.startsWith('http') ? url : `${STRAPI_PUBLIC_URL}${url}`
+  if (!url.startsWith('http')) return `${STRAPI_PUBLIC_URL}${url}`
+
+  try {
+    const parsed = new URL(url)
+    if (INTERNAL_STRAPI_HOSTS.has(parsed.host)) {
+      return `${STRAPI_PUBLIC_URL}${parsed.pathname}${parsed.search}${parsed.hash}`
+    }
+  } catch {
+    return url
+  }
+
+  return url
+}
+
+function normalizeStrapiUrls<T>(value: T): T {
+  if (typeof value === 'string') {
+    return strapiPublicUrl(value) as T
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeStrapiUrls(item)) as T
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, normalizeStrapiUrls(item)])
+    ) as T
+  }
+
+  return value
 }
 
 export async function readJsonResponse<T>(res: Response, context: string): Promise<T> {
@@ -25,7 +56,7 @@ export async function readJsonResponse<T>(res: Response, context: string): Promi
   }
 
   try {
-    return JSON.parse(text) as T
+    return normalizeStrapiUrls(JSON.parse(text) as T)
   } catch (err) {
     throw new Error(`${context} returned invalid JSON: ${(err as Error).message}`)
   }

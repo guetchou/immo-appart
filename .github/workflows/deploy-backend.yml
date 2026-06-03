@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - 'backend/**'
-      - 'ecosystem.config.js'
       - '.github/workflows/deploy-backend.yml'
 
 concurrency:
@@ -36,15 +35,11 @@ jobs:
             cd /opt/immo-appart
             git pull origin main
 
-            echo "→ Install dependencies"
-            cd backend
-            npm ci --omit=dev
+            echo "→ Rebuild Strapi Docker image"
+            docker compose up -d --build strapi
 
-            echo "→ Build Strapi"
-            NODE_ENV=production npm run build
-
-            echo "→ Restart PM2"
-            pm2 restart ndombi-strapi 2>/dev/null || pm2 start /opt/immo-appart/ecosystem.config.js --only ndombi-strapi
-            pm2 save
+            echo "→ Smoke check Strapi"
+            sleep 8
+            curl -fsS http://127.0.0.1:1337/api/appartements >/dev/null
 
             echo "✅ Backend déployé sur ${{ secrets.VPS_HOST }}"
