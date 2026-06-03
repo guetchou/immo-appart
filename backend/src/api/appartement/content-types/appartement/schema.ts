@@ -184,7 +184,14 @@ export default {
       "type": "component",
       "repeatable": true,
       "component": "appartement.equipement",
-      "description": "Liste complète des équipements et commodités"
+      "description": "Champ historique conserve pour compatibilite. Utiliser Equipements administrables pour les nouvelles modifications."
+    },
+    "equipements_ref": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::equipement.equipement",
+      "inversedBy": "appartements",
+      "description": "Equipements administrables utilises par le site en priorite"
     },
     "adresse": {
       "type": "string",
@@ -236,7 +243,15 @@ export default {
         "non_remboursable"
       ],
       "default": "moderee",
-      "required": true
+      "required": false,
+      "description": "Champ historique conserve pour compatibilite. Utiliser Politique d'annulation pour les nouvelles modifications."
+    },
+    "politique_annulation_ref": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::politique-annulation.politique-annulation",
+      "inversedBy": "appartements",
+      "description": "Politique d'annulation administrable utilisee par le site en priorite"
     },
     "details_annulation": {
       "type": "text",

@@ -56,7 +56,15 @@ export type Appartement = {
   galerie: StrapiMedia[]
   video_url: string | null
   visite_3d_url: string | null
-  politique_annulation: 'flexible' | 'moderee' | 'stricte' | 'non_remboursable'
+  politique_annulation: 'flexible' | 'moderee' | 'stricte' | 'non_remboursable' | null
+  politique_annulation_ref?: {
+    id: number
+    documentId: string
+    nom: string
+    slug: string
+    description_simple?: string | null
+    details?: string | null
+  } | null
   ordre_affichage: number | null
 }
 

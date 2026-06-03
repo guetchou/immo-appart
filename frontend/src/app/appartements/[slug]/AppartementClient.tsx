@@ -47,11 +47,14 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
   const noteM    = apt.note_moyenne as number | null
   const nbrAvis  = apt.nombre_avis  as number ?? 0
   const politique= apt.politique_annulation as string ?? 'moderee'
+  const politiqueRef = apt.politique_annulation_ref as { nom?: string; description_simple?: string | null; details?: string | null } | null
   const typeLabel = logementTypeLabel(apt)
 
   const imgPrinc = apt.image_principale as { url: string } | null
   const galerie  = (apt.galerie  as { url: string }[] | null) ?? []
-  const equipements = (apt.equipements as { nom: string; icone?: string; premium?: boolean }[] | null) ?? []
+  const equipementsRef = (apt.equipements_ref as { nom: string; icone?: string; premium?: boolean; categorie_ref?: { nom?: string } | null }[] | null) ?? []
+  const equipementsLegacy = (apt.equipements as { nom: string; icone?: string; premium?: boolean }[] | null) ?? []
+  const equipements = equipementsRef.length > 0 ? equipementsRef : equipementsLegacy
   const avis      = (apt.avis as { id: number; prenom_auteur: string; note_globale: number; commentaire: string; verifie: boolean; date_sejour?: string }[] | null) ?? []
   const videoUrl  = apt.video_url as string | null
   const documentId = apt.documentId as string
@@ -218,7 +221,9 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
               {/* Annulation */}
               <div className="rounded-xl px-5 py-4" style={{ background:'#F3EFE9', border:'1px solid #E5DDD4' }}>
                 <h2 className="font-bold text-[15px] text-[#1A0E06] mb-1">Politique d&apos;annulation</h2>
-                <p className="text-[14px] text-[#7A6550]">{politiqueLabel[politique] ?? politique}</p>
+                <p className="text-[14px] text-[#7A6550]">
+                  {politiqueRef?.description_simple ?? politiqueRef?.nom ?? politiqueLabel[politique] ?? politique}
+                </p>
               </div>
 
               {/* Vidéo TikTok / YouTube */}
