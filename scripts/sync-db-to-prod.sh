@@ -48,9 +48,15 @@ ssh "$PROD_HOST" '
   sleep 15
 
   echo "  Génération nouveau token API..."
+  # Mot de passe lu depuis /root/.ndombi-credentials (jamais en dur dans le code)
+  STRAPI_ADMIN_PASS=$(grep STRAPI_ADMIN_PASSWORD /root/.ndombi-credentials 2>/dev/null | cut -d= -f2)
+  if [ -z "$STRAPI_ADMIN_PASS" ]; then
+    read -rsp "  Mot de passe admin Strapi (admin@residencendombi.cg) : " STRAPI_ADMIN_PASS
+    echo ""
+  fi
   ADMIN_JWT=$(curl -s -X POST http://localhost:1337/admin/login \
     -H "Content-Type: application/json" \
-    -d "{\"email\":\"admin@residencendombi.cg\",\"password\":\"Ndombi2025\!Dev\"}" \
+    -d "{\"email\":\"admin@residencendombi.cg\",\"password\":\"$STRAPI_ADMIN_PASS\"}" \
     | python3 -c "import sys,json; print(json.load(sys.stdin)[\"data\"][\"token\"])")
 
   NEW_TOKEN=$(curl -s -X POST http://localhost:1337/admin/api-tokens \
