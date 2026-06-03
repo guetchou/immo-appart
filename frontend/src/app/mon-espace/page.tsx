@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { STRAPI_SERVER_URL } from '@/lib/strapi-server'
-import { getNavigation } from '@/lib/strapi'
+import { getFooterConfig, getNavigation } from '@/lib/strapi'
+import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 import MonEspaceClient from './MonEspaceClient'
 
@@ -30,6 +31,14 @@ export default async function MonEspacePage() {
     redirect('/login')
   }
 
-  const navigation = await getNavigation()
-  return <MonEspaceClient navProps={mapNavbarProps(navigation)} />
+  const [navigation, footerConfig] = await Promise.all([
+    getNavigation(),
+    getFooterConfig(),
+  ])
+  return (
+    <MonEspaceClient
+      navProps={mapNavbarProps(navigation)}
+      footerProps={mapFooterProps(footerConfig, navigation)}
+    />
+  )
 }

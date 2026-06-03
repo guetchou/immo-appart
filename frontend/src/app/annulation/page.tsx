@@ -1,5 +1,5 @@
 import SiteNavbar from '@/components/layout/SiteNavbar'
-import Footer from '@/components/layout/Footer'
+import SiteFooter from '@/components/layout/SiteFooter'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: "Politique d'annulation — Résidence NDOMBI" }
@@ -67,7 +67,7 @@ export default function AnnulationPage() {
           </div>
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

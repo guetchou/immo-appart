@@ -14,6 +14,7 @@ import ChatBot           from '@/components/layout/ChatBot'
 import ApartmentCarousel from '@/components/appartement/ApartmentCarousel'
 import BookingModal      from '@/components/reservation/BookingModal'
 import SocialWall        from '@/components/social/SocialWall'
+import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 
 const MapSection = dynamic(() => import('@/components/appartement/MapSection'), { ssr: false })
@@ -116,8 +117,7 @@ export default function HomeClient({
   const socialSous   = (hp?.social_sous_titre as string) || ''
 
   const navbarProps = mapNavbarProps(nav)
-  // Footer columns from Strapi
-  const colonnesLiens  = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
+  const footerProps = mapFooterProps(fc, nav)
 
   // Map: appartements with GPS → pins
   const residences = appartements
@@ -364,21 +364,7 @@ export default function HomeClient({
       {/* ── MAP ───────────────────────────────────────── */}
       <MapSection onReserve={openModal} residences={residences} />
 
-      <Footer
-        logoNom={fc?.logo_nom        as string | undefined ?? nav?.logo_nom        as string | undefined}
-        logoTagline={fc?.logo_tagline as string | undefined ?? nav?.logo_tagline    as string | undefined}
-        description={fc?.description  as string | undefined}
-        adresse={fc?.adresse          as string | undefined}
-        email={fc?.email              as string | undefined}
-        telephone={fc?.telephone      as string | undefined ?? nav?.telephone       as string | undefined}
-        copyright={fc?.copyright      as string | undefined}
-        tiktokUrl={fc?.tiktok_url     as string | undefined}
-        facebookUrl={fc?.facebook_url as string | undefined}
-        instagramUrl={fc?.instagram_url as string | undefined}
-        youtubeUrl={fc?.youtube_url   as string | undefined}
-        whatsappUrl={fc?.whatsapp_url as string | undefined}
-        colonnesLiens={colonnesLiens}
-      />
+      <Footer {...footerProps} />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
     </>

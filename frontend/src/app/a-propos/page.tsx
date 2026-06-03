@@ -1,5 +1,5 @@
 import SiteNavbar from '@/components/layout/SiteNavbar'
-import Footer from '@/components/layout/Footer'
+import SiteFooter from '@/components/layout/SiteFooter'
 import { MapPin, Phone, Mail, CheckCircle2 } from 'lucide-react'
 import { Metadata } from 'next'
 
@@ -66,7 +66,7 @@ export default function AProposPage() {
           </section>
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

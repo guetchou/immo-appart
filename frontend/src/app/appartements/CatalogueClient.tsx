@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Navbar  from '@/components/layout/Navbar'
 import type { NavProps } from '@/components/layout/Navbar'
 import Footer  from '@/components/layout/Footer'
+import type { FooterProps } from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
 import { toStrapiPublicUrl } from '@/lib/strapi-url'
@@ -52,6 +53,7 @@ function imgUrl(apt: Apt) {
 
 type Props = {
   navProps?:      NavProps
+  footerProps?:   FooterProps
   appartements:  Apt[]
   initSearch?:   string
   initArrivee?:  string
@@ -60,7 +62,7 @@ type Props = {
 }
 
 export default function CatalogueClient({
-  navProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1,
+  navProps, footerProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1,
 }: Props) {
   const [search,    setSearch]    = useState(initSearch)
   const [chipIdx,   setChipIdx]   = useState(0)
@@ -395,7 +397,7 @@ export default function CatalogueClient({
           )}
         </div>
       </main>
-      <Footer />
+      <Footer {...footerProps} />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
     </>

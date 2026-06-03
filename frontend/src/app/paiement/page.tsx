@@ -1,5 +1,5 @@
 import SiteNavbar from '@/components/layout/SiteNavbar'
-import Footer from '@/components/layout/Footer'
+import SiteFooter from '@/components/layout/SiteFooter'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Modes de paiement — Résidence NDOMBI' }
@@ -48,7 +48,7 @@ export default function PaiementPage() {
           </div>
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </>
   )
 }

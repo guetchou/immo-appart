@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
-import { getNavigation, strapiRequest } from '@/lib/strapi'
+import { getFooterConfig, getNavigation, strapiRequest } from '@/lib/strapi'
+import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 import CatalogueClient from './CatalogueClient'
 
@@ -28,13 +29,15 @@ export default async function AppartementsPage({
   searchParams: Promise<Record<string, string>>
 }) {
   const params = await searchParams
-  const [{ data: appartements }, navigation] = await Promise.all([
+  const [{ data: appartements }, navigation, footerConfig] = await Promise.all([
     getAppartementsAll(),
     getNavigation(),
+    getFooterConfig(),
   ])
   return (
     <CatalogueClient
       navProps={mapNavbarProps(navigation)}
+      footerProps={mapFooterProps(footerConfig, navigation)}
       appartements={appartements as never[]}
       initSearch={params.q ?? ''}
       initArrivee={params.arrivee ?? ''}

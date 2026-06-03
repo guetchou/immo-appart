@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import type { NavProps } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import type { FooterProps } from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
 import {
@@ -27,7 +28,15 @@ const ICON_MAP: Record<string, React.ComponentType<{ size: number; className?: s
 
 type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
-export default function AppartementClient({ apt, navProps }: { apt: Record<string, unknown>; navProps?: NavProps }) {
+export default function AppartementClient({
+  apt,
+  navProps,
+  footerProps,
+}: {
+  apt: Record<string, unknown>
+  navProps?: NavProps
+  footerProps?: FooterProps
+}) {
   const [imgIdx,    setImgIdx]   = useState(0)
   const [modal,     setModal]   = useState<ModalApt>(null)
   const [showAvis,  setShowAvis] = useState(false)
@@ -341,7 +350,7 @@ export default function AppartementClient({ apt, navProps }: { apt: Record<strin
         </div>
       </main>
 
-      <Footer />
+      <Footer {...footerProps} />
       <ChatBot />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
       <AvisModal

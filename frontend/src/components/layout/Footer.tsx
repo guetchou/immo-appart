@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Phone, Mail, MapPin } from 'lucide-react'
-import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
+import { FaFacebook, FaInstagram, FaTiktok, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
 type FooterLink    = { label: string; href: string }
 type FooterColonne = { titre: string; liens: FooterLink[] }
@@ -31,7 +31,7 @@ const DEFAULT_COLONNES: FooterColonne[] = [
   ]},
 ]
 
-type FooterProps = {
+export type FooterProps = {
   logoNom?:       string
   logoTagline?:   string
   description?:   string
@@ -151,6 +151,7 @@ export default function Footer({
             {[
               { icon: <FaFacebook size={14} />,  label: 'Facebook',  href: facebookUrl  },
               { icon: <FaInstagram size={14} />, label: 'Instagram', href: instagramUrl },
+              { icon: <FaTiktok size={14} />,    label: 'TikTok',    href: tiktokUrl    },
               { icon: <FaYoutube size={14} />,   label: 'YouTube',   href: youtubeUrl   },
               { icon: <FaWhatsapp size={14} />,  label: 'WhatsApp',  href: whatsappUrl  },
             ].filter(s => s.href).map(s => (
