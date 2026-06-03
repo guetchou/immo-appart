@@ -1,6 +1,7 @@
 import { draftMode } from 'next/headers'
+import { STRAPI_PUBLIC_URL, STRAPI_SERVER_URL, readJsonResponse } from './strapi-server'
 
-const STRAPI_URL   = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI_URL   = STRAPI_SERVER_URL
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? ''
 const IS_DEV       = process.env.NODE_ENV === 'development'
 
@@ -52,7 +53,7 @@ export async function strapiRequest<T>(path: string, options: FetchOptions = {})
   if (!res.ok) {
     throw new Error(`Strapi ${method} ${path} → ${res.status} ${res.statusText}`)
   }
-  return res.json()
+  return readJsonResponse<T>(res, `Strapi ${method} ${path}`)
 }
 
 // ── Single Types ─────────────────────────────────────
@@ -135,5 +136,5 @@ export async function getAvis() {
 // ── URL image Strapi ─────────────────────────────────
 export function strapiImgUrl(url?: string | null) {
   if (!url) return null
-  return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+  return url.startsWith('http') ? url : `${STRAPI_PUBLIC_URL}${url}`
 }

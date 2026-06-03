@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI = STRAPI_SERVER_URL
 
 export async function POST(req: NextRequest) {
   const { username, email, password, prenom, nom, telephone } = await req.json()
@@ -20,13 +21,20 @@ export async function POST(req: NextRequest) {
       telephone: telephone || '',
     }),
   })
-  const data = await res.json()
+  const data = await readJsonResponse<{ jwt?: string; user?: unknown; error?: { message?: string } }>(
+    res,
+    'Strapi auth register'
+  )
 
   if (!res.ok)
     return NextResponse.json(
       { error: data?.error?.message ?? 'Erreur inscription' },
       { status: res.status }
     )
+
+  if (!data.jwt) {
+    return NextResponse.json({ error: 'Réponse Strapi invalide: JWT manquant' }, { status: 502 })
+  }
 
   // Connexion automatique après inscription
   const response = NextResponse.json({ user: data.user })

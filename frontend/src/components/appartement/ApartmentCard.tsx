@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Heart, MapPin, BedDouble, Maximize2, Clock } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 
 type Props = {
   apt: Pick<Appartement,
@@ -21,11 +22,9 @@ const TYPE_LABELS: Record<string, string> = {
   t5_plus: 'T5+', villa: 'Villa', penthouse: 'Penthouse', duplex: 'Duplex', loft: 'Loft',
 }
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
-
 function imgUrl(url?: string) {
   if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop'
-  return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+  return toStrapiPublicUrl(url) ?? url
 }
 
 export default function ApartmentCard({ apt, onReserve }: Props) {

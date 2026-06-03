@@ -6,10 +6,8 @@ import { CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldChe
 import type { LucideIcon } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
 import Navbar            from '@/components/layout/Navbar'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 
-const STRAPI_BASE = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
-const toAbsoluteUrl = (url?: string | null) =>
-  url ? (url.startsWith('http') ? url : `${STRAPI_BASE}${url}`) : null
 import HeroSearch        from '@/components/hero/HeroSearch'
 import Footer            from '@/components/layout/Footer'
 import ChatBot           from '@/components/layout/ChatBot'
@@ -93,8 +91,8 @@ export default function HomeClient({
   const heroSousTitre= (hp?.hero_sous_titre   as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
   // hero_image : champ media Strapi prioritaire, sinon URL texte, sinon Unsplash
   const heroImageMedia = hp?.hero_image as { url?: string } | null
-  const heroBg = toAbsoluteUrl(heroImageMedia?.url)
-    ?? (hp?.hero_image_url_defaut as string)
+  const heroBg = toStrapiPublicUrl(heroImageMedia?.url)
+    ?? toStrapiPublicUrl(hp?.hero_image_url_defaut as string)
     ?? 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
   const statRes      = (hp?.stat_residences   as number) || 48
   const statPrix     = (hp?.stat_prix_min     as number) || 45000
@@ -105,7 +103,7 @@ export default function HomeClient({
   const humLabel     = (hp?.humain_label      as string) || 'Recherche simplifiée'
   const humTitre     = (hp?.humain_titre      as string) || 'Trouvez votre résidence idéale'
   const humTexte     = (hp?.humain_texte      as string) || 'Notre équipe vous accompagne à chaque étape.'
-  const humBg        = (hp?.humain_image_url_defaut as string) || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=500&fit=crop&crop=top'
+  const humBg        = toStrapiPublicUrl(hp?.humain_image_url_defaut as string) || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&h=500&fit=crop&crop=top'
   const svcTitre     = (hp?.services_titre    as string) || 'Une expérience complète'
   const socialActif  = hp?.social_actif !== false
   const socialTitre  = (hp?.social_titre      as string) || 'Suivez-nous'
@@ -114,7 +112,7 @@ export default function HomeClient({
   // Nav links + logo image + bouton réserver from Strapi
   const liensNav       = (nav?.liens_nav as NavLink[] | null) ?? undefined
   const logoImageMedia = nav?.logo_image as { url?: string } | null
-  const logoImageUrl   = toAbsoluteUrl(logoImageMedia?.url) ?? undefined
+  const logoImageUrl   = toStrapiPublicUrl(logoImageMedia?.url) ?? undefined
   const boutonReserver = (nav?.bouton_reserver_texte as string) || 'Réserver'
   // Footer columns from Strapi
   const colonnesLiens  = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined

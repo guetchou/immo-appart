@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI = STRAPI_SERVER_URL
 
 export async function POST(req: NextRequest) {
   const { identifier, password } = await req.json()
@@ -12,13 +13,20 @@ export async function POST(req: NextRequest) {
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ identifier, password }),
   })
-  const data = await res.json()
+  const data = await readJsonResponse<{ jwt?: string; user?: unknown; error?: { message?: string } }>(
+    res,
+    'Strapi auth login'
+  )
 
   if (!res.ok)
     return NextResponse.json(
       { error: data?.error?.message ?? 'Identifiants incorrects' },
       { status: res.status }
     )
+
+  if (!data.jwt) {
+    return NextResponse.json({ error: 'Réponse Strapi invalide: JWT manquant' }, { status: 502 })
+  }
 
   // Stocker le JWT dans un cookie httpOnly
   const response = NextResponse.json({ user: data.user })

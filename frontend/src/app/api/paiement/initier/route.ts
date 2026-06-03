@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI    = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI    = STRAPI_SERVER_URL
 const TOKEN     = process.env.STRAPI_API_TOKEN ?? ''
 const MTN_KEY   = process.env.MTN_MOMO_SUBSCRIPTION_KEY ?? ''
 const MTN_USER  = process.env.MTN_MOMO_API_USER ?? ''
@@ -22,7 +23,7 @@ async function verifyJwt(jwt: string): Promise<{ email: string } | null> {
       cache: 'no-store',
     })
     if (!res.ok) return null
-    const user = await res.json()
+    const user = await readJsonResponse<{ email?: string }>(res, 'Strapi users/me')
     return user?.email ? { email: user.email } : null
   } catch { return null }
 }
@@ -66,7 +67,10 @@ export async function POST(req: NextRequest) {
     { headers: { Authorization: `Bearer ${TOKEN}` }, cache: 'no-store' }
   )
   if (!resaRes.ok) return NextResponse.json({ error: 'Réservation introuvable' }, { status: 404 })
-  const resaData = await resaRes.json()
+  const resaData = await readJsonResponse<{ data?: { email_client?: string; prix_total?: number; reference?: string } }>(
+    resaRes,
+    'Strapi reservation paiement'
+  )
   const resa = resaData.data
 
   // Vérification fail-closed : email absent ou non concordant → refus

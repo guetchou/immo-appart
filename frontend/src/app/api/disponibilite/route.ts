@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI = STRAPI_SERVER_URL
 const TOKEN  = process.env.STRAPI_API_TOKEN ?? ''
 
 export async function GET(req: NextRequest) {
@@ -33,7 +34,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur Strapi' }, { status: 500 })
   }
 
-  const data = await res.json()
+  const data = await readJsonResponse<{ data?: Array<Record<string, unknown>> }>(res, 'Strapi disponibilite')
   const conflits = data.data ?? []
 
   return NextResponse.json({

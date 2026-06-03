@@ -1,10 +1,11 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { STRAPI_SERVER_URL } from '@/lib/strapi-server'
 import MonEspaceClient from './MonEspaceClient'
 
 export const metadata = { title: 'Mon espace — Résidence NDOMBI' }
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI = STRAPI_SERVER_URL
 
 async function verifySession(jwt: string): Promise<boolean> {
   try {

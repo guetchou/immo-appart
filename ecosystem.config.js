@@ -27,6 +27,9 @@ module.exports = {
       env: {
         NODE_ENV:               'production',
         PORT:                   '3001',
+        STRAPI_INTERNAL_URL:    'http://127.0.0.1:1337',
+        NEXT_PUBLIC_STRAPI_URL: 'https://residencendombi.lvaclean.cg',
+        NEXT_PUBLIC_SITE_URL:   'https://residencendombi.lvaclean.cg',
       },
       instances:   1,
       autorestart: true,

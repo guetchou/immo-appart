@@ -12,12 +12,11 @@ import {
   Wifi, Car, Shield, ChefHat, Sparkles, Play, MessageSquarePlus
 } from 'lucide-react'
 import AvisModal from '@/components/avis/AvisModal'
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 
 function imgUrl(url?: string) {
   if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&h=600&fit=crop'
-  return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+  return toStrapiPublicUrl(url) ?? url
 }
 
 const ICON_MAP: Record<string, React.ComponentType<{ size: number; className?: string }>> = {

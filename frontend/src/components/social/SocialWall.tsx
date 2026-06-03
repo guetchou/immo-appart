@@ -2,6 +2,7 @@
 
 import { ExternalLink, Play } from 'lucide-react'
 import { FaTiktok, FaInstagram, FaYoutube, FaFacebook } from 'react-icons/fa'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 
 type Publication = {
   id: number
@@ -42,14 +43,11 @@ const RESEAU_CONFIG = {
   facebook:  { Icon: FaFacebook,  label: 'Facebook',   color: '#0369A1', bg: '#DBEAFE' },
 }
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
-
 function imgUrl(pub: Publication) {
   if (pub.miniature?.url) {
-    const u = pub.miniature.url
-    return u.startsWith('http') ? u : `${STRAPI_URL}${u}`
+    return toStrapiPublicUrl(pub.miniature.url)
   }
-  return pub.miniature_url ?? null
+  return toStrapiPublicUrl(pub.miniature_url)
 }
 
 export default function SocialWall({ publications, titre, sousTitre, reseaux }: Props) {

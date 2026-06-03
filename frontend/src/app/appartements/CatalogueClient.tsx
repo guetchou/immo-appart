@@ -6,6 +6,7 @@ import Navbar  from '@/components/layout/Navbar'
 import Footer  from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 import {
   MapPin, BedDouble, Maximize2, Clock, Search,
   SlidersHorizontal, Heart, ArrowUpDown, X, Calendar, Users,
@@ -22,8 +23,6 @@ type Apt = {
 }
 
 type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
 
 const TYPE_LABELS: Record<string, string> = {
   studio:'Studio', t1:'T1', t2:'T2', t3:'T3', t4:'T4', t5_plus:'T5+',
@@ -50,7 +49,7 @@ const SORTS = [
 function imgUrl(apt: Apt) {
   const url = apt.image_principale?.url
   if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop'
-  return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+  return toStrapiPublicUrl(url) ?? url
 }
 
 type Props = {

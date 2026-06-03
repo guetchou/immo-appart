@@ -9,6 +9,7 @@ import {
   Calendar, MapPin, Clock, CheckCircle2, AlertCircle,
   XCircle, Heart, User, LogOut, ChevronRight, Home,
 } from 'lucide-react'
+import { toStrapiPublicUrl } from '@/lib/strapi-url'
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
 
@@ -107,7 +108,7 @@ export default function MonEspaceClient() {
 
   function imgUrl(url?: string) {
     if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=140&fit=crop'
-    return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
+    return toStrapiPublicUrl(url) ?? url
   }
 
   return (

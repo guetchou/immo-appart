@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI      = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI      = STRAPI_SERVER_URL
 const TOKEN       = process.env.STRAPI_API_TOKEN ?? ''
 const RESEND_KEY  = process.env.RESEND_API_KEY ?? ''
 const FROM_EMAIL  = process.env.FROM_EMAIL ?? 'reservations@residencendombi.cg'
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
   const dispRes  = await fetch(`${STRAPI}/api/reservations?${dispParams}`, {
     headers: { Authorization: `Bearer ${TOKEN}` }, cache: 'no-store',
   })
-  const dispData = await dispRes.json()
+  const dispData = await readJsonResponse<{ data?: unknown[] }>(dispRes, 'Strapi reservation availability')
   if ((dispData.data ?? []).length > 0)
     return NextResponse.json({ error: 'Appartement non disponible pour ces dates.' }, { status: 409 })
 
@@ -83,7 +84,10 @@ export async function POST(req: NextRequest) {
       appartement: appartement_id,
     }}),
   })
-  const data = await res.json()
+  const data = await readJsonResponse<{ data?: { documentId?: string }; error?: { message?: string } }>(
+    res,
+    'Strapi create reservation'
+  )
 
   if (!res.ok)
     return NextResponse.json({ error: data?.error?.message ?? 'Erreur création réservation' }, { status: res.status })

@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { strapiRequest } from '@/lib/strapi'
+import { STRAPI_SERVER_URL, readJsonResponse, strapiPublicUrl } from '@/lib/strapi-server'
 import AppartementClient from './AppartementClient'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -9,7 +9,7 @@ export const revalidate = 30
 
 async function getAppartement(slug: string) {
   try {
-    const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+    const STRAPI_URL = STRAPI_SERVER_URL
     const TOKEN      = process.env.STRAPI_API_TOKEN ?? ''
 
     // Strapi 5 : filtrer par slug avec populate complet
@@ -32,7 +32,7 @@ async function getAppartement(slug: string) {
     })
 
     if (!res.ok) return null
-    const json = await res.json()
+    const json = await readJsonResponse<{ data?: Record<string, unknown>[] }>(res, 'Strapi appartement detail')
     return (json.data?.[0] as Record<string, unknown>) ?? null
   } catch {
     return null
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title:  apt.titre as string,
       images: apt.image_principale
-        ? [{ url: (apt.image_principale as { url: string }).url }]
+        ? [{ url: strapiPublicUrl((apt.image_principale as { url: string }).url) ?? '' }]
         : [],
     },
   }

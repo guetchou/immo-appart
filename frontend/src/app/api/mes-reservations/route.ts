@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { STRAPI_SERVER_URL, readJsonResponse } from '@/lib/strapi-server'
 
-const STRAPI = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
+const STRAPI = STRAPI_SERVER_URL
 const TOKEN  = process.env.STRAPI_API_TOKEN ?? ''
 
 // Vérifie le JWT Strapi et retourne l'utilisateur, ou null si invalide
@@ -11,7 +12,7 @@ async function verifyJwt(jwt: string): Promise<{ email: string } | null> {
       cache: 'no-store',
     })
     if (!res.ok) return null
-    const user = await res.json()
+    const user = await readJsonResponse<{ email?: string }>(res, 'Strapi users/me')
     return user?.email ? { email: user.email } : null
   } catch {
     return null
@@ -43,6 +44,6 @@ export async function GET(req: NextRequest) {
   })
 
   if (!res.ok) return NextResponse.json({ data: [] })
-  const data = await res.json()
+  const data = await readJsonResponse<{ data?: unknown[] }>(res, 'Strapi mes reservations')
   return NextResponse.json({ data: data.data ?? [] })
 }
