@@ -50,7 +50,15 @@ export default {
         "menage",
         "autre"
       ],
-      "required": true
+      "required": false,
+      "description": "Champ historique conserve pour compatibilite. Utiliser Categorie Service pour les nouvelles modifications."
+    },
+    "categorie_ref": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::categorie-service.categorie-service",
+      "inversedBy": "services",
+      "description": "Categorie administrable utilisee par le site en priorite"
     },
     "disponible": {
       "type": "boolean",

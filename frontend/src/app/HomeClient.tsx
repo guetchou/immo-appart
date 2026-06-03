@@ -36,6 +36,12 @@ type ServiceItem = {
   id: number; documentId: string
   nom: string; description: string
   icone?: string; categorie?: string
+  categorie_ref?: {
+    nom?: string
+    slug?: string
+    couleur?: string
+    couleur_fond?: string
+  } | null
   prix?: number; disponible?: boolean
 }
 
@@ -326,8 +332,10 @@ export default function HomeClient({
             <div className="grid rounded-2xl overflow-hidden"
               style={{ gridTemplateColumns:`repeat(${Math.min(servicesPremium.length, 5)},1fr)`, background:'#fff', border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.06)' }}>
               {servicesPremium.slice(0, 5).map((s, i) => {
-                const cat     = s.categorie ?? 'autre'
-                const colors  = CAT_COLORS[cat] ?? CAT_COLORS.autre
+                const cat     = s.categorie_ref?.slug ?? s.categorie ?? 'autre'
+                const colors  = s.categorie_ref?.couleur || s.categorie_ref?.couleur_fond
+                  ? { color: s.categorie_ref?.couleur ?? CAT_COLORS.autre.color, bg: s.categorie_ref?.couleur_fond ?? CAT_COLORS.autre.bg }
+                  : CAT_COLORS[cat] ?? CAT_COLORS.autre
                 const IconCmp = s.icone ? (ICON_MAP[s.icone] ?? Sparkles) : Sparkles
                 return (
                   <div key={s.id} className="px-5 py-8 text-center transition-all cursor-default"

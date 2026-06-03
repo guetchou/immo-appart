@@ -27,6 +27,7 @@ const MODEL_TO_TAGS: Record<string, string[]> = {
   'avis':                ['appartements'],        // les avis impactent les fiches
   'reservation':         ['appartements'],
   'service-premium':     ['services'],
+  'categorie-service':   ['services'],
   'homepage':            ['homepage'],
   'navigation':          ['navigation'],
   'footer-config':       ['footer'],
