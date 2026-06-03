@@ -8,11 +8,11 @@ export default [
   {
     name: 'strapi::body',
     config: {
-      formLimit: '50mb',
-      jsonLimit: '50mb',
-      textLimit: '50mb',
+      formLimit: '100mb',
+      jsonLimit: '100mb',
+      textLimit: '100mb',
       formidable: {
-        maxFileSize: 50 * 1024 * 1024,
+        maxFileSize: 100 * 1024 * 1024,
       },
     },
   },
