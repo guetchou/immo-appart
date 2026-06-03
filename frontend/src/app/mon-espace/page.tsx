@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { STRAPI_SERVER_URL } from '@/lib/strapi-server'
+import { getNavigation } from '@/lib/strapi'
+import { mapNavbarProps } from '@/lib/navbar-props'
 import MonEspaceClient from './MonEspaceClient'
 
 export const metadata = { title: 'Mon espace — Résidence NDOMBI' }
@@ -28,5 +30,6 @@ export default async function MonEspacePage() {
     redirect('/login')
   }
 
-  return <MonEspaceClient />
+  const navigation = await getNavigation()
+  return <MonEspaceClient navProps={mapNavbarProps(navigation)} />
 }

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
-import { strapiRequest } from '@/lib/strapi'
+import { getNavigation, strapiRequest } from '@/lib/strapi'
+import { mapNavbarProps } from '@/lib/navbar-props'
 import CatalogueClient from './CatalogueClient'
 
 export const metadata: Metadata = {
@@ -27,9 +28,13 @@ export default async function AppartementsPage({
   searchParams: Promise<Record<string, string>>
 }) {
   const params = await searchParams
-  const { data: appartements } = await getAppartementsAll()
+  const [{ data: appartements }, navigation] = await Promise.all([
+    getAppartementsAll(),
+    getNavigation(),
+  ])
   return (
     <CatalogueClient
+      navProps={mapNavbarProps(navigation)}
       appartements={appartements as never[]}
       initSearch={params.q ?? ''}
       initArrivee={params.arrivee ?? ''}

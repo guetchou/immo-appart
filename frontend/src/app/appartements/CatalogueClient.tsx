@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Navbar  from '@/components/layout/Navbar'
+import type { NavProps } from '@/components/layout/Navbar'
 import Footer  from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
@@ -50,6 +51,7 @@ function imgUrl(apt: Apt) {
 }
 
 type Props = {
+  navProps?:      NavProps
   appartements:  Apt[]
   initSearch?:   string
   initArrivee?:  string
@@ -58,7 +60,7 @@ type Props = {
 }
 
 export default function CatalogueClient({
-  appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1,
+  navProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1,
 }: Props) {
   const [search,    setSearch]    = useState(initSearch)
   const [chipIdx,   setChipIdx]   = useState(0)
@@ -127,7 +129,7 @@ export default function CatalogueClient({
 
   return (
     <>
-      <Navbar />
+      <Navbar {...navProps} />
       <main className="pt-[68px]">
 
         {/* ── Header ── */}

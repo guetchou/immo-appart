@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
+import type { NavProps } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
@@ -26,7 +27,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ size: number; className?: s
 
 type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
-export default function AppartementClient({ apt }: { apt: Record<string, unknown> }) {
+export default function AppartementClient({ apt, navProps }: { apt: Record<string, unknown>; navProps?: NavProps }) {
   const [imgIdx,    setImgIdx]   = useState(0)
   const [modal,     setModal]   = useState<ModalApt>(null)
   const [showAvis,  setShowAvis] = useState(false)
@@ -84,7 +85,7 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
 
   return (
     <>
-      <Navbar />
+      <Navbar {...navProps} />
       <main className="pt-[68px]">
 
         {/* ── Galerie ── */}

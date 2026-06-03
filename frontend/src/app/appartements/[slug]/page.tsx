@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { STRAPI_SERVER_URL, readJsonResponse, strapiPublicUrl } from '@/lib/strapi-server'
+import { getNavigation } from '@/lib/strapi'
+import { mapNavbarProps } from '@/lib/navbar-props'
 import AppartementClient from './AppartementClient'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -61,7 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AppartementPage({ params }: Props) {
   const { slug } = await params
-  const apt = await getAppartement(slug)
+  const [apt, navigation] = await Promise.all([
+    getAppartement(slug),
+    getNavigation(),
+  ])
   if (!apt) notFound()
-  return <AppartementClient apt={apt} />
+  return <AppartementClient apt={apt} navProps={mapNavbarProps(navigation)} />
 }

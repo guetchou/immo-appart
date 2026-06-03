@@ -1,4 +1,4 @@
-import Navbar from '@/components/layout/Navbar'
+import SiteNavbar from '@/components/layout/SiteNavbar'
 import Footer from '@/components/layout/Footer'
 import { Metadata } from 'next'
 
@@ -16,7 +16,7 @@ const RULES = [
 export default function ReglementPage() {
   return (
     <>
-      <Navbar />
+      <SiteNavbar />
       <main className="pt-[68px]" style={{ background: '#FBF8F4' }}>
         <div className="py-14 px-8 border-b border-[#E5DDD4]">
           <div className="max-w-[820px] mx-auto">

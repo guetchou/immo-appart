@@ -15,7 +15,7 @@ const DEFAULT_navLinks = [
 
 type NavLink = { label: string; href: string }
 
-type NavProps = {
+export type NavProps = {
   logoNom?:          string
   logoTagline?:      string
   logoImageUrl?:     string

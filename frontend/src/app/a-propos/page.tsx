@@ -1,4 +1,4 @@
-import Navbar from '@/components/layout/Navbar'
+import SiteNavbar from '@/components/layout/SiteNavbar'
 import Footer from '@/components/layout/Footer'
 import { MapPin, Phone, Mail, CheckCircle2 } from 'lucide-react'
 import { Metadata } from 'next'
@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'À propos — Résidence NDOMBI' }
 export default function AProposPage() {
   return (
     <>
-      <Navbar />
+      <SiteNavbar />
       <main className="pt-[68px]" style={{ background: '#FBF8F4' }}>
         <div className="py-14 px-8" style={{ background: '#1A0E06' }}>
           <div className="max-w-[820px] mx-auto text-center">

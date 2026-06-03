@@ -14,6 +14,7 @@ import ChatBot           from '@/components/layout/ChatBot'
 import ApartmentCarousel from '@/components/appartement/ApartmentCarousel'
 import BookingModal      from '@/components/reservation/BookingModal'
 import SocialWall        from '@/components/social/SocialWall'
+import { mapNavbarProps } from '@/lib/navbar-props'
 
 const MapSection = dynamic(() => import('@/components/appartement/MapSection'), { ssr: false })
 
@@ -45,7 +46,6 @@ type ServiceItem = {
   prix?: number; disponible?: boolean
 }
 
-type NavLink       = { label: string; href: string }
 type FooterColonne = { titre: string; liens: { label: string; href: string }[] }
 type ModalApt      = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
@@ -115,11 +115,7 @@ export default function HomeClient({
   const socialTitre  = (hp?.social_titre      as string) || 'Suivez-nous'
   const socialSous   = (hp?.social_sous_titre as string) || ''
 
-  // Nav links + logo image + bouton réserver from Strapi
-  const liensNav       = (nav?.liens_nav as NavLink[] | null) ?? undefined
-  const logoImageMedia = nav?.logo_image as { url?: string } | null
-  const logoImageUrl   = toStrapiPublicUrl(logoImageMedia?.url) ?? undefined
-  const boutonReserver = (nav?.bouton_reserver_texte as string) || 'Réserver'
+  const navbarProps = mapNavbarProps(nav)
   // Footer columns from Strapi
   const colonnesLiens  = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
 
@@ -158,16 +154,7 @@ export default function HomeClient({
 
   return (
     <>
-      <Navbar
-        logoNom={nav?.logo_nom        as string | undefined}
-        logoTagline={nav?.logo_tagline as string | undefined}
-        logoImageUrl={logoImageUrl}
-        telephone={nav?.telephone      as string | undefined}
-        agentNom={nav?.agent_nom       as string | undefined}
-        agentPhotoUrl={nav?.agent_photo_url as string | undefined}
-        liensNav={liensNav}
-        boutonReserver={boutonReserver}
-      />
+      <Navbar {...navbarProps} />
 
       {/* ── HERO ──────────────────────────────────────── */}
       <section className="relative mt-[68px] flex items-center justify-center overflow-hidden"

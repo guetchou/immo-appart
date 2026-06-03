@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Navbar  from '@/components/layout/Navbar'
+import type { NavProps } from '@/components/layout/Navbar'
 import Footer  from '@/components/layout/Footer'
 import {
   Calendar, MapPin, Clock, CheckCircle2, AlertCircle,
@@ -39,7 +40,7 @@ const STATUT_CONFIG: Record<string, { label: string; color: string; bg: string; 
 const TABS = ['Mes réservations', 'Mes favoris', 'Mon profil'] as const
 type Tab = typeof TABS[number]
 
-export default function MonEspaceClient() {
+export default function MonEspaceClient({ navProps }: { navProps?: NavProps }) {
   const router  = useRouter()
   const [tab,   setTab]   = useState<Tab>('Mes réservations')
   const [user,  setUser]  = useState<{ username?: string; email?: string } | null>(null)
@@ -113,7 +114,7 @@ export default function MonEspaceClient() {
 
   return (
     <>
-      <Navbar />
+      <Navbar {...navProps} />
       <main className="pt-[68px] min-h-screen" style={{ background:'#FBF8F4' }}>
 
         {/* ── Header dashboard ── */}
