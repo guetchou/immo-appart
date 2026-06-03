@@ -69,7 +69,7 @@ export async function getHomepage() {
 export async function getNavigation() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(
-      '/navigation?populate=logo_image,agent_photo', { revalidate: 60, tags: ['navigation'] }
+      '/navigation?populate[0]=logo_image&populate[1]=agent_photo', { revalidate: 60, tags: ['navigation'] }
     )
     return r.data
   } catch { return null }
