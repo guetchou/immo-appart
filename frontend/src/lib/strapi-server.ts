@@ -28,7 +28,7 @@ export function strapiPublicUrl(url?: string | null) {
 
 function normalizeStrapiUrls<T>(value: T): T {
   if (typeof value === 'string') {
-    return strapiPublicUrl(value) as T
+    return (value.startsWith('http') || value.startsWith('/')) ? strapiPublicUrl(value) as T : value
   }
 
   if (Array.isArray(value)) {
