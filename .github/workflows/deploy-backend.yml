@@ -39,7 +39,17 @@ jobs:
             docker compose up -d --build strapi
 
             echo "→ Smoke check Strapi"
-            sleep 8
-            curl -fsS http://127.0.0.1:1337/api/appartements >/dev/null
+            for i in $(seq 1 30); do
+              if curl -fsS http://127.0.0.1:1337/api/appartements >/dev/null; then
+                echo "Strapi is ready"
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "Strapi did not become ready in time"
+                docker logs --tail 120 ndombi-strapi
+                exit 1
+              fi
+              sleep 3
+            done
 
             echo "✅ Backend déployé sur ${{ secrets.VPS_HOST }}"
