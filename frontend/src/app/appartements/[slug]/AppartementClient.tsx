@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import AvisModal from '@/components/avis/AvisModal'
 import { toStrapiPublicUrl } from '@/lib/strapi-url'
+import { logementTypeLabel } from '@/lib/logement-types'
 
 function imgUrl(url?: string) {
   if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&h=600&fit=crop'
@@ -46,6 +47,7 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
   const noteM    = apt.note_moyenne as number | null
   const nbrAvis  = apt.nombre_avis  as number ?? 0
   const politique= apt.politique_annulation as string ?? 'moderee'
+  const typeLabel = logementTypeLabel(apt)
 
   const imgPrinc = apt.image_principale as { url: string } | null
   const galerie  = (apt.galerie  as { url: string }[] | null) ?? []
@@ -151,6 +153,7 @@ export default function AppartementClient({ apt }: { apt: Record<string, unknown
               {/* Caractéristiques */}
               <div className="flex flex-wrap gap-6 py-6" style={{ borderTop:'1px solid #E5DDD4', borderBottom:'1px solid #E5DDD4' }}>
                 {[
+                  { icon:<BedDouble size={20}/>, label:'Type',      val: typeLabel },
                   { icon:<BedDouble size={20}/>, label:'Chambres',  val: chambres ?? '—' },
                   { icon:<Bath size={20}/>,      label:'Sdb',       val: sdb ?? '—'      },
                   { icon:<Users size={20}/>,     label:'Personnes', val: capa ?? '—'     },

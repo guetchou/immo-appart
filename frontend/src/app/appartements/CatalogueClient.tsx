@@ -7,6 +7,7 @@ import Footer  from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
 import { toStrapiPublicUrl } from '@/lib/strapi-url'
+import { logementTypeKey, logementTypeLabel, type TypeLogementRef } from '@/lib/logement-types'
 import {
   MapPin, BedDouble, Maximize2, Clock, Search,
   SlidersHorizontal, Heart, ArrowUpDown, X, Calendar, Users,
@@ -15,7 +16,8 @@ import {
 type Apt = {
   id: number; documentId: string; titre: string; slug: string
   quartier: string; ville: string; prix_nuit_base: number; devise: string
-  type_logement: string; nombre_chambres: number; superficie: number | null
+  type_logement: string | null; type_logement_ref?: TypeLogementRef | null
+  nombre_chambres: number; superficie: number | null
   duree_min_sejour: number; capacite_personnes?: number
   note_moyenne: number | null; nombre_avis: number
   en_vedette: boolean; nouveau: boolean; statut: string
@@ -24,18 +26,13 @@ type Apt = {
 
 type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
 
-const TYPE_LABELS: Record<string, string> = {
-  studio:'Studio', t1:'T1', t2:'T2', t3:'T3', t4:'T4', t5_plus:'T5+',
-  villa:'Villa', penthouse:'Penthouse', duplex:'Duplex', loft:'Loft',
-}
-
 const TYPE_CHIPS = [
   { label: 'Tous',       types: [] },
-  { label: 'Studios',    types: ['studio','t1'] },
-  { label: 'T2 / T3',    types: ['t2','t3'] },
-  { label: 'Penthouse',  types: ['penthouse'] },
+  { label: 'Studios',    types: ['studio'] },
+  { label: 'Appart. 1-2 ch.', types: ['appartement-1-chambre','appartement-2-chambres','t1','t2'] },
+  { label: 'Appart. 3+ ch.', types: ['appartement-3-chambres','appartement-4-chambres','appartement-4-chambres-et-plus','t3','t4','t5_plus'] },
   { label: 'Villas',     types: ['villa'] },
-  { label: 'Lofts',      types: ['loft','duplex'] },
+  { label: 'Duplex + autres', types: ['duplex','loft','autres'] },
 ]
 
 const SORTS = [
@@ -102,7 +99,7 @@ export default function CatalogueClient({
     const maxP  = prixMax ? Number(prixMax) : Infinity
 
     let result = appartements.filter(a => {
-      if (chip.types.length && !chip.types.includes(a.type_logement)) return false
+      if (chip.types.length && !chip.types.includes(logementTypeKey(a))) return false
       if (search && !a.titre.toLowerCase().includes(search.toLowerCase()) &&
                     !a.quartier.toLowerCase().includes(search.toLowerCase())) return false
       if (a.prix_nuit_base < minP || a.prix_nuit_base > maxP) return false
@@ -351,7 +348,7 @@ export default function CatalogueClient({
                       <div className="flex gap-3 mb-4 flex-wrap">
                         <div className="flex items-center gap-1.5 text-[12px] text-[#7A6550]">
                           <BedDouble size={12} className="text-[#0369A1]" />
-                          {TYPE_LABELS[apt.type_logement] ?? apt.type_logement}
+                          {logementTypeLabel(apt)}
                         </div>
                         {apt.superficie && (
                           <div className="flex items-center gap-1.5 text-[12px] text-[#7A6550]">

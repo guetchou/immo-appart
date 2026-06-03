@@ -53,7 +53,15 @@ export default {
         "duplex",
         "loft"
       ],
-      "required": true
+      "required": false,
+      "description": "Champ historique conserve pour compatibilite. Utiliser Type de logement pour les nouvelles modifications."
+    },
+    "type_logement_ref": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::type-logement.type-logement",
+      "inversedBy": "appartements",
+      "description": "Type de logement administrable utilise par le site en priorite"
     },
     "statut": {
       "type": "enumeration",

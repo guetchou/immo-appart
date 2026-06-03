@@ -20,6 +20,7 @@ async function getAppartement(slug: string) {
       'populate[equipements]':      'true',
       'populate[avis]':             'true',
       'populate[services_premium]': 'true',
+      'populate[type_logement_ref]': 'true',
     })
 
     const IS_DEV = process.env.NODE_ENV === 'development'

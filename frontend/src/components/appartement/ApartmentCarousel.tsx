@@ -8,7 +8,7 @@ import type { Appartement } from '@/types/strapi'
 
 type AptItem = Pick<Appartement,
   'id' | 'documentId' | 'titre' | 'slug' | 'quartier' | 'ville' |
-  'prix_nuit_base' | 'devise' | 'type_logement' | 'nombre_chambres' |
+  'prix_nuit_base' | 'devise' | 'type_logement' | 'type_logement_ref' | 'nombre_chambres' |
   'superficie' | 'duree_min_sejour' | 'note_moyenne' | 'nombre_avis' |
   'en_vedette' | 'nouveau' | 'statut'
 > & { image_principale?: { url: string; alternativeText: string | null } }

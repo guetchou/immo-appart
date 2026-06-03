@@ -4,22 +4,18 @@ import { useState } from 'react'
 import { Heart, MapPin, BedDouble, Maximize2, Clock } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
 import { toStrapiPublicUrl } from '@/lib/strapi-url'
+import { logementTypeLabel } from '@/lib/logement-types'
 
 type Props = {
   apt: Pick<Appartement,
     'id' | 'documentId' | 'titre' | 'slug' | 'quartier' | 'ville' |
-    'prix_nuit_base' | 'devise' | 'type_logement' | 'nombre_chambres' |
+    'prix_nuit_base' | 'devise' | 'type_logement' | 'type_logement_ref' | 'nombre_chambres' |
     'superficie' | 'duree_min_sejour' | 'note_moyenne' | 'nombre_avis' |
     'en_vedette' | 'nouveau' | 'statut'
   > & {
     image_principale?: { url: string; alternativeText: string | null }
   }
   onReserve?: (apt: Props['apt']) => void
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  studio: 'Studio', t1: 'T1', t2: 'T2', t3: 'T3', t4: 'T4',
-  t5_plus: 'T5+', villa: 'Villa', penthouse: 'Penthouse', duplex: 'Duplex', loft: 'Loft',
 }
 
 function imgUrl(url?: string) {
@@ -106,7 +102,7 @@ export default function ApartmentCard({ apt, onReserve }: Props) {
         <div className="flex gap-3 mb-4">
           <div className="flex items-center gap-1.5 text-[12px] text-[#7A6550]">
             <BedDouble size={12} className="text-[#0369A1]" />
-            {TYPE_LABELS[apt.type_logement] ?? apt.type_logement}
+            {logementTypeLabel(apt)}
           </div>
           {apt.superficie && (
             <div className="flex items-center gap-1.5 text-[12px] text-[#7A6550]">

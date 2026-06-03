@@ -23,6 +23,7 @@ import { timingSafeEqual }               from 'crypto'
 // "model" = nom singulier du content-type (champ dans le payload webhook)
 const MODEL_TO_TAGS: Record<string, string[]> = {
   'appartement':         ['appartements'],
+  'type-logement':       ['appartements'],
   'avis':                ['appartements'],        // les avis impactent les fiches
   'reservation':         ['appartements'],
   'service-premium':     ['services'],

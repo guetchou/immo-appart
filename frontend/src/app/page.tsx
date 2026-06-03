@@ -19,7 +19,7 @@ export default async function HomePage() {
     getFooterConfig(),
     getReseauxSociaux(),
     getAppartements(
-      '?filters[statut][$eq]=disponible&populate=image_principale&sort=ordre_affichage:desc&pagination[pageSize]=10'
+      '?filters[statut][$eq]=disponible&populate[0]=image_principale&populate[1]=type_logement_ref&sort=ordre_affichage:desc&pagination[pageSize]=10'
     ),
     getPublicationsSociales(),
     getServicesPremium(),

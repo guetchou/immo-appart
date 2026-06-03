@@ -22,7 +22,14 @@ export type Appartement = {
   slug: string
   description_courte: string
   description: string
-  type_logement: 'studio' | 't1' | 't2' | 't3' | 't4' | 't5_plus' | 'villa' | 'penthouse' | 'duplex' | 'loft'
+  type_logement: string | null
+  type_logement_ref?: {
+    id: number
+    documentId: string
+    nom: string
+    slug: string
+    description_simple?: string | null
+  } | null
   statut: 'disponible' | 'occupe' | 'maintenance' | 'inactif'
   en_vedette: boolean
   nouveau: boolean
