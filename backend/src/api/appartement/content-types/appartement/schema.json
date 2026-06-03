@@ -17,33 +17,28 @@
     }
   },
   "attributes": {
-
     "titre": {
       "type": "string",
       "required": true,
       "maxLength": 120,
       "pluginOptions": {}
     },
-
     "slug": {
       "type": "uid",
       "targetField": "titre",
       "required": true
     },
-
     "description_courte": {
       "type": "text",
       "required": true,
       "maxLength": 300,
       "description": "Accroche affichée sur les cartes du catalogue"
     },
-
     "description": {
       "type": "richtext",
       "required": true,
       "description": "Description complète (Markdown/HTML) pour la fiche détaillée"
     },
-
     "type_logement": {
       "type": "enumeration",
       "enum": [
@@ -58,9 +53,16 @@
         "duplex",
         "loft"
       ],
-      "required": true
+      "required": false,
+      "description": "Champ historique conserve pour compatibilite. Utiliser Type de logement pour les nouvelles modifications."
     },
-
+    "type_logement_ref": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::type-logement.type-logement",
+      "inversedBy": "appartements",
+      "description": "Type de logement administrable utilise par le site en priorite"
+    },
     "statut": {
       "type": "enumeration",
       "enum": [
@@ -72,178 +74,166 @@
       "default": "disponible",
       "required": true
     },
-
     "en_vedette": {
       "type": "boolean",
       "default": false,
       "description": "Apparaît dans la section 'Nos coups de cœur' en homepage"
     },
-
     "nouveau": {
       "type": "boolean",
       "default": false,
       "description": "Affiche le badge 'Nouveau' clignotant sur la carte"
     },
-
     "prix_nuit_base": {
       "type": "decimal",
       "required": true,
       "min": 0,
       "description": "Prix de référence hors saisonnalité (en XAF ou USD selon config)"
     },
-
     "devise": {
       "type": "enumeration",
-      "enum": ["XAF", "USD", "EUR", "CDF"],
+      "enum": [
+        "XAF",
+        "USD",
+        "EUR",
+        "CDF"
+      ],
       "default": "XAF",
       "required": true
     },
-
     "caution": {
       "type": "decimal",
       "min": 0,
       "default": 0,
       "description": "Dépôt de garantie exigé à l'arrivée"
     },
-
     "duree_min_sejour": {
       "type": "integer",
       "min": 1,
       "default": 1,
       "description": "Nombre minimal de nuits hors périodes saisonnières"
     },
-
     "tarifs_saisonniers": {
       "type": "component",
       "repeatable": true,
       "component": "appartement.tarif-saison",
       "description": "Grilles tarifaires par période (haute/basse saison, fêtes, etc.)"
     },
-
     "capacite_personnes": {
       "type": "integer",
       "required": true,
       "min": 1,
       "max": 30
     },
-
     "nombre_chambres": {
       "type": "integer",
       "required": true,
       "min": 0,
       "description": "0 = studio"
     },
-
     "nombre_salles_bain": {
       "type": "integer",
       "required": true,
       "min": 1
     },
-
     "nombre_lits": {
       "type": "integer",
       "min": 1
     },
-
     "superficie": {
       "type": "decimal",
       "min": 0,
       "description": "Superficie totale en m²"
     },
-
     "etage": {
       "type": "integer",
       "min": 0,
       "description": "0 = rez-de-chaussée"
     },
-
     "ascenseur": {
       "type": "boolean",
       "default": false
     },
-
     "image_principale": {
       "type": "media",
       "multiple": false,
       "required": true,
-      "allowedTypes": ["images"],
+      "allowedTypes": [
+        "images"
+      ],
       "description": "Image hero de la fiche et des cartes catalogue"
     },
-
     "galerie": {
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": ["images"],
+      "allowedTypes": [
+        "images"
+      ],
       "description": "Toutes les photos de l'appartement pour le carousel"
     },
-
     "video_url": {
       "type": "string",
       "description": "URL YouTube/Vimeo pour la visite virtuelle"
     },
-
     "visite_3d_url": {
       "type": "string",
       "description": "URL Matterport ou autre outil de visite immersive 3D"
     },
-
     "equipements": {
       "type": "component",
       "repeatable": true,
       "component": "appartement.equipement",
-      "description": "Liste complète des équipements et commodités"
+      "description": "Champ historique conserve pour compatibilite. Utiliser Equipements administrables pour les nouvelles modifications."
     },
-
+    "equipements_ref": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::equipement.equipement",
+      "inversedBy": "appartements",
+      "description": "Equipements administrables utilises par le site en priorite"
+    },
     "adresse": {
       "type": "string",
       "required": true,
       "description": "Adresse complète ou adresse approximative pour la sécurité"
     },
-
     "quartier": {
       "type": "string",
       "required": true,
       "description": "Ex: Gombe, Lingwala, Plateau des 15 ans"
     },
-
     "ville": {
       "type": "string",
       "required": true,
-      "default": "Kinshasa"
+      "default": "Pointe-Noire"
     },
-
     "pays": {
       "type": "string",
       "required": true,
-      "default": "République Démocratique du Congo"
+      "default": "République du Congo"
     },
-
     "code_pays": {
       "type": "string",
       "maxLength": 2,
-      "default": "CD",
+      "default": "CG",
       "description": "Code ISO 3166-1 alpha-2"
     },
-
     "latitude": {
       "type": "decimal",
       "required": true,
       "description": "Coordonnée GPS latitude pour la carte Leaflet/Mapbox"
     },
-
     "longitude": {
       "type": "decimal",
       "required": true,
       "description": "Coordonnée GPS longitude pour la carte Leaflet/Mapbox"
     },
-
     "afficher_adresse_exacte": {
       "type": "boolean",
       "default": false,
       "description": "Si false, seul le quartier et un pin approximatif sont affichés"
     },
-
     "politique_annulation": {
       "type": "enumeration",
       "enum": [
@@ -253,63 +243,66 @@
         "non_remboursable"
       ],
       "default": "moderee",
-      "required": true
+      "required": false,
+      "description": "Champ historique conserve pour compatibilite. Utiliser Politique d'annulation pour les nouvelles modifications."
     },
-
+    "politique_annulation_ref": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::politique-annulation.politique-annulation",
+      "inversedBy": "appartements",
+      "description": "Politique d'annulation administrable utilisee par le site en priorite"
+    },
     "details_annulation": {
       "type": "text",
       "description": "Texte libre précisant les conditions d'annulation"
     },
-
     "regles_maison": {
       "type": "richtext",
       "description": "Heure d'arrivée/départ, animaux, fumeurs, fêtes, etc."
     },
-
     "heure_checkin": {
       "type": "string",
       "default": "14:00",
       "description": "Format HH:MM"
     },
-
     "heure_checkout": {
       "type": "string",
       "default": "11:00",
       "description": "Format HH:MM"
     },
-
     "modes_paiement": {
       "type": "json",
-      "default": ["espece", "mobile_money", "virement", "cheque"],
+      "default": [
+        "espece",
+        "mobile_money",
+        "virement",
+        "cheque"
+      ],
       "description": "Tableau des modes de paiement acceptés pour ce bien"
     },
-
     "note_moyenne": {
       "type": "decimal",
       "min": 0,
       "max": 5,
       "description": "Calculée automatiquement depuis la relation Avis"
     },
-
     "nombre_avis": {
       "type": "integer",
       "default": 0
     },
-
     "avis": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::avis.avis",
       "mappedBy": "appartement"
     },
-
     "reservations": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::reservation.reservation",
       "mappedBy": "appartement"
     },
-
     "services_premium": {
       "type": "relation",
       "relation": "manyToMany",
@@ -317,19 +310,16 @@
       "mappedBy": "appartements",
       "description": "Services additionnels : navette aéroport, conciergerie, chef cuisinier..."
     },
-
     "seo": {
       "type": "component",
       "repeatable": false,
       "component": "shared.seo",
       "description": "Métadonnées SEO spécifiques à cette fiche"
     },
-
     "ordre_affichage": {
       "type": "integer",
       "default": 0,
       "description": "Poids d'affichage dans le catalogue (plus élevé = affiché en premier)"
     }
-
   }
 }
