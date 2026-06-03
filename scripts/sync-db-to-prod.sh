@@ -26,8 +26,18 @@ PGPASSWORD="$DB_PASS" pg_dump \
 echo "   Dump : $DUMP_FILE ($(du -sh "$DUMP_FILE" | cut -f1))"
 
 echo ""
-echo "▶ 2/4 — Envoi vers le VPS prod"
+echo "▶ 2/4 — Envoi vers le VPS prod (DB + uploads)"
 scp "$DUMP_FILE" "$PROD_HOST:/tmp/sync_dump.sql"
+
+# Uploads (médias uploadés dans Strapi dev)
+UPLOADS_DIR="/opt/immo-appart/backend/public/uploads"
+UPLOADS_COUNT=$(ls "$UPLOADS_DIR" 2>/dev/null | grep -v ".gitkeep" | wc -l)
+if [ "$UPLOADS_COUNT" -gt 0 ]; then
+  tar czf /tmp/uploads_sync.tar.gz -C "$UPLOADS_DIR" .
+  scp /tmp/uploads_sync.tar.gz "$PROD_HOST:/tmp/uploads_sync.tar.gz"
+  rm -f /tmp/uploads_sync.tar.gz
+  echo "   Uploads envoyés : $UPLOADS_COUNT fichiers"
+fi
 
 echo ""
 echo "▶ 3/4 — Import sur le prod"
@@ -71,6 +81,16 @@ ssh "$PROD_HOST" '
   echo "  Rebuild Next.js..."
   docker compose -f /opt/immo-appart/docker-compose.yml build nextjs
   docker compose -f /opt/immo-appart/docker-compose.yml up -d nextjs
+
+  # Uploads
+  if [ -f /tmp/uploads_sync.tar.gz ]; then
+    echo "  Injection uploads dans Strapi..."
+    docker cp /tmp/uploads_sync.tar.gz ndombi-strapi:/tmp/uploads_sync.tar.gz
+    docker exec ndombi-strapi tar xzf /tmp/uploads_sync.tar.gz -C /opt/app/public/uploads
+    docker exec ndombi-strapi rm -f /tmp/uploads_sync.tar.gz
+    rm -f /tmp/uploads_sync.tar.gz
+    echo "  Uploads injectés"
+  fi
 
   rm -f /tmp/sync_dump.sql
   echo "  Nettoyage OK"
