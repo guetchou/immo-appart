@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { CheckCircle2, Phone, ArrowRight, Car, ConciergeBell, ChefHat, ShieldCheck, Sparkles, Bed, Shield, Star } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Appartement } from '@/types/strapi'
+import { strapiImgUrl }  from '@/lib/strapi'
 import Navbar            from '@/components/layout/Navbar'
 import HeroSearch        from '@/components/hero/HeroSearch'
 import Footer            from '@/components/layout/Footer'
@@ -87,7 +88,11 @@ export default function HomeClient({
 
   const heroTitre    = (hp?.hero_titre        as string) || 'Réservez votre résidence à Pointe-Noire'
   const heroSousTitre= (hp?.hero_sous_titre   as string) || 'Appartements meublés haut de gamme · Confirmation WhatsApp en 30 min'
-  const heroBg       = (hp?.hero_image_url_defaut as string) || 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
+  // hero_image : champ media Strapi prioritaire, sinon URL texte, sinon Unsplash
+  const heroImageMedia = hp?.hero_image as { url?: string } | null
+  const heroBg = heroImageMedia?.url
+    ? strapiImgUrl(heroImageMedia.url) ?? ''
+    : (hp?.hero_image_url_defaut as string) || 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1800&h=900&fit=crop'
   const statRes      = (hp?.stat_residences   as number) || 48
   const statPrix     = (hp?.stat_prix_min     as number) || 45000
   const statNote     = (hp?.stat_note         as number) || 4.9
@@ -103,10 +108,13 @@ export default function HomeClient({
   const socialTitre  = (hp?.social_titre      as string) || 'Suivez-nous'
   const socialSous   = (hp?.social_sous_titre as string) || ''
 
-  // Nav links from Strapi
-  const liensNav  = (nav?.liens_nav  as NavLink[]      | null) ?? undefined
+  // Nav links + logo image + bouton réserver from Strapi
+  const liensNav       = (nav?.liens_nav as NavLink[] | null) ?? undefined
+  const logoImageMedia = nav?.logo_image as { url?: string } | null
+  const logoImageUrl   = logoImageMedia?.url ? strapiImgUrl(logoImageMedia.url) ?? undefined : undefined
+  const boutonReserver = (nav?.bouton_reserver_texte as string) || 'Réserver'
   // Footer columns from Strapi
-  const colonnesLiens = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
+  const colonnesLiens  = (fc?.colonnes_liens as FooterColonne[] | null) ?? undefined
 
   // Map: appartements with GPS → pins
   const residences = appartements
@@ -144,12 +152,14 @@ export default function HomeClient({
   return (
     <>
       <Navbar
-        logoNom={nav?.logo_nom as string | undefined}
+        logoNom={nav?.logo_nom        as string | undefined}
         logoTagline={nav?.logo_tagline as string | undefined}
-        telephone={nav?.telephone as string | undefined}
-        agentNom={nav?.agent_nom as string | undefined}
+        logoImageUrl={logoImageUrl}
+        telephone={nav?.telephone      as string | undefined}
+        agentNom={nav?.agent_nom       as string | undefined}
         agentPhotoUrl={nav?.agent_photo_url as string | undefined}
         liensNav={liensNav}
+        boutonReserver={boutonReserver}
       />
 
       {/* ── HERO ──────────────────────────────────────── */}

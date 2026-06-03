@@ -17,14 +17,16 @@ module.exports = {
       out_file:    '/var/log/pm2/ndombi-strapi-out.log',
     },
     {
+      // Next.js tourne directement avec PM2 (hors Docker)
+      // Le .next/ buildé est envoyé par rsync depuis GitHub Actions
+      // pm2 restart suffit — zéro rebuild sur le serveur
       name:        'ndombi-nextjs',
       cwd:         '/opt/immo-appart/frontend',
-      script:      'npm',
-      args:        'run start -- -p 3001',
+      script:      'node_modules/.bin/next',
+      args:        'start -p 3001',
       env: {
         NODE_ENV:               'production',
         PORT:                   '3001',
-        NEXT_PUBLIC_STRAPI_URL: 'http://160.113.0.124:1337',
       },
       instances:   1,
       autorestart: true,

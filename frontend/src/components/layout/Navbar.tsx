@@ -16,21 +16,25 @@ const DEFAULT_navLinks = [
 type NavLink = { label: string; href: string }
 
 type NavProps = {
-  logoNom?:       string
-  logoTagline?:   string
-  telephone?:     string
-  agentNom?:      string
-  agentPhotoUrl?: string
-  liensNav?:      NavLink[]
+  logoNom?:          string
+  logoTagline?:      string
+  logoImageUrl?:     string
+  telephone?:        string
+  agentNom?:         string
+  agentPhotoUrl?:    string
+  liensNav?:         NavLink[]
+  boutonReserver?:   string
 }
 
 export default function Navbar({
-  logoNom       = 'Résidence NDOMBI',
-  logoTagline   = 'Confort · Luxe · Élégance',
-  telephone     = '+242 06 435 90 90',
-  agentNom      = 'Agent NDOMBI',
-  agentPhotoUrl = 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face',
+  logoNom        = 'Résidence NDOMBI',
+  logoTagline    = 'Confort · Luxe · Élégance',
+  logoImageUrl,
+  telephone      = '+242 06 435 90 90',
+  agentNom       = 'Agent NDOMBI',
+  agentPhotoUrl  = 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face',
   liensNav,
+  boutonReserver = 'Réserver',
 }: NavProps = {}) {
   const navLinks = liensNav?.length ? liensNav : DEFAULT_navLinks
   const router = useRouter()
@@ -80,10 +84,14 @@ export default function Navbar({
         {/* ── Brand ── */}
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
           <div
-            className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0"
+            className="w-[42px] h-[42px] rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
             style={{ background: '#1A0E06', border: '2px solid #E07A2F' }}
           >
-            <span className="font-serif text-[15px] font-bold text-white">RN</span>
+            {logoImageUrl
+              ? /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={logoImageUrl} alt={logoNom} className="w-full h-full object-cover" />
+              : <span className="font-serif text-[15px] font-bold text-white">RN</span>
+            }
           </div>
           <div className="hidden sm:block leading-none">
             <div className="font-black text-[14px] text-[#1A0E06]" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -107,6 +115,17 @@ export default function Navbar({
             </Link>
           ))}
         </nav>
+
+        {/* ── Bouton Réserver ── */}
+        <Link
+          href="/appartements"
+          className="hidden lg:flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-black text-white transition-all flex-shrink-0"
+          style={{ background: '#E07A2F', fontFamily: 'var(--font-heading)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#B85E18')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#E07A2F')}
+        >
+          {boutonReserver}
+        </Link>
 
         {/* ── Agent CTA ── */}
         <a

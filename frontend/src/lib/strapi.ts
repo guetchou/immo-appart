@@ -59,7 +59,7 @@ export async function strapiRequest<T>(path: string, options: FetchOptions = {})
 export async function getHomepage() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(
-      '/homepage', { revalidate: 30, tags: ['homepage'] }
+      '/homepage?populate=hero_image', { revalidate: 30, tags: ['homepage'] }
     )
     return r.data
   } catch { return null }
@@ -68,7 +68,7 @@ export async function getHomepage() {
 export async function getNavigation() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(
-      '/navigation', { revalidate: 60, tags: ['navigation'] }
+      '/navigation?populate=logo_image,agent_photo', { revalidate: 60, tags: ['navigation'] }
     )
     return r.data
   } catch { return null }
