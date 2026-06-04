@@ -62,14 +62,15 @@ Decision probable :
 
 ## Priorite 5 - Authentification et espace client
 
-Statut : a traiter plus tard.
+Statut : traite pour les textes publics principaux.
 
-- Textes login/inscription et messages d'aide : fixes.
-- Libelles de profil et messages "contactez-nous WhatsApp" : fixes.
+- Textes login/inscription et messages d'aide : migres vers `auth-espace-config`.
+- Libelles de profil, empty states et aide "contactez-nous WhatsApp" : migres vers `auth-espace-config`.
+- Messages de validation, erreurs reseau et statuts metier reservation restent en code.
 
 Decision probable :
 
-- Migrer uniquement les textes marketing/aide.
+- `auth-espace-config` existe.
 - Garder validations, erreurs techniques et logique auth en code.
 
 ## Priorite 6 - Carte/localisation

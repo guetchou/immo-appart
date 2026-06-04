@@ -40,6 +40,9 @@ const STATUT_CONFIG: Record<string, { label: string; color: string; bg: string; 
 
 const TABS = ['Mes réservations', 'Mes favoris', 'Mon profil'] as const
 type Tab = typeof TABS[number]
+type AuthEspaceConfig = Record<string, unknown>
+const s = (config: AuthEspaceConfig | null, key: string, fallback: string) =>
+  typeof config?.[key] === 'string' ? config[key] as string : fallback
 
 export default function MonEspaceClient({
   navProps,
@@ -49,6 +52,7 @@ export default function MonEspaceClient({
   footerProps?: FooterProps
 }) {
   const router  = useRouter()
+  const [config, setConfig] = useState<AuthEspaceConfig | null>(null)
   const [tab,   setTab]   = useState<Tab>('Mes réservations')
   const [user,  setUser]  = useState<{ username?: string; email?: string } | null>(null)
   const [resas, setResas] = useState<Resa[]>([])
@@ -56,6 +60,11 @@ export default function MonEspaceClient({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    fetch('/api/public-config/auth-espace')
+      .then(res => res.ok ? res.json() : null)
+      .then(json => setConfig(json?.data ?? null))
+      .catch(() => {})
+
     // Charger profil depuis sessionStorage
     try {
       const stored = sessionStorage.getItem('ndombi_user')
@@ -119,6 +128,12 @@ export default function MonEspaceClient({
     return toStrapiPublicUrl(url) ?? url
   }
 
+  const tabLabels: Record<Tab, string> = {
+    'Mes réservations': s(config, 'espace_titre_reservations', 'Mes réservations'),
+    'Mes favoris': s(config, 'espace_titre_favoris', 'Mes favoris'),
+    'Mon profil': s(config, 'espace_titre_profil', 'Mon profil'),
+  }
+
   return (
     <>
       <Navbar {...navProps} />
@@ -134,7 +149,7 @@ export default function MonEspaceClient({
               </div>
               <div>
                 <div className="font-black text-white text-[18px]" style={{ fontFamily:'var(--font-heading)' }}>
-                  Bonjour, {user?.username ?? 'Visiteur'}
+                  {s(config, 'espace_bonjour_label', 'Bonjour')}, {user?.username ?? s(config, 'espace_visiteur_label', 'Visiteur')}
                 </div>
                 <div className="text-[13px]" style={{ color:'rgba(255,255,255,.55)' }}>{user?.email ?? ''}</div>
               </div>
@@ -144,7 +159,7 @@ export default function MonEspaceClient({
               style={{ border:'1px solid rgba(255,255,255,.2)', color:'rgba(255,255,255,.7)' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.5)'; e.currentTarget.style.color='#fff' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.2)'; e.currentTarget.style.color='rgba(255,255,255,.7)' }}>
-              <LogOut size={14} /> Se déconnecter
+              <LogOut size={14} /> {s(config, 'espace_deconnexion_label', 'Se déconnecter')}
             </button>
           </div>
         </div>
@@ -153,9 +168,9 @@ export default function MonEspaceClient({
         <div className="max-w-[1000px] mx-auto px-8 -mt-4 mb-8">
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label:'Réservations', value: resas.length, color:'#E07A2F' },
-              { label:'Confirmées',   value: resas.filter(r=>r.statut==='confirmee'||r.statut==='soldee').length, color:'#16A34A' },
-              { label:'Favoris',      value: favs.length, color:'#0369A1' },
+              { label: s(config, 'espace_stat_reservations', 'Réservations'), value: resas.length, color:'#E07A2F' },
+              { label: s(config, 'espace_stat_confirmees', 'Confirmées'),   value: resas.filter(r=>r.statut==='confirmee'||r.statut==='soldee').length, color:'#16A34A' },
+              { label: s(config, 'espace_stat_favoris', 'Favoris'),      value: favs.length, color:'#0369A1' },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-xl p-4 text-center"
                 style={{ border:'1px solid #E5DDD4', boxShadow:'0 2px 8px rgba(26,14,6,.06)' }}>
@@ -173,7 +188,7 @@ export default function MonEspaceClient({
               <button key={t} onClick={() => setTab(t)}
                 className="flex-1 py-2.5 rounded-lg text-[13px] font-bold transition-all"
                 style={{ background:tab===t?'#E07A2F':'transparent', color:tab===t?'#fff':'#7A6550', fontFamily:'var(--font-heading)' }}>
-                {t}
+                {tabLabels[t]}
               </button>
             ))}
           </div>
@@ -182,17 +197,17 @@ export default function MonEspaceClient({
           {tab === 'Mes réservations' && (
             <div className="space-y-4 pb-12">
               {loading && (
-                <div className="text-center py-12 text-[#7A6550]">Chargement…</div>
+                <div className="text-center py-12 text-[#7A6550]">{s(config, 'espace_loading_label', 'Chargement…')}</div>
               )}
               {!loading && resas.length === 0 && (
                 <div className="text-center py-16 bg-white rounded-2xl" style={{ border:'1px solid #E5DDD4' }}>
                   <Calendar size={40} className="mx-auto mb-4" style={{ color:'#E5DDD4' }} />
-                  <p className="font-bold text-[#1A0E06] text-[16px] mb-1" style={{ fontFamily:'var(--font-heading)' }}>Aucune réservation</p>
-                  <p className="text-[#7A6550] text-[14px] mb-5">Vos réservations apparaîtront ici.</p>
+                  <p className="font-bold text-[#1A0E06] text-[16px] mb-1" style={{ fontFamily:'var(--font-heading)' }}>{s(config, 'espace_empty_reservations_titre', 'Aucune réservation')}</p>
+                  <p className="text-[#7A6550] text-[14px] mb-5">{s(config, 'espace_empty_reservations_texte', 'Vos réservations apparaîtront ici.')}</p>
                   <Link href="/appartements"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-[13px]"
                     style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}>
-                    <Home size={14} /> Voir les appartements
+                    <Home size={14} /> {s(config, 'espace_empty_reservations_cta', 'Voir les appartements')}
                   </Link>
                 </div>
               )}
@@ -249,7 +264,7 @@ export default function MonEspaceClient({
                             <Link href={`/appartements/${r.appartement.slug}`}
                               className="flex items-center gap-1 text-[12px] font-bold transition-colors"
                               style={{ color:'#E07A2F' }}>
-                              Voir l&apos;appartement <ChevronRight size={13} />
+                              {s(config, 'espace_voir_appartement_label', "Voir l'appartement")} <ChevronRight size={13} />
                             </Link>
                           )}
                         </div>
@@ -267,12 +282,12 @@ export default function MonEspaceClient({
               {favs.length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-2xl" style={{ border:'1px solid #E5DDD4' }}>
                   <Heart size={40} className="mx-auto mb-4" style={{ color:'#E5DDD4' }} />
-                  <p className="font-bold text-[#1A0E06] text-[16px] mb-1" style={{ fontFamily:'var(--font-heading)' }}>Aucun favori</p>
-                  <p className="text-[#7A6550] text-[14px] mb-5">Cliquez sur le cœur d&apos;une résidence pour la sauvegarder.</p>
+                  <p className="font-bold text-[#1A0E06] text-[16px] mb-1" style={{ fontFamily:'var(--font-heading)' }}>{s(config, 'espace_empty_favoris_titre', 'Aucun favori')}</p>
+                  <p className="text-[#7A6550] text-[14px] mb-5">{s(config, 'espace_empty_favoris_texte', "Cliquez sur le cœur d'une résidence pour la sauvegarder.")}</p>
                   <Link href="/appartements"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white text-[13px]"
                     style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}>
-                    Explorer les résidences
+                    {s(config, 'espace_empty_favoris_cta', 'Explorer les résidences')}
                   </Link>
                 </div>
               ) : (
@@ -304,7 +319,7 @@ export default function MonEspaceClient({
                           <Link href={`/appartements/${a.slug}`}
                             className="px-3 py-1.5 rounded-lg text-[12px] font-bold text-white"
                             style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}>
-                            Voir
+                            {s(config, 'espace_voir_label', 'Voir')}
                           </Link>
                         </div>
                       </div>
@@ -333,8 +348,8 @@ export default function MonEspaceClient({
                 </div>
                 <div className="space-y-3">
                   {[
-                    { label:'Nom d\'utilisateur', val: user?.username ?? '—', Icon: User },
-                    { label:'Adresse email',       val: user?.email ?? '—',    Icon: User },
+                    { label: s(config, 'espace_nom_utilisateur_label', "Nom d'utilisateur"), val: user?.username ?? '—', Icon: User },
+                    { label: s(config, 'espace_email_label', 'Adresse email'),       val: user?.email ?? '—',    Icon: User },
                   ].map(f => (
                     <div key={f.label} className="flex items-center gap-3 px-4 py-3 rounded-xl"
                       style={{ background:'#FBF8F4', border:'1px solid #E5DDD4' }}>
@@ -347,7 +362,7 @@ export default function MonEspaceClient({
                   ))}
                 </div>
                 <p className="text-[12px] text-[#7A6550] mt-4">
-                  Pour modifier votre profil, contactez-nous sur WhatsApp.
+                  {s(config, 'espace_profil_aide', 'Pour modifier votre profil, contactez-nous sur WhatsApp.')}
                 </p>
               </div>
             </div>

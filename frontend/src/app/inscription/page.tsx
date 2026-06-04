@@ -1,11 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react'
 import { FaGoogle, FaFacebook } from 'react-icons/fa'
 
+type AuthEspaceConfig = Record<string, unknown>
+const s = (config: AuthEspaceConfig | null, key: string, fallback: string) =>
+  typeof config?.[key] === 'string' ? config[key] as string : fallback
+
 export default function InscriptionPage() {
+  const [config, setConfig] = useState<AuthEspaceConfig | null>(null)
   const [form, setForm] = useState({
     prenom: '', nom: '', email: '', telephone: '', password: '', confirm: ''
   })
@@ -14,6 +19,13 @@ export default function InscriptionPage() {
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState('')
   const [step,      setStep]      = useState<1|2>(1)
+
+  useEffect(() => {
+    fetch('/api/public-config/auth-espace')
+      .then(res => res.ok ? res.json() : null)
+      .then(json => setConfig(json?.data ?? null))
+      .catch(() => {})
+  }, [])
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }))
@@ -71,15 +83,15 @@ export default function InscriptionPage() {
             </svg>
           </div>
           <h2 className="font-black text-[#1A0E06] text-[22px] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-            Compte créé !
+            {s(config, 'inscription_success_titre', 'Compte créé !')}
           </h2>
           <p className="text-[#7A6550] text-[15px] mb-6">
-            Bienvenue <strong>{form.prenom}</strong>. Votre compte a bien été créé.
+            Bienvenue <strong>{form.prenom}</strong>. {s(config, 'inscription_success_texte', 'Votre compte a bien été créé.')}
           </p>
           <Link href="/login"
             className="inline-flex items-center justify-center w-full py-3.5 rounded-xl font-black text-white text-[15px]"
             style={{ background: '#E07A2F', fontFamily: 'var(--font-heading)' }}>
-            Se connecter maintenant
+            {s(config, 'inscription_success_cta', 'Se connecter maintenant')}
           </Link>
         </div>
       </div>
@@ -94,8 +106,8 @@ export default function InscriptionPage() {
         style={{ background: '#1A0E06' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&h=1200&fit=crop"
-          alt="Résidence NDOMBI"
+          src={s(config, 'inscription_image_url', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&h=1200&fit=crop')}
+          alt={s(config, 'marque_nom', 'Résidence NDOMBI')}
           className="absolute inset-0 w-full h-full object-cover opacity-45"
         />
         <div className="absolute inset-0"
@@ -105,14 +117,14 @@ export default function InscriptionPage() {
         <Link href="/" className="relative z-10 flex items-center gap-3 group w-fit">
           <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
             style={{ border: '2px solid #E07A2F', background: 'rgba(26,14,6,.6)' }}>
-            <span className="font-serif text-[14px] font-bold text-white">RN</span>
+            <span className="font-serif text-[14px] font-bold text-white">{s(config, 'marque_initiales', 'RN')}</span>
           </div>
           <div>
             <div className="font-black text-[14px] text-white" style={{ fontFamily: 'var(--font-heading)' }}>
-              Résidence NDOMBI
+              {s(config, 'marque_nom', 'Résidence NDOMBI')}
             </div>
             <div className="text-[10px] font-semibold tracking-[1.5px] uppercase text-[#F09A55]">
-              Confort · Luxe · Élégance
+              {s(config, 'marque_tagline', 'Confort · Luxe · Élégance')}
             </div>
           </div>
         </Link>
@@ -121,19 +133,19 @@ export default function InscriptionPage() {
         <div className="relative z-10">
           <h2 className="font-black text-white mb-4"
             style={{ fontSize: 'clamp(28px,3vw,40px)', fontFamily: 'var(--font-heading)', letterSpacing: '-1px', lineHeight: 1.1 }}>
-            Rejoignez<br />
-            <span style={{ color: '#F09A55' }}>l&apos;expérience</span><br />
-            NDOMBI
+            {s(config, 'inscription_accroche_titre', 'Rejoignez')}<br />
+            <span style={{ color: '#F09A55' }}>{s(config, 'inscription_accroche_accent', "l'expérience")}</span><br />
+            {s(config, 'inscription_accroche_fin', 'NDOMBI')}
           </h2>
           <p className="text-[15px]" style={{ color: 'rgba(255,255,255,.65)', lineHeight: 1.7 }}>
-            Créez votre compte et profitez d&apos;un accès prioritaire à nos résidences de luxe à Pointe-Noire.
+            {s(config, 'inscription_accroche_texte', "Créez votre compte et profitez d'un accès prioritaire à nos résidences de luxe à Pointe-Noire.")}
           </p>
         </div>
 
         {/* Contact */}
         <div className="relative z-10 flex items-center gap-2 text-[13px]" style={{ color: 'rgba(255,255,255,.5)' }}>
           <Phone size={13} style={{ color: '#E07A2F' }} />
-          +242 06 435 90 90
+          {s(config, 'telephone_contact', '+242 06 435 90 90')}
         </div>
       </div>
 
@@ -141,16 +153,16 @@ export default function InscriptionPage() {
       <div className="flex-1 flex flex-col justify-center px-8 py-10 bg-white lg:px-14 xl:px-20 overflow-y-auto">
         <Link href="/login" className="inline-flex items-center gap-2 text-[13px] font-medium mb-8 w-fit transition-colors hover:text-[#E07A2F]"
           style={{ color: '#7A6550' }}>
-          <ArrowLeft size={15} /> Déjà un compte ? Se connecter
+          <ArrowLeft size={15} /> {s(config, 'inscription_retour_label', 'Déjà un compte ? Se connecter')}
         </Link>
 
         <div className="mb-6">
           <h1 className="font-black text-[#1A0E06] mb-2"
             style={{ fontSize: 'clamp(26px,3vw,36px)', fontFamily: 'var(--font-heading)', letterSpacing: '-1px' }}>
-            Créer un compte
+            {s(config, 'inscription_titre', 'Créer un compte')}
           </h1>
           <p className="text-[#7A6550] text-[14px]">
-            Tous les champs marqués <span className="text-red-500">*</span> sont obligatoires
+            {s(config, 'inscription_sous_titre', 'Tous les champs marqués * sont obligatoires')}
           </p>
         </div>
 
@@ -259,15 +271,15 @@ export default function InscriptionPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-                Création…
+                {s(config, 'inscription_loading_label', 'Création…')}
               </span>
-            ) : 'Créer mon compte'}
+            ) : s(config, 'inscription_submit_label', 'Créer mon compte')}
           </button>
 
           {/* Social */}
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-[#E5DDD4]" />
-            <span className="text-[12px] text-[#7A6550]">ou s&apos;inscrire avec</span>
+            <span className="text-[12px] text-[#7A6550]">{s(config, 'inscription_separator_label', "ou s'inscrire avec")}</span>
             <div className="flex-1 h-px bg-[#E5DDD4]" />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -286,9 +298,9 @@ export default function InscriptionPage() {
           </div>
 
           <p className="text-center text-[13px] text-[#7A6550]">
-            Déjà un compte ?{' '}
+            {s(config, 'inscription_have_account_label', 'Déjà un compte ?')}{' '}
             <Link href="/login" className="font-bold transition-colors hover:text-[#B85E18]" style={{ color: '#E07A2F' }}>
-              Se connecter
+              {s(config, 'inscription_login_label', 'Se connecter')}
             </Link>
           </p>
         </form>

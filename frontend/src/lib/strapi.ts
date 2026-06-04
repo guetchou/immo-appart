@@ -129,6 +129,15 @@ export async function getDetailAppartementConfig() {
   } catch { return null }
 }
 
+export async function getAuthEspaceConfig() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/auth-espace-config', { revalidate: 60, tags: ['auth-espace-config'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 export async function getPageAPropos() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(
