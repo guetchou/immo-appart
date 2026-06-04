@@ -75,12 +75,13 @@ Decision probable :
 
 ## Priorite 6 - Carte/localisation
 
-Statut : a traiter plus tard.
+Statut : traite pour la page d'accueil.
 
-- Labels carte et titre "Residences NDOMBI" : fixes.
-- Coordonnees et pins peuvent etre administrables si plusieurs residences sont prevues.
+- Labels carte, titre, sous-titre, CTA, messages GPS, legende, couleurs de marqueurs et attribution : migres vers `localisation-config`.
+- Coordonnees de centrage et niveaux de zoom : migres vers `localisation-config`.
+- Pins residences : generes depuis les appartements qui possedent latitude/longitude.
 
-Decision probable :
+Decision :
 
-- Creer une collection `lieu-residence` si le proprietaire gere plusieurs lieux.
-- Sinon garder la carte en code avec contact global dans `site-config`.
+- `localisation-config` suffit tant que les pins correspondent aux appartements.
+- Creer une collection `lieu-residence` uniquement si le proprietaire veut afficher des lieux non lies aux appartements.

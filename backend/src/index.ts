@@ -165,5 +165,6 @@ export default {
     await seedSingle(strapi, "api::chat-config.chat-config", {})
     await seedSingle(strapi, "api::detail-appartement-config.detail-appartement-config", {})
     await seedSingle(strapi, "api::auth-espace-config.auth-espace-config", {})
+    await seedSingle(strapi, "api::localisation-config.localisation-config", {})
   },
 };

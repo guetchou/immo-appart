@@ -81,12 +81,13 @@ type Props = {
   servicesPremium?: ServiceItem[]
   avis?:            AvisItem[]
   chatConfig?:      ChatConfig | null
+  localisationConfig?: Record<string, unknown> | null
 }
 
 export default function HomeClient({
   homepage, navigation, footerConfig, reseauxSociaux,
   appartements = [], publications = [],
-  servicesPremium = [], avis = [], chatConfig = null,
+  servicesPremium = [], avis = [], chatConfig = null, localisationConfig = null,
 }: Props) {
   const [filter, setFilter] = useState('Tous')
   const [modal,  setModal]  = useState<ModalApt>(null)
@@ -364,7 +365,7 @@ export default function HomeClient({
       )}
 
       {/* ── MAP ───────────────────────────────────────── */}
-      <MapSection onReserve={openModal} residences={residences} />
+      <MapSection onReserve={openModal} residences={residences} config={localisationConfig} />
 
       <Footer {...footerProps} />
       <ChatBot config={chatConfig} />
