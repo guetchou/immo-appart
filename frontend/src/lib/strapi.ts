@@ -120,6 +120,15 @@ export async function getChatConfig() {
   } catch { return null }
 }
 
+export async function getDetailAppartementConfig() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/detail-appartement-config', { revalidate: 60, tags: ['detail-appartement-config'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 export async function getPageAPropos() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(

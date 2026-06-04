@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { STRAPI_SERVER_URL, readJsonResponse, strapiPublicUrl } from '@/lib/strapi-server'
-import { getChatConfig, getFooterConfig, getNavigation } from '@/lib/strapi'
+import { getChatConfig, getDetailAppartementConfig, getFooterConfig, getNavigation, getSiteConfig } from '@/lib/strapi'
 import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 import AppartementClient from './AppartementClient'
@@ -64,11 +64,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AppartementPage({ params }: Props) {
   const { slug } = await params
-  const [apt, navigation, footerConfig, chatConfig] = await Promise.all([
+  const [apt, navigation, footerConfig, chatConfig, detailConfig, siteConfig] = await Promise.all([
     getAppartement(slug),
     getNavigation(),
     getFooterConfig(),
     getChatConfig(),
+    getDetailAppartementConfig(),
+    getSiteConfig(),
   ])
   if (!apt) notFound()
   return (
@@ -77,6 +79,8 @@ export default async function AppartementPage({ params }: Props) {
       navProps={mapNavbarProps(navigation)}
       footerProps={mapFooterProps(footerConfig, navigation)}
       chatConfig={chatConfig}
+      detailConfig={detailConfig}
+      siteConfig={siteConfig}
     />
   )
 }
