@@ -136,6 +136,18 @@ async function seedCollection(strapi: Core.Strapi, uid: string, items: SeedItem[
   }
 }
 
+async function seedSingle(strapi: Core.Strapi, uid: string, data: Record<string, unknown>) {
+  const documents = (strapi as any).documents(uid)
+  const existing = await documents.findFirst()
+
+  if (!existing) {
+    await documents.create({
+      data,
+      status: "published",
+    })
+  }
+}
+
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
     // Custom logic at registration phase
@@ -145,5 +157,8 @@ export default {
     await seedCollection(strapi, "api::type-logement.type-logement", typeLogementSeeds)
     await seedCollection(strapi, "api::politique-annulation.politique-annulation", politiqueAnnulationSeeds)
     await seedCollection(strapi, "api::categorie-equipement.categorie-equipement", categorieEquipementSeeds)
+    await seedSingle(strapi, "api::page-a-propos.page-a-propos", {})
+    await seedSingle(strapi, "api::page-paiement.page-paiement", {})
+    await seedSingle(strapi, "api::page-reglement.page-reglement", {})
   },
 };

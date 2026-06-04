@@ -1,6 +1,7 @@
 import SiteNavbar from '@/components/layout/SiteNavbar'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { Metadata } from 'next'
+import { getPolitiquesAnnulation } from '@/lib/strapi'
 
 export const metadata: Metadata = { title: "Politique d'annulation — Résidence NDOMBI" }
 
@@ -31,7 +32,34 @@ const POLICIES = [
   },
 ]
 
-export default function AnnulationPage() {
+const POLICY_STYLE: Record<string, { color: string; bg: string; border: string }> = {
+  flexible: { color: '#16A34A', bg: '#DCFCE7', border: '#86EFAC' },
+  moderee: { color: '#E07A2F', bg: '#FEF0E6', border: '#FDDCBC' },
+  stricte: { color: '#0369A1', bg: '#DBEAFE', border: '#93C5FD' },
+  'non-remboursable': { color: '#B91C1C', bg: '#FEE2E2', border: '#FCA5A5' },
+}
+
+type Politique = {
+  nom?: string
+  slug?: string
+  description_simple?: string | null
+  details?: string | null
+}
+
+export default async function AnnulationPage() {
+  const policies = await getPolitiquesAnnulation()
+  const items = policies.length
+    ? (policies as Politique[]).map(p => {
+      const style = POLICY_STYLE[p.slug ?? ''] ?? { color: '#6B7280', bg: '#F3F4F6', border: '#E5E7EB' }
+      return {
+        type: p.nom ?? 'Politique',
+        desc: p.description_simple ?? '',
+        detail: p.details ?? '',
+        ...style,
+      }
+    })
+    : POLICIES
+
   return (
     <>
       <SiteNavbar />
@@ -47,7 +75,7 @@ export default function AnnulationPage() {
         </div>
 
         <div className="max-w-[820px] mx-auto px-8 py-12 space-y-5">
-          {POLICIES.map(p => (
+          {items.map(p => (
             <div key={p.type} className="bg-white rounded-2xl p-6" style={{ border: `1.5px solid ${p.border}` }}>
               <span className="inline-block px-3 py-1 rounded-full text-[12px] font-bold mb-3"
                 style={{ background: p.bg, color: p.color }}>{p.type}</span>

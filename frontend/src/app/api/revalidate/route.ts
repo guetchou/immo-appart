@@ -28,7 +28,7 @@ const MODEL_TO_TAGS: Record<string, string[]> = {
   'reservation':         ['appartements'],
   'service-premium':     ['services'],
   'categorie-service':   ['services'],
-  'politique-annulation': ['appartements'],
+  'politique-annulation': ['appartements', 'politiques-annulation'],
   'equipement':          ['appartements'],
   'categorie-equipement': ['appartements'],
   'homepage':            ['homepage'],
@@ -36,6 +36,9 @@ const MODEL_TO_TAGS: Record<string, string[]> = {
   'footer-config':       ['footer'],
   'reseaux-sociaux':     ['reseaux'],
   'publication-sociale': ['publications'],
+  'page-a-propos':      ['page-a-propos'],
+  'page-paiement':      ['page-paiement'],
+  'page-reglement':     ['page-reglement'],
 }
 
 // Événements qui justifient une revalidation
@@ -107,7 +110,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 6. Revalider aussi la page d'accueil si contenu global
-  const globalModels = ['homepage', 'navigation', 'footer-config', 'reseaux-sociaux']
+  const globalModels = ['homepage', 'navigation', 'footer-config', 'reseaux-sociaux', 'page-a-propos', 'page-paiement', 'page-reglement', 'politique-annulation']
   if (globalModels.includes(model)) {
     revalidatePath('/', 'page')
   }

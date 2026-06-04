@@ -93,6 +93,33 @@ export async function getReseauxSociaux() {
   } catch { return null }
 }
 
+export async function getPageAPropos() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/page-a-propos', { revalidate: 60, tags: ['page-a-propos'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
+export async function getPagePaiement() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/page-paiement', { revalidate: 60, tags: ['page-paiement'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
+export async function getPageReglement() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/page-reglement', { revalidate: 60, tags: ['page-reglement'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 // ── Collections ──────────────────────────────────────
 export async function getAppartements(params = '') {
   try {
@@ -128,6 +155,16 @@ export async function getAvis() {
     const r = await strapiRequest<{ data: unknown[] }>(
       '/avis?filters[en_vedette][$eq]=true&filters[verifie][$eq]=true&sort=createdAt:desc&pagination[pageSize]=6',
       { revalidate: 60, tags: ['avis'] }
+    )
+    return r.data
+  } catch { return [] }
+}
+
+export async function getPolitiquesAnnulation() {
+  try {
+    const r = await strapiRequest<{ data: unknown[] }>(
+      '/politiques-annulation?filters[actif][$eq]=true&sort=ordre_affichage:asc&pagination[pageSize]=20',
+      { revalidate: 60, tags: ['politiques-annulation'] }
     )
     return r.data
   } catch { return [] }

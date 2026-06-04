@@ -1,6 +1,7 @@
 import SiteNavbar from '@/components/layout/SiteNavbar'
 import SiteFooter from '@/components/layout/SiteFooter'
 import { Metadata } from 'next'
+import { getPageReglement } from '@/lib/strapi'
 
 export const metadata: Metadata = { title: 'Règlement intérieur — Résidence NDOMBI' }
 
@@ -13,22 +14,25 @@ const RULES = [
   { title: 'Sécurité', items: ['Ne pas remettre les clés à des tiers', 'Fermer à clé en quittant l\'appartement', 'Signaler toute personne suspecte à la réception'] },
 ]
 
-export default function ReglementPage() {
+export default async function ReglementPage() {
+  const page = await getPageReglement()
+  const sections = (page?.sections as typeof RULES | null) ?? RULES
+
   return (
     <>
       <SiteNavbar />
       <main className="pt-[68px]" style={{ background: '#FBF8F4' }}>
         <div className="py-14 px-8 border-b border-[#E5DDD4]">
           <div className="max-w-[820px] mx-auto">
-            <div className="text-[11px] font-bold tracking-[2px] uppercase text-[#7A6550] mb-2">Votre séjour</div>
+            <div className="text-[11px] font-bold tracking-[2px] uppercase text-[#7A6550] mb-2">{(page?.label as string) ?? 'Votre séjour'}</div>
             <h1 className="font-black text-[#1A0E06] mb-2" style={{ fontSize: 'clamp(28px,4vw,40px)', fontFamily: 'var(--font-heading)' }}>
-              Règlement intérieur
+              {(page?.titre as string) ?? 'Règlement intérieur'}
             </h1>
-            <p className="text-[#7A6550]">Ces règles garantissent un séjour agréable pour tous les résidents.</p>
+            <p className="text-[#7A6550]">{(page?.introduction as string) ?? 'Ces règles garantissent un séjour agréable pour tous les résidents.'}</p>
           </div>
         </div>
         <div className="max-w-[820px] mx-auto px-8 py-12 space-y-6">
-          {RULES.map(section => (
+          {sections.map(section => (
             <div key={section.title} className="bg-white rounded-2xl p-6" style={{ border: '1px solid #E5DDD4' }}>
               <h2 className="font-black text-[#1A0E06] text-[16px] mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
                 {section.title}
@@ -44,7 +48,7 @@ export default function ReglementPage() {
             </div>
           ))}
           <p className="text-[13px] text-[#7A6550] text-center pt-4">
-            Tout manquement grave peut entraîner l&apos;interruption du séjour sans remboursement.
+            {(page?.note as string) ?? 'Tout manquement grave peut entraîner l’interruption du séjour sans remboursement.'}
           </p>
         </div>
       </main>
