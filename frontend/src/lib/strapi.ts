@@ -111,6 +111,15 @@ export async function getCatalogueConfig() {
   } catch { return null }
 }
 
+export async function getChatConfig() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/chat-config', { revalidate: 60, tags: ['chat-config'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 export async function getPageAPropos() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(

@@ -36,6 +36,7 @@ const MODEL_TO_TAGS: Record<string, string[]> = {
   'footer-config':       ['footer'],
   'site-config':         ['site-config'],
   'catalogue-config':    ['catalogue-config', 'appartements'],
+  'chat-config':         ['chat-config'],
   'reseaux-sociaux':     ['reseaux'],
   'publication-sociale': ['publications'],
   'page-a-propos':      ['page-a-propos'],
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 6. Revalider aussi la page d'accueil si contenu global
-  const globalModels = ['homepage', 'navigation', 'footer-config', 'site-config', 'catalogue-config', 'reseaux-sociaux', 'page-a-propos', 'page-paiement', 'page-reglement', 'politique-annulation']
+  const globalModels = ['homepage', 'navigation', 'footer-config', 'site-config', 'catalogue-config', 'chat-config', 'reseaux-sociaux', 'page-a-propos', 'page-paiement', 'page-reglement', 'politique-annulation']
   if (globalModels.includes(model)) {
     revalidatePath('/', 'page')
   }

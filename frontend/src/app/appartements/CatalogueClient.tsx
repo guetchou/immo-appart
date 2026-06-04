@@ -7,6 +7,7 @@ import type { NavProps } from '@/components/layout/Navbar'
 import Footer  from '@/components/layout/Footer'
 import type { FooterProps } from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
+import type { ChatConfig } from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
 import { toStrapiPublicUrl } from '@/lib/strapi-url'
 import { logementTypeKey, logementTypeLabel, type TypeLogementRef } from '@/lib/logement-types'
@@ -125,10 +126,11 @@ type Props = {
   initDepart?:   string
   initPers?:     number
   catalogueConfig?: CatalogueConfig | null
+  chatConfig?: ChatConfig | null
 }
 
 export default function CatalogueClient({
-  navProps, footerProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1, catalogueConfig = null,
+  navProps, footerProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1, catalogueConfig = null, chatConfig = null,
 }: Props) {
   const typeChips = useMemo(() => normalizeTypeChips(catalogueConfig?.chips_type), [catalogueConfig?.chips_type])
   const sortOptions = useMemo(() => normalizeSorts(catalogueConfig?.tris), [catalogueConfig?.tris])
@@ -490,7 +492,7 @@ export default function CatalogueClient({
         </div>
       </main>
       <Footer {...footerProps} />
-      <ChatBot />
+      <ChatBot config={chatConfig} />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
     </>
   )

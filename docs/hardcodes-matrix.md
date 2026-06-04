@@ -35,16 +35,16 @@ Decision probable :
 
 ## Priorite 3 - ChatBot
 
-Statut : a traiter ensuite.
+Statut : traite.
 
-- Message d'accueil, nom agent, delai de reponse, quick replies et telephone sont fixes.
-- L'image agent est deja administrable via navigation, mais le composant ne consomme pas encore ces donnees.
+- Message d'accueil, nom agent, statut, photo, quick replies, fallback, placeholder et labels sont migres vers `chat-config`.
+- Le ChatBot est configurable sur accueil, catalogue et detail appartement.
 
 Decision probable :
 
-- Creer un single type `chat-config`.
-- Passer la configuration aux composants clients qui affichent le ChatBot.
+- `chat-config` existe.
 - Garder la logique d'envoi locale tant qu'il ne s'agit pas d'un vrai chat connecte.
+- Si besoin futur : creer un vrai flux conversationnel connecte a WhatsApp ou a une boite de reception.
 
 ## Priorite 4 - Tunnel reservation
 

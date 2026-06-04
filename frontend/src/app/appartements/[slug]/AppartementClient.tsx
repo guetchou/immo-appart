@@ -7,6 +7,7 @@ import type { NavProps } from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import type { FooterProps } from '@/components/layout/Footer'
 import ChatBot from '@/components/layout/ChatBot'
+import type { ChatConfig } from '@/components/layout/ChatBot'
 import BookingModal from '@/components/reservation/BookingModal'
 import {
   ArrowLeft, MapPin, BedDouble, Bath, Maximize2, Users,
@@ -32,10 +33,12 @@ export default function AppartementClient({
   apt,
   navProps,
   footerProps,
+  chatConfig,
 }: {
   apt: Record<string, unknown>
   navProps?: NavProps
   footerProps?: FooterProps
+  chatConfig?: ChatConfig | null
 }) {
   const [imgIdx,    setImgIdx]   = useState(0)
   const [modal,     setModal]   = useState<ModalApt>(null)
@@ -351,7 +354,7 @@ export default function AppartementClient({
       </main>
 
       <Footer {...footerProps} />
-      <ChatBot />
+      <ChatBot config={chatConfig} />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
       <AvisModal
         open={showAvis}

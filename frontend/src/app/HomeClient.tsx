@@ -11,6 +11,7 @@ import { toStrapiPublicUrl } from '@/lib/strapi-url'
 import HeroSearch        from '@/components/hero/HeroSearch'
 import Footer            from '@/components/layout/Footer'
 import ChatBot           from '@/components/layout/ChatBot'
+import type { ChatConfig } from '@/components/layout/ChatBot'
 import ApartmentCarousel from '@/components/appartement/ApartmentCarousel'
 import BookingModal      from '@/components/reservation/BookingModal'
 import SocialWall        from '@/components/social/SocialWall'
@@ -79,12 +80,13 @@ type Props = {
   publications?:    unknown[]
   servicesPremium?: ServiceItem[]
   avis?:            AvisItem[]
+  chatConfig?:      ChatConfig | null
 }
 
 export default function HomeClient({
   homepage, navigation, footerConfig, reseauxSociaux,
   appartements = [], publications = [],
-  servicesPremium = [], avis = [],
+  servicesPremium = [], avis = [], chatConfig = null,
 }: Props) {
   const [filter, setFilter] = useState('Tous')
   const [modal,  setModal]  = useState<ModalApt>(null)
@@ -365,7 +367,7 @@ export default function HomeClient({
       <MapSection onReserve={openModal} residences={residences} />
 
       <Footer {...footerProps} />
-      <ChatBot />
+      <ChatBot config={chatConfig} />
       <BookingModal apt={modal} onClose={() => setModal(null)} />
     </>
   )

@@ -2,7 +2,7 @@
 import {
   getHomepage, getNavigation, getFooterConfig,
   getReseauxSociaux, getAppartements, getPublicationsSociales,
-  getServicesPremium, getAvis,
+  getServicesPremium, getAvis, getChatConfig,
 } from '@/lib/strapi'
 import HomeClient from './HomeClient'
 
@@ -12,7 +12,7 @@ export default async function HomePage() {
   const [
     homepage, navigation, footerConfig,
     reseauxSociaux, appartements, publications,
-    servicesPremium, avis,
+    servicesPremium, avis, chatConfig,
   ] = await Promise.all([
     getHomepage(),
     getNavigation(),
@@ -24,6 +24,7 @@ export default async function HomePage() {
     getPublicationsSociales(),
     getServicesPremium(),
     getAvis(),
+    getChatConfig(),
   ])
 
   return (
@@ -36,6 +37,7 @@ export default async function HomePage() {
       publications={publications}
       servicesPremium={servicesPremium as never[]}
       avis={avis as never[]}
+      chatConfig={chatConfig}
     />
   )
 }

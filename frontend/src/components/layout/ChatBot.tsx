@@ -5,6 +5,21 @@ import { MessageCircle, X, Send, CheckCircle2 } from 'lucide-react'
 
 type Segment  = { bold: boolean; text: string }
 type Message  = { role: 'agent' | 'user'; segments: Segment[] }
+type QuickReply = { label: string; response: string }
+export type ChatConfig = {
+  actif?: boolean
+  agent_nom?: string
+  agent_statut?: string
+  agent_photo_url?: string
+  message_accueil?: string
+  message_fallback?: string
+  message_reponse_libre?: string
+  placeholder?: string
+  fermer_label?: string
+  envoyer_label?: string
+  ouvrir_label?: string
+  reponses_rapides?: unknown
+}
 
 /** Parse **text** between ||bold|| markers — no HTML, no dangerouslySetInnerHTML */
 function toSegments(raw: string): Segment[] {
@@ -21,21 +36,55 @@ function BubbleText({ segments }: { segments: Segment[] }) {
   )
 }
 
-const QUICK_REPLIES: Record<string, Segment[]> = {
-  'Disponibilités': toSegments('Consultez notre calendrier ou appelez le ||+242 06 435 90 90|| pour vérifier les disponibilités.'),
-  'Tarifs':         toSegments('Nos tarifs débutent à ||45 000 XAF / nuit|| selon le type de résidence et la saison.'),
-  'Réserver':       toSegments('Choisissez votre appartement, sélectionnez vos dates et remplissez le formulaire. Confirmation sous ||30 min|| !'),
-  'Services':       toSegments('Navette aéroport, chef cuisinier, conciergerie, ménage quotidien et sécurité 24h/24.'),
+const DEFAULT_QUICK_REPLIES: QuickReply[] = [
+  { label: 'Disponibilités', response: 'Consultez notre calendrier ou appelez le ||+242 06 435 90 90|| pour vérifier les disponibilités.' },
+  { label: 'Tarifs', response: 'Nos tarifs débutent à ||45 000 XAF / nuit|| selon le type de résidence et la saison.' },
+  { label: 'Réserver', response: 'Choisissez votre appartement, sélectionnez vos dates et remplissez le formulaire. Confirmation sous ||30 min|| !' },
+  { label: 'Services', response: 'Navette aéroport, chef cuisinier, conciergerie, ménage quotidien et sécurité 24h/24.' },
+]
+
+function normalizeQuickReplies(value: unknown): QuickReply[] {
+  if (!Array.isArray(value)) return DEFAULT_QUICK_REPLIES
+  const replies = value
+    .map(item => {
+      if (!item || typeof item !== 'object') return null
+      const candidate = item as { label?: unknown; reponse?: unknown; response?: unknown }
+      const response = typeof candidate.response === 'string' ? candidate.response : candidate.reponse
+      if (typeof candidate.label !== 'string' || typeof response !== 'string') return null
+      return { label: candidate.label, response }
+    })
+    .filter((reply): reply is QuickReply => Boolean(reply))
+
+  return replies.length ? replies : DEFAULT_QUICK_REPLIES
 }
 
-export default function ChatBot() {
+export default function ChatBot({ config = null }: { config?: ChatConfig | null }) {
+  const quickReplies = normalizeQuickReplies(config?.reponses_rapides)
+  const quickReplyMap = new Map(quickReplies.map(reply => [reply.label, reply.response]))
+  const text = {
+    agentName: config?.agent_nom ?? 'Agent NDOMBI',
+    agentStatus: config?.agent_statut ?? 'En ligne · répond en <5 min',
+    agentPhotoUrl: config?.agent_photo_url ?? 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face',
+    welcome: config?.message_accueil ?? 'Bonjour ! Je suis l\'assistant Résidence NDOMBI. Comment puis-je vous aider ?',
+    fallback: config?.message_fallback ?? 'Un agent vous répond sous peu.',
+    freeResponse: config?.message_reponse_libre ?? 'Merci ! Un agent NDOMBI vous répondra très vite. Appelez aussi le ||+242 06 435 90 90||.',
+    placeholder: config?.placeholder ?? 'Votre message…',
+    closeLabel: config?.fermer_label ?? 'Fermer',
+    sendLabel: config?.envoyer_label ?? 'Envoyer',
+    openLabel: config?.ouvrir_label ?? 'Chat',
+  }
   const [open,   setOpen]   = useState(false)
   const [input,  setInput]  = useState('')
   const [msgs,   setMsgs]   = useState<Message[]>([
-    { role: 'agent', segments: toSegments('Bonjour ! Je suis l\'assistant Résidence NDOMBI. Comment puis-je vous aider ?') },
+    { role: 'agent', segments: toSegments(text.welcome) },
   ])
   const [quickShown, setQuickShown] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMsgs([{ role: 'agent', segments: toSegments(text.welcome) }])
+    setQuickShown(true)
+  }, [text.welcome])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -48,7 +97,7 @@ export default function ChatBot() {
   const handleQuick = (key: string) => {
     addMsg('user', toSegments(key))
     setQuickShown(false)
-    setTimeout(() => addMsg('agent', QUICK_REPLIES[key] ?? toSegments('Un agent vous répond sous peu.')), 600)
+    setTimeout(() => addMsg('agent', toSegments(quickReplyMap.get(key) ?? text.fallback)), 600)
   }
 
   const handleSend = () => {
@@ -59,9 +108,11 @@ export default function ChatBot() {
     setQuickShown(false)
     setTimeout(() => addMsg(
       'agent',
-      toSegments('Merci ! Un agent NDOMBI vous répondra très vite. Appelez aussi le ||+242 06 435 90 90||.')
+      toSegments(text.freeResponse)
     ), 700)
   }
+
+  if (config?.actif === false) return null
 
   return (
     <div className="fixed bottom-7 right-7 z-50 flex flex-col items-end gap-3">
@@ -76,23 +127,23 @@ export default function ChatBot() {
           <div className="flex items-center gap-3 px-4 py-3.5" style={{ background: '#1A0E06' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=face"
-              alt="Agent"
+              src={text.agentPhotoUrl}
+              alt={text.agentName}
               className="w-9 h-9 rounded-full object-cover flex-shrink-0"
               style={{ border: '2px solid #E07A2F' }}
             />
             <div>
-              <div className="text-white font-bold text-[14px]">Agent NDOMBI</div>
+              <div className="text-white font-bold text-[14px]">{text.agentName}</div>
               <div className="flex items-center gap-1.5 text-[11px]" style={{ color: '#22C55E' }}>
                 <CheckCircle2 size={10} />
-                En ligne · répond en &lt;5 min
+                {text.agentStatus}
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
               className="ml-auto transition-colors hover:text-white"
               style={{ color: 'rgba(255,255,255,.5)' }}
-              aria-label="Fermer"
+              aria-label={text.closeLabel}
             >
               <X size={18} />
             </button>
@@ -122,16 +173,16 @@ export default function ChatBot() {
           {/* Quick replies */}
           {quickShown && (
             <div className="flex flex-wrap gap-2 px-4 pb-3">
-              {Object.keys(QUICK_REPLIES).map(k => (
+              {quickReplies.map(reply => (
                 <button
-                  key={k}
-                  onClick={() => handleQuick(k)}
+                  key={reply.label}
+                  onClick={() => handleQuick(reply.label)}
                   className="px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
                   style={{ border: '1px solid #E07A2F', color: '#E07A2F', background: 'transparent' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#E07A2F'; e.currentTarget.style.color = '#fff' }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#E07A2F' }}
                 >
-                  {k}
+                  {reply.label}
                 </button>
               ))}
             </div>
@@ -142,7 +193,7 @@ export default function ChatBot() {
             <input
               className="flex-1 rounded-lg px-3 py-2 text-[13px] outline-none transition-all"
               style={{ border: '1.5px solid #E5DDD4', background: '#fff', color: '#1C110A' }}
-              placeholder="Votre message…"
+              placeholder={text.placeholder}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
@@ -155,7 +206,7 @@ export default function ChatBot() {
               style={{ background: '#E07A2F', color: '#fff' }}
               onMouseEnter={e => (e.currentTarget.style.background = '#B85E18')}
               onMouseLeave={e => (e.currentTarget.style.background = '#E07A2F')}
-              aria-label="Envoyer"
+              aria-label={text.sendLabel}
             >
               <Send size={15} />
             </button>
@@ -168,7 +219,7 @@ export default function ChatBot() {
         onClick={() => setOpen(v => !v)}
         className="w-[58px] h-[58px] rounded-full flex items-center justify-center transition-transform hover:scale-110 relative"
         style={{ background: '#E07A2F', boxShadow: '0 8px 28px rgba(224,122,47,.45)', color: '#fff' }}
-        aria-label="Chat"
+        aria-label={text.openLabel}
       >
         {open ? <X size={22} /> : <MessageCircle size={24} />}
         {!open && (

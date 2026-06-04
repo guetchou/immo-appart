@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getCatalogueConfig, getFooterConfig, getNavigation, strapiRequest } from '@/lib/strapi'
+import { getCatalogueConfig, getChatConfig, getFooterConfig, getNavigation, strapiRequest } from '@/lib/strapi'
 import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 import CatalogueClient from './CatalogueClient'
@@ -32,11 +32,12 @@ export default async function AppartementsPage({
   searchParams: Promise<Record<string, string>>
 }) {
   const params = await searchParams
-  const [{ data: appartements }, navigation, footerConfig, catalogueConfig] = await Promise.all([
+  const [{ data: appartements }, navigation, footerConfig, catalogueConfig, chatConfig] = await Promise.all([
     getAppartementsAll(),
     getNavigation(),
     getFooterConfig(),
     getCatalogueConfig(),
+    getChatConfig(),
   ])
   return (
     <CatalogueClient
@@ -48,6 +49,7 @@ export default async function AppartementsPage({
       initDepart={params.depart ?? ''}
       initPers={params.pers ? Number(params.pers) : 1}
       catalogueConfig={catalogueConfig}
+      chatConfig={chatConfig}
     />
   )
 }
