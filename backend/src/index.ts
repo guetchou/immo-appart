@@ -160,5 +160,6 @@ export default {
     await seedSingle(strapi, "api::page-a-propos.page-a-propos", {})
     await seedSingle(strapi, "api::page-paiement.page-paiement", {})
     await seedSingle(strapi, "api::page-reglement.page-reglement", {})
+    await seedSingle(strapi, "api::site-config.site-config", {})
   },
 };

@@ -93,6 +93,15 @@ export async function getReseauxSociaux() {
   } catch { return null }
 }
 
+export async function getSiteConfig() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/site-config', { revalidate: 60, tags: ['site-config'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 export async function getPageAPropos() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(

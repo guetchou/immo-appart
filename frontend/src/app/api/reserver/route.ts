@@ -7,6 +7,16 @@ const RESEND_KEY  = process.env.RESEND_API_KEY ?? ''
 const FROM_EMAIL  = process.env.FROM_EMAIL ?? 'reservations@residencendombi.cg'
 const OWNER_EMAIL = process.env.OWNER_EMAIL ?? 'residencendombi@gmail.com'
 
+type SiteConfig = {
+  nom_site?: string
+  adresse?: string
+  telephone_principal?: string
+  whatsapp_principal?: string
+  email_reservations?: string
+  email_expediteur?: string
+  delai_confirmation?: string
+}
+
 function genRef(): string {
   return `RES-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000) + 10000}`
 }
@@ -25,15 +35,33 @@ function esc(s: unknown): string {
     .replace(/'/g,  '&#39;')
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
+async function sendEmail(to: string, subject: string, html: string, from = FROM_EMAIL) {
   if (!RESEND_KEY) return // Pas de clé → on saute silencieusement
   try {
     await fetch('https://api.resend.com/emails', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_KEY}` },
-      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html }),
+      body: JSON.stringify({ from, to, subject, html }),
     })
   } catch { /* ne pas bloquer la réservation si l'email échoue */ }
+}
+
+async function getSiteConfig(): Promise<SiteConfig> {
+  try {
+    const res = await fetch(`${STRAPI}/api/site-config`, {
+      headers: { Authorization: `Bearer ${TOKEN}` },
+      cache: 'no-store',
+    })
+    if (!res.ok) return {}
+    const json = await readJsonResponse<{ data?: SiteConfig }>(res, 'Strapi site-config')
+    return json.data ?? {}
+  } catch {
+    return {}
+  }
+}
+
+function whatsappDigits(value: string) {
+  return value.replace(/\D/g, '').slice(0, 15)
 }
 
 export async function POST(req: NextRequest) {
@@ -105,8 +133,16 @@ export async function POST(req: NextRequest) {
   const totalFormate = Number(prix_total).toLocaleString('fr-FR')
   const arrFormate   = fmtDate(String(arrivee))
   const depFormate   = fmtDate(String(depart))
+  const siteConfig = await getSiteConfig()
+  const siteName = siteConfig.nom_site || 'Résidence NDOMBI'
+  const siteAddress = siteConfig.adresse || 'Foucks, Pointe-Noire, République du Congo'
+  const sitePhone = siteConfig.telephone_principal || '+242 06 435 90 90'
+  const siteWhatsapp = siteConfig.whatsapp_principal || sitePhone
+  const confirmDelay = siteConfig.delai_confirmation || '30 minutes'
+  const ownerEmail = siteConfig.email_reservations || OWNER_EMAIL
+  const fromEmail = process.env.FROM_EMAIL ?? siteConfig.email_expediteur ?? 'reservations@residencendombi.cg'
   // Numéro de téléphone pour href whatsapp — chiffres uniquement, longueur vérifiée
-  const telDigits = String(telephone).replace(/\D/g, '').slice(0, 15)
+  const telDigits = whatsappDigits(String(telephone))
 
   // ── Email client ─────────────────────────────────
   await sendEmail(
@@ -115,12 +151,12 @@ export async function POST(req: NextRequest) {
     `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E5DDD4">
       <div style="background:#1A0E06;padding:24px 28px">
-        <div style="font-size:20px;font-weight:900;color:#fff">Résidence NDOMBI</div>
+        <div style="font-size:20px;font-weight:900;color:#fff">${esc(siteName)}</div>
         <div style="font-size:12px;color:#F09A55;margin-top:2px">Votre réservation a bien été reçue</div>
       </div>
       <div style="padding:28px">
         <h2 style="font-size:18px;margin:0 0 16px;color:#1A0E06">Bonjour ${ePrenom},</h2>
-        <p style="color:#7A6550;margin-bottom:20px">Votre demande de réservation a été enregistrée. Notre équipe vous contactera sous <strong>30 minutes</strong> pour confirmer.</p>
+        <p style="color:#7A6550;margin-bottom:20px">Votre demande de réservation a été enregistrée. Notre équipe vous contactera sous <strong>${esc(confirmDelay)}</strong> pour confirmer.</p>
         <div style="background:#FBF8F4;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #E5DDD4">
           <div style="font-size:13px;color:#7A6550;margin-bottom:4px">Référence</div>
           <div style="font-size:18px;font-weight:900;color:#E07A2F;letter-spacing:0.5px">${eRef}</div>
@@ -144,15 +180,16 @@ export async function POST(req: NextRequest) {
         </div>
       </div>
       <div style="background:#F3EFE9;padding:16px 28px;font-size:12px;color:#7A6550;text-align:center">
-        Résidence NDOMBI · Foucks, Pointe-Noire, République du Congo · +242 06 435 90 90
+        ${esc(siteName)} · ${esc(siteAddress)} · ${esc(sitePhone)}
       </div>
     </div>
-    `
+    `,
+    fromEmail
   )
 
   // ── Email propriétaire ────────────────────────────
   await sendEmail(
-    OWNER_EMAIL,
+    ownerEmail,
     `[NOUVELLE RÉSERVATION] ${reference} — ${String(prenom)} ${String(nom)}`,
     `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #E5DDD4">
@@ -186,7 +223,8 @@ export async function POST(req: NextRequest) {
         </div>
       </div>
     </div>
-    `
+    `,
+    fromEmail
   )
 
   // Lien WhatsApp pré-rempli
@@ -195,7 +233,7 @@ export async function POST(req: NextRequest) {
     `${aptNom} · Arrivée : ${arrivee} | Départ : ${depart} | ${nb_nuits} nuit(s)\n` +
     `Total : ${totalFormate} XAF | Paiement : ${mode_paiement}`
   )
-  const whatsappUrl = `https://wa.me/242064359090?text=${msg}`
+  const whatsappUrl = `https://wa.me/${whatsappDigits(siteWhatsapp)}?text=${msg}`
 
   return NextResponse.json({ reference, documentId: data.data?.documentId, whatsappUrl })
 }
