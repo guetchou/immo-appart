@@ -19,18 +19,19 @@ Statut : tranche en cours.
 
 ## Priorite 2 - Catalogue et detail logement
 
-Statut : a traiter ensuite.
+Statut : catalogue traite, detail logement restant.
 
-- Labels de filtres catalogue : certains restent fixes dans le frontend.
-- Titre et sous-titre catalogue : partiellement hardcodes.
-- Messages empty state et CTA : fixes.
+- Labels de filtres catalogue : migres vers `catalogue-config`.
+- Titre et sous-titre catalogue : migres vers `catalogue-config`.
+- Messages empty state et CTA catalogue : migres vers `catalogue-config`.
 - Blocs de reassurance sur fiche appartement : fixes.
 
 Decision probable :
 
-- Creer un single type `catalogue-config`.
+- `catalogue-config` existe pour les textes, filtres rapides et tris.
 - Garder la logique de filtrage dans Next.js.
-- Relier les filtres aux types de logement administrables quand c'est possible.
+- Relier davantage les filtres aux types de logement administrables si le proprietaire veut supprimer totalement les slugs legacy.
+- Traiter les blocs de reassurance de la fiche appartement dans une tranche separee.
 
 ## Priorite 3 - ChatBot
 

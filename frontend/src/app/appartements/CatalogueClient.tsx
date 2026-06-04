@@ -27,6 +27,8 @@ type Apt = {
 }
 
 type ModalApt = { name: string; loc: string; price: number; img: string; documentId?: string } | null
+type TypeChip = { label: string; types: string[] }
+type SortOption = { value: string; label: string }
 
 const TYPE_CHIPS = [
   { label: 'Tous',       types: [] },
@@ -45,10 +47,73 @@ const SORTS = [
   { value: 'nouveau',  label: 'Nouveautés' },
 ]
 
+const ALLOWED_SORT_VALUES = new Set(SORTS.map(sort => sort.value))
+
+type CatalogueConfig = {
+  surtitre?: string
+  titre?: string
+  sous_titre?: string
+  recherche_placeholder?: string
+  filtres_label?: string
+  effacer_label?: string
+  resultat_singulier?: string
+  resultat_pluriel?: string
+  budget_label?: string
+  prix_min_placeholder?: string
+  prix_max_placeholder?: string
+  dates_label?: string
+  voyageurs_label?: string
+  empty_titre_aucun_bien?: string
+  empty_texte_aucun_bien?: string
+  empty_titre_aucun_resultat?: string
+  empty_texte_aucun_resultat?: string
+  empty_cta?: string
+  badge_en_vedette?: string
+  badge_nouveau?: string
+  detail_cta?: string
+  reserver_cta?: string
+  chips_type?: unknown
+  tris?: unknown
+}
+
 function imgUrl(apt: Apt) {
   const url = apt.image_principale?.url
   if (!url) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&h=300&fit=crop'
   return toStrapiPublicUrl(url) ?? url
+}
+
+function normalizeTypeChips(value: unknown): TypeChip[] {
+  if (!Array.isArray(value)) return TYPE_CHIPS
+  const chips = value
+    .map(item => {
+      if (!item || typeof item !== 'object') return null
+      const candidate = item as { label?: unknown; types?: unknown }
+      if (typeof candidate.label !== 'string') return null
+      return {
+        label: candidate.label,
+        types: Array.isArray(candidate.types)
+          ? candidate.types.filter((type): type is string => typeof type === 'string')
+          : [],
+      }
+    })
+    .filter((chip): chip is TypeChip => Boolean(chip))
+
+  return chips.length ? chips : TYPE_CHIPS
+}
+
+function normalizeSorts(value: unknown): SortOption[] {
+  if (!Array.isArray(value)) return SORTS
+  const sorts = value
+    .map(item => {
+      if (!item || typeof item !== 'object') return null
+      const candidate = item as { value?: unknown; label?: unknown }
+      if (typeof candidate.value !== 'string' || typeof candidate.label !== 'string') return null
+      if (!ALLOWED_SORT_VALUES.has(candidate.value)) return null
+      return { value: candidate.value, label: candidate.label }
+    })
+    .filter((sort): sort is SortOption => Boolean(sort))
+
+  return sorts.length ? sorts : SORTS
 }
 
 type Props = {
@@ -59,11 +124,14 @@ type Props = {
   initArrivee?:  string
   initDepart?:   string
   initPers?:     number
+  catalogueConfig?: CatalogueConfig | null
 }
 
 export default function CatalogueClient({
-  navProps, footerProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1,
+  navProps, footerProps, appartements, initSearch = '', initArrivee = '', initDepart = '', initPers = 1, catalogueConfig = null,
 }: Props) {
+  const typeChips = useMemo(() => normalizeTypeChips(catalogueConfig?.chips_type), [catalogueConfig?.chips_type])
+  const sortOptions = useMemo(() => normalizeSorts(catalogueConfig?.tris), [catalogueConfig?.tris])
   const [search,    setSearch]    = useState(initSearch)
   const [chipIdx,   setChipIdx]   = useState(0)
   const [sort,      setSort]      = useState('ordre')
@@ -75,6 +143,30 @@ export default function CatalogueClient({
   const [showAdv,   setShowAdv]   = useState(false)
   const [favs,      setFavs]      = useState<Set<string>>(new Set())
   const [modal,     setModal]     = useState<ModalApt>(null)
+  const text = {
+    surtitre: catalogueConfig?.surtitre ?? 'Nos résidences',
+    titre: catalogueConfig?.titre ?? 'Appartements disponibles',
+    sousTitre: catalogueConfig?.sous_titre ?? 'Foucks & environs · Pointe-Noire, République du Congo',
+    recherchePlaceholder: catalogueConfig?.recherche_placeholder ?? 'Quartier, nom…',
+    filtresLabel: catalogueConfig?.filtres_label ?? 'Filtres',
+    effacerLabel: catalogueConfig?.effacer_label ?? 'Effacer',
+    resultatSingulier: catalogueConfig?.resultat_singulier ?? 'résidence',
+    resultatPluriel: catalogueConfig?.resultat_pluriel ?? 'résidences',
+    budgetLabel: catalogueConfig?.budget_label ?? 'Budget / nuit (XAF)',
+    prixMinPlaceholder: catalogueConfig?.prix_min_placeholder ?? 'Min',
+    prixMaxPlaceholder: catalogueConfig?.prix_max_placeholder ?? 'Max',
+    datesLabel: catalogueConfig?.dates_label ?? 'Dates de séjour',
+    voyageursLabel: catalogueConfig?.voyageurs_label ?? 'Voyageurs',
+    emptyTitreAucunBien: catalogueConfig?.empty_titre_aucun_bien ?? 'Aucun appartement disponible pour le moment',
+    emptyTexteAucunBien: catalogueConfig?.empty_texte_aucun_bien ?? 'Revenez bientôt — nos résidences seront publiées prochainement.',
+    emptyTitreAucunResultat: catalogueConfig?.empty_titre_aucun_resultat ?? 'Aucun résultat',
+    emptyTexteAucunResultat: catalogueConfig?.empty_texte_aucun_resultat ?? 'Modifiez vos critères pour voir plus de résidences.',
+    emptyCta: catalogueConfig?.empty_cta ?? 'Effacer les filtres',
+    badgeEnVedette: catalogueConfig?.badge_en_vedette ?? 'En vedette',
+    badgeNouveau: catalogueConfig?.badge_nouveau ?? 'Nouveau',
+    detailCta: catalogueConfig?.detail_cta ?? 'Détail',
+    reserverCta: catalogueConfig?.reserver_cta ?? 'Réserver',
+  }
 
   // Charger les favoris depuis localStorage
   useEffect(() => {
@@ -98,7 +190,7 @@ export default function CatalogueClient({
 
   // Filtrage + tri
   const filtered = useMemo(() => {
-    const chip  = TYPE_CHIPS[chipIdx]
+    const chip  = typeChips[chipIdx] ?? typeChips[0] ?? TYPE_CHIPS[0]
     const minP  = prixMin ? Number(prixMin) : 0
     const maxP  = prixMax ? Number(prixMax) : Infinity
 
@@ -118,7 +210,7 @@ export default function CatalogueClient({
       case 'nouveau':   result = [...result].sort((a,b) => (b.nouveau ? 1 : 0) - (a.nouveau ? 1 : 0)); break
     }
     return result
-  }, [appartements, chipIdx, search, sort, prixMin, prixMax, pers])
+  }, [appartements, chipIdx, search, sort, prixMin, prixMax, pers, typeChips])
 
   const hasActiveFilters = search || prixMin || prixMax || chipIdx !== 0 || pers > 1 || arrivee || depart
 
@@ -137,11 +229,11 @@ export default function CatalogueClient({
         {/* ── Header ── */}
         <div className="py-12 px-8" style={{ background:'#FBF8F4', borderBottom:'1px solid #E5DDD4' }}>
           <div className="max-w-[1240px] mx-auto">
-            <div className="text-[11px] font-bold tracking-[2px] uppercase text-[#7A6550] mb-2">Nos résidences</div>
+            <div className="text-[11px] font-bold tracking-[2px] uppercase text-[#7A6550] mb-2">{text.surtitre}</div>
             <h1 className="font-black text-[#1A0E06] mb-1" style={{ fontSize:'clamp(28px,4vw,42px)', fontFamily:'var(--font-heading)' }}>
-              Appartements disponibles
+              {text.titre}
             </h1>
-            <p className="text-[#7A6550]">Foucks & environs · Pointe-Noire, République du Congo</p>
+            <p className="text-[#7A6550]">{text.sousTitre}</p>
 
             {/* Dates & pers si venant du hero search */}
             {(arrivee || depart || pers > 1) && (
@@ -176,7 +268,7 @@ export default function CatalogueClient({
             {/* Recherche texte */}
             <div className="relative min-w-[200px] max-w-[280px] flex-1">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7A6550]" />
-              <input type="text" placeholder="Quartier, nom…" value={search}
+              <input type="text" placeholder={text.recherchePlaceholder} value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 rounded-lg text-[13px] outline-none"
                 style={{ border:'1.5px solid #E5DDD4', background:'#FBF8F4' }}
@@ -186,7 +278,7 @@ export default function CatalogueClient({
 
             {/* Chips type */}
             <div className="flex gap-1.5 flex-wrap">
-              {TYPE_CHIPS.map((c, i) => (
+              {typeChips.map((c, i) => (
                 <button key={c.label} onClick={() => setChipIdx(i)}
                   className="px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
                   style={{ fontFamily:'var(--font-heading)', background:chipIdx===i?'#E07A2F':'transparent', color:chipIdx===i?'#fff':'#7A6550', border:`1.5px solid ${chipIdx===i?'#E07A2F':'#E5DDD4'}` }}>
@@ -201,7 +293,7 @@ export default function CatalogueClient({
               <select value={sort} onChange={e => setSort(e.target.value)}
                 className="rounded-lg px-2 py-1.5 text-[12px] font-semibold outline-none"
                 style={{ border:'1.5px solid #E5DDD4', color:'#7A6550', background:'#fff' }}>
-                {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
 
@@ -209,7 +301,7 @@ export default function CatalogueClient({
             <button onClick={() => setShowAdv(v => !v)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
               style={{ border:`1.5px solid ${showAdv?'#E07A2F':'#E5DDD4'}`, color:showAdv?'#E07A2F':'#7A6550', background:showAdv?'#FEF0E6':'#fff' }}>
-              <SlidersHorizontal size={13} /> Filtres
+              <SlidersHorizontal size={13} /> {text.filtresLabel}
             </button>
 
             {/* Effacer tout */}
@@ -217,12 +309,12 @@ export default function CatalogueClient({
               <button onClick={clearAll}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
                 style={{ border:'1.5px solid #FCA5A5', color:'#B91C1C', background:'#FEE2E2' }}>
-                <X size={12} /> Effacer
+                <X size={12} /> {text.effacerLabel}
               </button>
             )}
 
             <div className="ml-auto text-[13px] text-[#7A6550]">
-              <strong className="text-[#1A0E06]">{filtered.length}</strong> résidence{filtered.length !== 1 ? 's' : ''}
+              <strong className="text-[#1A0E06]">{filtered.length}</strong> {filtered.length === 1 ? text.resultatSingulier : text.resultatPluriel}
             </div>
           </div>
 
@@ -232,15 +324,15 @@ export default function CatalogueClient({
               <div className="max-w-[1240px] mx-auto px-8 py-4 flex items-end gap-6 flex-wrap">
                 {/* Prix min/max */}
                 <div>
-                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">Budget / nuit (XAF)</div>
+                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">{text.budgetLabel}</div>
                   <div className="flex items-center gap-2">
-                    <input type="number" placeholder="Min" value={prixMin} onChange={e => setPrixMin(e.target.value)}
+                    <input type="number" placeholder={text.prixMinPlaceholder} value={prixMin} onChange={e => setPrixMin(e.target.value)}
                       className="w-[100px] px-3 py-2 rounded-lg text-[13px] outline-none"
                       style={{ border:'1.5px solid #E5DDD4' }}
                       onFocus={e => (e.target.style.borderColor='#E07A2F')}
                       onBlur={e => (e.target.style.borderColor='#E5DDD4')} />
                     <span className="text-[#7A6550] text-[13px]">—</span>
-                    <input type="number" placeholder="Max" value={prixMax} onChange={e => setPrixMax(e.target.value)}
+                    <input type="number" placeholder={text.prixMaxPlaceholder} value={prixMax} onChange={e => setPrixMax(e.target.value)}
                       className="w-[100px] px-3 py-2 rounded-lg text-[13px] outline-none"
                       style={{ border:'1.5px solid #E5DDD4' }}
                       onFocus={e => (e.target.style.borderColor='#E07A2F')}
@@ -250,7 +342,7 @@ export default function CatalogueClient({
 
                 {/* Dates */}
                 <div>
-                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">Dates de séjour</div>
+                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">{text.datesLabel}</div>
                   <div className="flex items-center gap-2">
                     <input type="date" value={arrivee} min={today} onChange={e => { setArrivee(e.target.value); if (depart && e.target.value >= depart) setDepart('') }}
                       className="px-3 py-2 rounded-lg text-[13px] outline-none"
@@ -268,7 +360,7 @@ export default function CatalogueClient({
 
                 {/* Voyageurs */}
                 <div>
-                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">Voyageurs</div>
+                  <div className="text-[11px] font-bold text-[#7A6550] uppercase tracking-wide mb-2">{text.voyageursLabel}</div>
                   <select value={pers} onChange={e => setPers(Number(e.target.value))}
                     className="px-3 py-2 rounded-lg text-[13px] outline-none"
                     style={{ border:'1.5px solid #E5DDD4' }}>
@@ -288,18 +380,18 @@ export default function CatalogueClient({
                 <SlidersHorizontal size={28} className="text-[#7A6550]" />
               </div>
               <p className="font-bold text-[#1A0E06] text-[16px] mb-1" style={{ fontFamily:'var(--font-heading)' }}>
-                {appartements.length === 0 ? 'Aucun appartement disponible pour le moment' : 'Aucun résultat'}
+                {appartements.length === 0 ? text.emptyTitreAucunBien : text.emptyTitreAucunResultat}
               </p>
               <p className="text-[#7A6550] text-[14px] mb-5">
                 {appartements.length === 0
-                  ? 'Revenez bientôt — nos résidences seront publiées prochainement.'
-                  : 'Modifiez vos critères pour voir plus de résidences.'}
+                  ? text.emptyTexteAucunBien
+                  : text.emptyTexteAucunResultat}
               </p>
               {hasActiveFilters && (
                 <button onClick={clearAll}
                   className="px-5 py-2.5 rounded-lg text-[13px] font-bold text-white"
                   style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}>
-                  Effacer les filtres
+                  {text.emptyCta}
                 </button>
               )}
             </div>
@@ -307,8 +399,8 @@ export default function CatalogueClient({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(apt => {
                 const isFav = favs.has(apt.documentId)
-                const badge = apt.en_vedette ? { l:'En vedette', bg:'#FEF0E6', c:'#E07A2F' }
-                            : apt.nouveau    ? { l:'Nouveau',    bg:'#DCFCE7', c:'#16A34A' } : null
+                const badge = apt.en_vedette ? { l:text.badgeEnVedette, bg:'#FEF0E6', c:'#E07A2F' }
+                            : apt.nouveau    ? { l:text.badgeNouveau,    bg:'#DCFCE7', c:'#16A34A' } : null
                 return (
                   <article key={apt.documentId}
                     className="rounded-2xl overflow-hidden bg-white group transition-all"
@@ -378,14 +470,14 @@ export default function CatalogueClient({
                             style={{ border:'1.5px solid #E5DDD4', color:'#7A6550', fontFamily:'var(--font-heading)' }}
                             onMouseEnter={e => (e.currentTarget.style.borderColor='#E07A2F')}
                             onMouseLeave={e => (e.currentTarget.style.borderColor='#E5DDD4')}>
-                            Détail
+                            {text.detailCta}
                           </Link>
                           <button onClick={() => openModal(apt)}
                             className="px-3 py-2 rounded-lg text-[12px] font-bold text-white transition-all"
                             style={{ background:'#E07A2F', fontFamily:'var(--font-heading)' }}
                             onMouseEnter={e => (e.currentTarget.style.background='#B85E18')}
                             onMouseLeave={e => (e.currentTarget.style.background='#E07A2F')}>
-                            Réserver
+                            {text.reserverCta}
                           </button>
                         </div>
                       </div>

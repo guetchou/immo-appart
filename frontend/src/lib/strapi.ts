@@ -102,6 +102,15 @@ export async function getSiteConfig() {
   } catch { return null }
 }
 
+export async function getCatalogueConfig() {
+  try {
+    const r = await strapiRequest<{ data: Record<string, unknown> }>(
+      '/catalogue-config', { revalidate: 60, tags: ['catalogue-config'] }
+    )
+    return r.data
+  } catch { return null }
+}
+
 export async function getPageAPropos() {
   try {
     const r = await strapiRequest<{ data: Record<string, unknown> }>(

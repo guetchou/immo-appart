@@ -1,12 +1,15 @@
 import { Metadata } from 'next'
-import { getFooterConfig, getNavigation, strapiRequest } from '@/lib/strapi'
+import { getCatalogueConfig, getFooterConfig, getNavigation, strapiRequest } from '@/lib/strapi'
 import { mapFooterProps } from '@/lib/footer-props'
 import { mapNavbarProps } from '@/lib/navbar-props'
 import CatalogueClient from './CatalogueClient'
 
-export const metadata: Metadata = {
-  title: 'Appartements disponibles',
-  description: 'Découvrez notre sélection de résidences de luxe à Pointe-Noire — studios, T2/T3, penthouses et villas.',
+export async function generateMetadata(): Promise<Metadata> {
+  const catalogueConfig = await getCatalogueConfig()
+  return {
+    title: (catalogueConfig?.meta_titre as string | undefined) ?? 'Appartements disponibles',
+    description: (catalogueConfig?.meta_description as string | undefined) ?? 'Découvrez notre sélection de résidences de luxe à Pointe-Noire — studios, T2/T3, penthouses et villas.',
+  }
 }
 
 export const revalidate = 30
@@ -29,10 +32,11 @@ export default async function AppartementsPage({
   searchParams: Promise<Record<string, string>>
 }) {
   const params = await searchParams
-  const [{ data: appartements }, navigation, footerConfig] = await Promise.all([
+  const [{ data: appartements }, navigation, footerConfig, catalogueConfig] = await Promise.all([
     getAppartementsAll(),
     getNavigation(),
     getFooterConfig(),
+    getCatalogueConfig(),
   ])
   return (
     <CatalogueClient
@@ -43,6 +47,7 @@ export default async function AppartementsPage({
       initArrivee={params.arrivee ?? ''}
       initDepart={params.depart ?? ''}
       initPers={params.pers ? Number(params.pers) : 1}
+      catalogueConfig={catalogueConfig}
     />
   )
 }
